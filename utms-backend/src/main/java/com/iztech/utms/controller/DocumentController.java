@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.controller;
+package com.iztech.utms.controller;
 
 import com.iztech.utms.service.FileStorageService;
 import lombok.RequiredArgsConstructor;

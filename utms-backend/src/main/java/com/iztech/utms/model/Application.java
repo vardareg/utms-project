@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.model;
+package com.iztech.utms.model;
 
 import com.iztech.utms.model.UniversityStructure.Department;
 import jakarta.persistence.*;

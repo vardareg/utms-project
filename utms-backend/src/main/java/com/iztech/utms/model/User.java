@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.model;
+package com.iztech.utms.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

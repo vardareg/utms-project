@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.dto;
+package com.iztech.utms.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

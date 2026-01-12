@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.security;
+package com.iztech.utms.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.security;
+package com.iztech.utms.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

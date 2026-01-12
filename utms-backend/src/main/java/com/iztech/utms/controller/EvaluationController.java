@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.controller;
+package com.iztech.utms.controller;
 
 import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.service.ApplicationService; // For fetching list

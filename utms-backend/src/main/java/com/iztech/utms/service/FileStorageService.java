@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.service;
+package com.iztech.utms.service;
 
 import com.iztech.utms.model.Application;
 import com.iztech.utms.model.Document;

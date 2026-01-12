@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms;
+package com.iztech.utms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.repository;
+package com.iztech.utms.repository;
 
 import com.iztech.utms.model.Evaluation;
 import org.springframework.data.jpa.repository.JpaRepository;

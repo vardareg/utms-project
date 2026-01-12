@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.controller;
+package com.iztech.utms.controller;
 
 import com.iztech.utms.model.User;
 import com.iztech.utms.repository.UserRepository;

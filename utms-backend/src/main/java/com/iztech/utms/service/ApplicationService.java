@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.service;
+package com.iztech.utms.service;
 
 // ... existing imports ...
 // This file updates the mapToResponse method in the existing Service to populate documents.

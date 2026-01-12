@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.security;
+package com.iztech.utms.security;
 
 import com.iztech.utms.model.User;
 import com.iztech.utms.repository.UserRepository;

@@ -1,4 +1,4 @@
-package main.java.com.iztech.utms.controller;
+package com.iztech.utms.controller;
 
 import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.model.Application.ApplicationStatus;
@@ -41,7 +41,7 @@ public class ApplicationController {
     // WP-4 ADDITION: OIDB View Incoming
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('OIDB', 'DEAN', 'YGK')")
-    public ResponseEntity<List<ApplicationDTO.Response>> getApplicationsByStatus(@PathVariable String status) {
+    public ResponseEntity<?> getApplicationsByStatus(@PathVariable String status) {
         try {
             ApplicationStatus appStatus = ApplicationStatus.valueOf(status.toUpperCase());
             return ResponseEntity.ok(applicationService.getApplicationsByStatus(appStatus));
