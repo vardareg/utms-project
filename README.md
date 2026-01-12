@@ -9,6 +9,7 @@
 The **Undergraduate Transfer Management System (UTMS)** is a web-based platform designed to automate the undergraduate transfer (yatay geçiş) workflow at IZTECH. It replaces manual processes with a secure, centralized digital system connecting Students, Student Affairs (ÖİDB), Deans, and Transfer Commissions (YGK).
 
 ### Key Capabilities
+
 - **Students**: Submit applications, upload documents, track status.
 - **ÖİDB**: Validate documents, forward to faculties, return incomplete applications.
 - **YGK**: Evaluate academic eligibility, view auto-generated rankings based on Composite Scores.
@@ -25,98 +26,124 @@ The system follows a 3-Layer Monolithic Architecture as defined in the Software 
 ## 3. Prerequisites
 
 Ensure you have the following installed:
+
 - Java Development Kit (JDK) 17 or higher.
 - Node.js (v18+) and npm.
 - Maven (v3.8+).
-- PostgreSQL (Optional for local dev; the current configuration uses H2 In-Memory or expects a local Postgres instance).
+- PostgreSQL (Optional; creating `application.properties` allows switching between H2 In-Memory and Postgres).
 - Bash Terminal (Linux/Mac) or Git Bash (Windows).
 
 ## 4. Installation & Setup
 
 ### Step 1: Initialize Workspace
+
 We provide an automated script to create the standard directory structure.
+
 1. Save the `setup_utms_structure.sh` script to your desired location.
 2. Run the script:
+
    ```bash
    chmod +x setup_utms_structure.sh
    ./setup_utms_structure.sh
    ```
+
    This creates the `utms-project` folder containing `utms-backend` and `utms-frontend`.
 
 ### Step 2: Populate Code
+
 The script creates empty files. You must populate them with the code generated in the development phases (WP-2 to WP-5).
+*Note: The current repository state has all necessary code pre-populated.*
 
-**Backend Mappings** (`utms-backend/src/main/java/com/iztech/utms/...`):
-- **Model**: `User.java`, `Application.java`, `Document.java`, `Evaluation.java`, `StudentProfile.java`, `UniversityStructure.java`.
-- **Repository**: `CoreRepositories.java`, `ApplicationRepository.java`, `EvaluationRepository.java`, etc.
-- **Service**: `ApplicationService.java`, `FileStorageService.java`, `EvaluationService.java`.
-- **Controller**: `AuthController.java`, `ApplicationController.java`, `DocumentController.java`, `EvaluationController.java`.
-- **Security**: `JwtUtils.java`, `SecurityConfig.java`, `AuthTokenFilter.java`, `UserDetailsServiceImpl.java`.
+**Backend Configuration**:
+The system uses an **H2 In-Memory Database** by default for ease of development. Configuration is found in `src/main/resources/application.properties`.
 
-**Resources** (`utms-backend/src/main/resources/`):
-- `schema.sql` (Database DDL)
-- `data.sql` (Seed Data)
-
-**Frontend** (`utms-frontend/src/`):
-- `App.jsx` (Contains the full UI logic: Login, Student Dashboard, ÖİDB Dashboard, YGK Dashboard).
+**Frontend Configuration**:
+The frontend is a **Vite + React** app styled with **Tailwind CSS**.
 
 ## 5. Running the Application
 
 ### Backend (Spring Boot)
+
 1. Navigate to the backend directory:
+
    ```bash
    cd utms-project/utms-backend
    ```
+
 2. Run the application using Maven:
+
    ```bash
-   mvn spring-boot:run
+   mvn clean spring-boot:run
    ```
+
    Server will start on `http://localhost:8080`.
 
 ### Frontend (React)
+
 1. Navigate to the frontend directory:
+
    ```bash
    cd utms-project/utms-frontend
    ```
-2. Install dependencies:
+
+2. Install dependencies (including Tailwind CSS):
+
    ```bash
-   npm install react react-dom lucide-react
+   npm install
    ```
+
 3. Start the development server:
+
    ```bash
    npm run dev
    ```
-   Client will start on `http://localhost:5173` (or similar).
 
-## 6. Usage Guide (Roles & Credentials)
+   Client will start on `http://localhost:5173`.
 
-The system is pre-seeded with data (via `data.sql`). You can use the following flows to test the Work Packages:
+## 6. Quick Start Credentials
+
+See `credentials.txt` for a full list. All accounts use **Password:** `password123`.
+
+| Role | Username |
+| :--- | :--- |
+| **Student** | `student` |
+| **Student Affairs (ÖİDB)** | `oidb` |
+| **Transfer Commission (YGK)** | `ygk` |
+| **Admin** | `admin` |
+
+## 7. Usage Guide (Flows)
+
+The system is pre-seeded with data (via `data.sql`).
 
 ### 1. Student Flow (WP-3)
-- **Login**: Register or use a seeded student user (if configured).
+
+- **Login**: Use `student`.
 - **Action**: Click "New Application", select Department, enter YKS Score, Upload PDF.
 - **Outcome**: Status becomes `NEW`.
 
 ### 2. ÖİDB Officer Flow (WP-4)
-- **Login**: Use an account with `ROLE_OIDB`.
+
+- **Login**: Use `oidb`.
 - **Action**: View "Pending Evaluations", Download Documents to verify.
 - **Outcome**: Click "Forward" -> Status becomes `FORWARDED`.
 
 ### 3. YGK Member Flow (WP-5)
-- **Login**: Use an account with `ROLE_YGK`.
+
+- **Login**: Use `ygk`.
 - **Action**: View "Evaluations", click "Evaluate", mark "Eligible".
 - **Outcome**: Status becomes `UNDER_REVIEW`.
 - **Ranking**: Click "Ranking List" to see the auto-generated Primary/Waitlist.
 
-## 7. API Documentation
+## 8. API Documentation
 
 For detailed API endpoints, request/response formats, and business rules logic, refer to the `manual.md` file (formerly `API_DOCUMENTATION.md`) included in the delivery package.
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
-- **Database Errors**: Ensure `schema.sql` matches the Entity classes exactly. If using H2, the console is at `/h2-console`.
-- **CORS Issues**: If Frontend cannot talk to Backend, ensure `@CrossOrigin` is present on Controllers and SecurityConfig permits the frontend origin.
-- **File Upload**: Ensure the `uploads` directory exists in the backend root (the script creates this automatically).
+- **Login Fails (403/401)**: Ensure the backend is running. If recently restarted, the in-memory H2 database resets; ensure you are using the seeded credentials.
+- **Database Errors**: The system uses `application.properties` to configure H2. Ensure `schema.sql` (if present) does not conflict with Hibernate's `ddl-auto` setting. Currently, `schema.sql.bak` is disabled to allow Hibernate to manage the schema.
+- **CORS Issues**: The `SecurityConfig.java` is configured to allow requests from `localhost:5173`.
+- **Styling Missing**: Ensure you ran `npm install` to download Tailwind dependencies and `npm run dev` to compile the styles.
 
 ---
 © 2026 IZTECH Team 3
