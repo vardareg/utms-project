@@ -47,16 +47,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable()) // Disable CSRF for REST APIs
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // SEC-02: Stateless JWT
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Public Login/Register
-                .requestMatchers("/api/public/**").permitAll() // Public Announcements
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // RBAC
-                .requestMatchers("/api/student/**").hasRole("STUDENT")
-                .requestMatchers("/api/oidb/**").hasRole("OIDB")
-                .anyRequest().authenticated()
-            );
+        http.csrf(csrf -> csrf.disable())
+                .cors(org.springframework.security.config.Customizer.withDefaults()) // Enable CORS
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/student/**").hasRole("STUDENT")
+                        .requestMatchers("/api/oidb/**").hasRole("OIDB")
+                        .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
