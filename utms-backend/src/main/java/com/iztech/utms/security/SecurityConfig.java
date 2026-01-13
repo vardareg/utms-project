@@ -60,8 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/student/**").hasRole("STUDENT")
-                        .requestMatchers("/api/oidb/**").hasRole("OIDB")
+                        // .requestMatchers("/api/oidb/**").hasRole("OIDB") // Let method security
+                        // handle specifics
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());

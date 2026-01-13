@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, CheckCircle, XCircle, ArrowRight, Download, FileText, X } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, ArrowRight, Download, FileText, X, Bell } from 'lucide-react';
 import { apiFetch, API_URL } from '../services/api';
+import AdminAnnouncementPanel from '../components/AdminAnnouncementPanel';
 
 export default function OIDBDashboard({ user }) {
     const [applications, setApplications] = useState([]);
     const [selectedApp, setSelectedApp] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [viewMode, setViewMode] = useState('NEW'); // NEW | RESUBMITTED
+    const [viewMode, setViewMode] = useState('NEW'); // NEW | RESUBMITTED | ANNOUNCEMENTS
 
     const fetchApplications = async () => {
+        if (viewMode === 'ANNOUNCEMENTS') return;
         setLoading(true);
         try {
             const data = await apiFetch(`/applications/status/${viewMode}`);
@@ -209,7 +211,7 @@ export default function OIDBDashboard({ user }) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Student Affairs (ÖİDB) - Validation Queue</h2>
+                <h2 className="text-2xl font-bold text-gray-800">Student Affairs (ÖİDB) Dashboard</h2>
                 <div className="flex space-x-2">
                     <button
                         onClick={() => setViewMode('NEW')}
@@ -223,57 +225,68 @@ export default function OIDBDashboard({ user }) {
                     >
                         Resubmitted
                     </button>
+                    <button
+                        onClick={() => setViewMode('ANNOUNCEMENTS')}
+                        className={`px-4 py-2 rounded text-sm font-medium transition flex items-center ${viewMode === 'ANNOUNCEMENTS' ? 'bg-blue-900 text-white' : 'bg-white text-gray-600 border'}`}
+                    >
+                        <Bell className="w-4 h-4 mr-1" /> Announcements
+                    </button>
                 </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="p-0">
-                    {loading ? <div className="p-8 text-center text-gray-500">Loading applications...</div> :
-                        applications.length === 0 ? (
-                            <div className="p-12 text-center">
-                                <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                                    <CheckCircle className="text-gray-400 w-8 h-8" />
+            {viewMode === 'ANNOUNCEMENTS' ? (
+                <AdminAnnouncementPanel />
+            ) : (
+                <div className="bg-white rounded-lg shadow overflow-hidden">
+                    <div className="p-0">
+                        {loading ? <div className="p-8 text-center text-gray-500">Loading applications...</div> :
+                            applications.length === 0 ? (
+                                <div className="p-12 text-center">
+                                    <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                        <CheckCircle className="text-gray-400 w-8 h-8" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900">All caught up!</h3>
+                                    <p className="text-gray-500">No {viewMode.toLowerCase()} applications pending validation.</p>
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900">All caught up!</h3>
-                                <p className="text-gray-500">No {viewMode.toLowerCase()} applications pending validation.</p>
-                            </div>
-                        ) : (
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 text-gray-600 text-sm border-b">
-                                    <tr>
-                                        <th className="px-6 py-3">ID</th>
-                                        <th className="px-6 py-3">Student</th>
-                                        <th className="px-6 py-3">Department</th>
-                                        <th className="px-6 py-3">Score</th>
-                                        <th className="px-6 py-3">Date</th>
-                                        <th className="px-6 py-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {applications.map((app) => (
-                                        <tr key={app.trackingId} className="hover:bg-blue-50 transition">
-                                            <td className="px-6 py-4 font-mono text-xs text-gray-500">#{app.trackingId}</td>
-                                            <td className="px-6 py-4 font-medium">{app.studentName}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{app.departmentName}</td>
-                                            <td className="px-6 py-4 font-bold text-blue-900">{app.compositeScore}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">{new Date(app.submissionDate).toLocaleDateString()}</td>
-                                            <td className="px-6 py-4">
-                                                <button
-                                                    onClick={() => setSelectedApp(app)}
-                                                    className="text-blue-600 hover:text-blue-900 font-medium flex items-center"
-                                                >
-                                                    Review <ArrowRight className="ml-1 w-4 h-4" />
-                                                </button>
-                                            </td>
+                            ) : (
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 text-gray-600 text-sm border-b">
+                                        <tr>
+                                            <th className="px-6 py-3">ID</th>
+                                            <th className="px-6 py-3">Student</th>
+                                            <th className="px-6 py-3">Department</th>
+                                            <th className="px-6 py-3">Score</th>
+                                            <th className="px-6 py-3">Date</th>
+                                            <th className="px-6 py-3">Action</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {applications.map((app) => (
+                                            <tr key={app.trackingId} className="hover:bg-blue-50 transition">
+                                                <td className="px-6 py-4 font-mono text-xs text-gray-500">#{app.trackingId}</td>
+                                                <td className="px-6 py-4 font-medium">{app.studentName}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-600">{app.departmentName}</td>
+                                                <td className="px-6 py-4 font-bold text-blue-900">{app.compositeScore}</td>
+                                                <td className="px-6 py-4 text-sm text-gray-500">{new Date(app.submissionDate).toLocaleDateString()}</td>
+                                                <td className="px-6 py-4">
+                                                    <button
+                                                        onClick={() => setSelectedApp(app)}
+                                                        className="text-blue-600 hover:text-blue-900 font-medium flex items-center"
+                                                    >
+                                                        Review <ArrowRight className="ml-1 w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {selectedApp && <DetailModal app={selectedApp} onClose={() => setSelectedApp(null)} />}
         </div>
     );
 }
+

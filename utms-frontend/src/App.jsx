@@ -102,7 +102,7 @@ export default function App() {
             case 'oidb-dashboard': return <OIDBDashboard user={user} />;
             case 'ygk-dashboard': return <YGKDashboard user={user} />;
             case 'dean-dashboard': return <DeanDashboard user={user} />;
-            case 'dean-dashboard': return <DeanDashboard user={user} />;
+
             case 'audit-logs': return <AuditLogsPage onBack={navigateToDashboard} />;
             default: return <LoginView onLogin={handleLogin} error={error} loading={loading} />;
         }

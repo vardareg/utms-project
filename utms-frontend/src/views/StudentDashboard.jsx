@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Upload, FileText, CheckCircle, AlertCircle, Send, Loader } from 'lucide-react';
 import { apiFetch, API_URL, getAuthHeader } from '../services/api';
 
+import NewsFeed from '../components/NewsFeed';
+
 export default function StudentDashboard({ user }) {
     const [formData, setFormData] = useState({
         targetDepartmentId: 1, // Default to Computer Engineering (MVP)
@@ -98,7 +100,13 @@ export default function StudentDashboard({ user }) {
     }
 
     return (
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-8">
+            {/* Announcements Section */}
+            <section className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Latest Announcements</h2>
+                <NewsFeed />
+            </section>
+
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="bg-red-900 px-6 py-4 border-b border-red-800">
                     <h2 className="text-xl font-bold text-white flex items-center">
