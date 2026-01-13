@@ -9,7 +9,8 @@ export default function StudentDashboard({ user }) {
     });
     const [files, setFiles] = useState({
         transcript: null,
-        yksResult: null
+        yksResult: null,
+        englishProof: null
     });
     const [status, setStatus] = useState({ loading: false, success: null, error: null });
     const [existingApp, setExistingApp] = useState(null);
@@ -46,8 +47,8 @@ export default function StudentDashboard({ user }) {
         e.preventDefault();
         setStatus({ loading: true, success: null, error: null });
 
-        if (!files.transcript || !files.yksResult) {
-            setStatus({ loading: false, success: null, error: "Please upload both Transcript and YKS Result documents." });
+        if (!files.transcript || !files.yksResult || !files.englishProof) {
+            setStatus({ loading: false, success: null, error: "Please upload Transcript, YKS Result, and English Proficiency Proof." });
             return;
         }
 
@@ -66,6 +67,7 @@ export default function StudentDashboard({ user }) {
             // 2. Upload Documents
             await uploadFile(appId, 'TRANSCRIPT', files.transcript);
             await uploadFile(appId, 'YKS_RESULT', files.yksResult);
+            await uploadFile(appId, 'ENGLISH_PROOF', files.englishProof);
 
             setStatus({ loading: false, success: `Application submitted successfully! Tracking ID: #${appId}`, error: null });
             setExistingApp(appResponse); // Show read-only view or success state
@@ -203,6 +205,26 @@ export default function StudentDashboard({ user }) {
                                         {files.yksResult && (
                                             <div className="mt-2 text-sm text-green-600 font-medium flex items-center justify-center">
                                                 <CheckCircle className="w-4 h-4 mr-1" /> {files.yksResult.name}
+                                            </div>
+                                        )}
+                                    </label>
+                                </div>
+
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:bg-gray-50 transition text-center">
+                                    <label className="cursor-pointer block">
+                                        <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                                        <span className="text-sm font-medium text-gray-900">Upload English Proficiency Proof</span>
+                                        <span className="text-xs text-gray-500 block mt-1">PDF, Max 5MB</span>
+                                        <input
+                                            type="file"
+                                            name="englishProof"
+                                            accept=".pdf"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                        {files.englishProof && (
+                                            <div className="mt-2 text-sm text-green-600 font-medium flex items-center justify-center">
+                                                <CheckCircle className="w-4 h-4 mr-1" /> {files.englishProof.name}
                                             </div>
                                         )}
                                     </label>

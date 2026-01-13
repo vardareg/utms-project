@@ -36,7 +36,7 @@ public class Application {
     @Column(name = "yks_score", nullable = false, precision = 6, scale = 3)
     private BigDecimal yksScore;
 
-    @Column(name = "converted_gpa", nullable = false, precision = 3, scale = 2)
+    @Column(name = "converted_gpa", nullable = false, precision = 5, scale = 2)
     private BigDecimal convertedGpa;
 
     // PR-07: Composite Transfer Score

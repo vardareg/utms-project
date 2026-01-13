@@ -3,6 +3,7 @@ package com.iztech.utms.service;
 import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.model.Application;
 import com.iztech.utms.model.Application.ApplicationStatus;
+import com.iztech.utms.model.Document;
 import com.iztech.utms.model.StudentProfile;
 import com.iztech.utms.model.UniversityStructure.Department;
 import com.iztech.utms.model.User;
@@ -85,6 +86,15 @@ public class ApplicationService {
 
         if (app.getStatus() != ApplicationStatus.NEW && app.getStatus() != ApplicationStatus.RESUBMITTED) {
             throw new RuntimeException("Invalid Status Transition: Can only forward NEW or RESUBMITTED applications.");
+        }
+
+        // PR-03 Enforcement: Check for English Proof
+        boolean hasEnglishProof = app.getDocuments() != null && app.getDocuments().stream()
+                .anyMatch(d -> d.getDocumentType() == Document.DocumentType.ENGLISH_PROOF);
+
+        if (!hasEnglishProof) {
+            throw new RuntimeException(
+                    "Missing Document: English Proof of Proficiency is required to forward the application.");
         }
 
         app.setStatus(ApplicationStatus.FORWARDED);
