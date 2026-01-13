@@ -18,7 +18,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     boolean existsByStudentIdAndTargetDepartmentId(Long studentId, Integer targetDepartmentId);
 
-    // WP-5 ADDITION: Fetch all applications for a department, sorted by Composite Score (PR-07/PR-09)
+    java.util.Optional<Application> findByStudentIdAndTargetDepartmentId(Long studentId, Integer targetDepartmentId);
+
+    // WP-5 ADDITION: Fetch all applications for a department, sorted by Composite
+    // Score (PR-07/PR-09)
     // Used for generating the Ranking List
     List<Application> findByTargetDepartmentIdOrderByCompositeScoreDesc(Integer departmentId);
 }

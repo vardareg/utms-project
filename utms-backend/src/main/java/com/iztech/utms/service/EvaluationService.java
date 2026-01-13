@@ -26,6 +26,7 @@ public class EvaluationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
+    private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
 
     // UC-YGK-01: Evaluate Single Application
     @Transactional
@@ -43,7 +44,7 @@ public class EvaluationService {
                 .isEligible(isEligible)
                 .decisionNote(note)
                 .build();
-        
+
         evaluationRepository.save(evaluation);
 
         // Update Application Status
@@ -54,6 +55,14 @@ public class EvaluationService {
             app.setStatus(ApplicationStatus.UNDER_REVIEW);
         }
         applicationRepository.save(app);
+
+        // Audit Log: EVALUATE
+        auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                .actorUsername(username)
+                .actionType(com.iztech.utms.model.ActionType.EVALUATE)
+                .targetApplicationId(app.getId())
+                .details("Evaluation Submitted. Eligible: " + isEligible + ". Note: " + note)
+                .build());
     }
 
     // UC-YGK-01 / PR-10: Generate Ranked List
@@ -62,12 +71,14 @@ public class EvaluationService {
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
         // 1. Fetch all applications for this department, Sorted by Score (PR-07)
-        List<Application> allApps = applicationRepository.findByTargetDepartmentIdOrderByCompositeScoreDesc(departmentId);
+        List<Application> allApps = applicationRepository
+                .findByTargetDepartmentIdOrderByCompositeScoreDesc(departmentId);
 
         // 2. Filter only Eligible applications (Status: UNDER_REVIEW or APPROVED)
         // We exclude REJECTED, RETURNED, NEW, FORWARDED
         List<Application> eligibleApps = allApps.stream()
-                .filter(a -> a.getStatus() == ApplicationStatus.UNDER_REVIEW || a.getStatus() == ApplicationStatus.APPROVED)
+                .filter(a -> a.getStatus() == ApplicationStatus.UNDER_REVIEW
+                        || a.getStatus() == ApplicationStatus.APPROVED)
                 .collect(Collectors.toList());
 
         List<RankingDTO> primaryList = new ArrayList<>();
@@ -82,7 +93,7 @@ public class EvaluationService {
             if (i < quota) {
                 primaryList.add(dto);
             } else {
-                // Waitlist logic: Usually quota * 0.5 or similar. 
+                // Waitlist logic: Usually quota * 0.5 or similar.
                 // For MVP, everyone else is waitlisted.
                 waitList.add(dto);
             }
@@ -98,8 +109,7 @@ public class EvaluationService {
                 app.getStudent().getUsername(), // Mask in prod
                 app.getCompositeScore(),
                 app.getConvertedGpa(),
-                app.getYksScore()
-        );
+                app.getYksScore());
     }
 
     // DTOs for Ranking
@@ -109,7 +119,7 @@ public class EvaluationService {
         private String departmentName;
         private int quota;
         private List<RankingDTO> primaryList; // Asil
-        private List<RankingDTO> waitList;    // Yedek
+        private List<RankingDTO> waitList; // Yedek
     }
 
     @lombok.Data
