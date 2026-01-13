@@ -86,16 +86,18 @@ public class EvaluationService {
         int quota = dept.getQuota(); // PR-08
 
         // 3. Apply Ranking Logic (PR-10)
+        int waitListQuota = (int) Math.ceil(dept.getQuota() * 0.5);
+
         for (int i = 0; i < eligibleApps.size(); i++) {
             Application app = eligibleApps.get(i);
             RankingDTO dto = mapToRankingDTO(app, i + 1);
 
             if (i < quota) {
                 primaryList.add(dto);
-            } else {
-                // Waitlist logic: Usually quota * 0.5 or similar.
-                // For MVP, everyone else is waitlisted.
+            } else if (i < quota + waitListQuota) {
                 waitList.add(dto);
+            } else {
+                // Remaining candidates are cut off (implicitly Rejected for this list)
             }
         }
 
