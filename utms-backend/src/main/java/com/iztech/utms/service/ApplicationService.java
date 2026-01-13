@@ -8,7 +8,6 @@ package com.iztech.utms.service;
    with this updated version.
 */
 
-
 import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.model.Application;
 import com.iztech.utms.model.Application.ApplicationStatus;
@@ -43,7 +42,7 @@ public class ApplicationService {
     public ApplicationDTO.Response submitApplication(String username, ApplicationDTO.Request request) {
         User studentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         StudentProfile profile = studentProfileRepository.findByUserId(studentUser.getId())
                 .orElseThrow(() -> new RuntimeException("Student Profile not found. Please contact OIDB."));
 
@@ -51,11 +50,12 @@ public class ApplicationService {
                 .orElseThrow(() -> new RuntimeException("Invalid Department ID"));
 
         if (profile.getOverallGpa().compareTo(MIN_GPA_THRESHOLD) < 0) {
-            throw new RuntimeException("Eligibility Error: Your GPA (" + profile.getOverallGpa() + 
-                                     ") is below the minimum required (" + MIN_GPA_THRESHOLD + ").");
+            throw new RuntimeException("Eligibility Error: Your GPA (" + profile.getOverallGpa() +
+                    ") is below the minimum required (" + MIN_GPA_THRESHOLD + ").");
         }
 
-        boolean exists = applicationRepository.existsByStudentIdAndTargetDepartmentId(studentUser.getId(), department.getId());
+        boolean exists = applicationRepository.existsByStudentIdAndTargetDepartmentId(studentUser.getId(),
+                department.getId());
         if (exists) {
             throw new RuntimeException("Validation Error: You have already applied to " + department.getName());
         }
@@ -88,7 +88,7 @@ public class ApplicationService {
     public void forwardApplication(Long applicationId) {
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
-        
+
         if (app.getStatus() != ApplicationStatus.NEW && app.getStatus() != ApplicationStatus.RESUBMITTED) {
             throw new RuntimeException("Invalid Status Transition: Can only forward NEW or RESUBMITTED applications.");
         }
@@ -102,9 +102,38 @@ public class ApplicationService {
     public void returnApplication(Long applicationId, String reason) {
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
-        
+
         app.setStatus(ApplicationStatus.RETURNED);
         app.setReturnReason(reason);
+        applicationRepository.save(app);
+    }
+
+    // UC-DEAN-01: Dean Assigns to YGK
+    @Transactional
+    public void assignToYgk(Long applicationId) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        if (app.getStatus() != ApplicationStatus.FORWARDED) {
+            throw new RuntimeException("Invalid Status: Can only assign FORWARDED applications.");
+        }
+
+        app.setStatus(ApplicationStatus.UNDER_REVIEW);
+        applicationRepository.save(app);
+    }
+
+    // UC-DEAN-02: Dean Approves Application (Final Step)
+    @Transactional
+    public void approveApplication(Long applicationId) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        // Approving either from UNDER_REVIEW (Direct) or FINALIZED (Ranked)
+        if (app.getStatus() != ApplicationStatus.UNDER_REVIEW && app.getStatus() != ApplicationStatus.FINALIZED) {
+            throw new RuntimeException("Invalid Status: Can only approve UNDER_REVIEW or FINALIZED applications.");
+        }
+
+        app.setStatus(ApplicationStatus.APPROVED);
         applicationRepository.save(app);
     }
 
@@ -118,7 +147,7 @@ public class ApplicationService {
         ApplicationDTO.Response response = new ApplicationDTO.Response();
         response.setTrackingId(app.getId());
         // For privacy, we might mask name, but OIDB needs it.
-        response.setStudentName(app.getStudent().getUsername()); 
+        response.setStudentName(app.getStudent().getUsername());
         response.setStatus(app.getStatus().name());
         response.setDepartmentName(app.getTargetDepartment().getName());
         response.setCompositeScore(app.getCompositeScore());
@@ -129,15 +158,15 @@ public class ApplicationService {
         // Map Documents
         if (app.getDocuments() != null) {
             List<ApplicationDTO.DocumentResponse> docs = app.getDocuments().stream()
-                .map(doc -> {
-                    ApplicationDTO.DocumentResponse d = new ApplicationDTO.DocumentResponse();
-                    d.setId(doc.getId());
-                    d.setType(doc.getDocumentType().name());
-                    // Extract filename from path or use generic
-                    d.setFileName(java.nio.file.Paths.get(doc.getFilePath()).getFileName().toString());
-                    return d;
-                })
-                .collect(java.util.stream.Collectors.toList());
+                    .map(doc -> {
+                        ApplicationDTO.DocumentResponse d = new ApplicationDTO.DocumentResponse();
+                        d.setId(doc.getId());
+                        d.setType(doc.getDocumentType().name());
+                        // Extract filename from path or use generic
+                        d.setFileName(java.nio.file.Paths.get(doc.getFilePath()).getFileName().toString());
+                        return d;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
             response.setDocuments(docs);
         }
 

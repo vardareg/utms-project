@@ -32,7 +32,7 @@ public class ApplicationController {
 
             ApplicationDTO.Response response = applicationService.submitApplication(username, request);
             return ResponseEntity.ok(response);
-            
+
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -73,6 +73,30 @@ public class ApplicationController {
             }
             applicationService.returnApplication(id, reason);
             return ResponseEntity.ok("Application returned to Student.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // UC-DEAN-01: Assign to YGK
+    @PatchMapping("/{id}/assign-ygk")
+    @PreAuthorize("hasRole('DEAN')")
+    public ResponseEntity<?> assignToYgk(@PathVariable Long id) {
+        try {
+            applicationService.assignToYgk(id);
+            return ResponseEntity.ok("Application assigned to YGK (Under Review).");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // UC-DEAN-02: Approve Final
+    @PatchMapping("/{id}/approve")
+    @PreAuthorize("hasRole('DEAN')")
+    public ResponseEntity<?> approveApplication(@PathVariable Long id) {
+        try {
+            applicationService.approveApplication(id);
+            return ResponseEntity.ok("Application Approved.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

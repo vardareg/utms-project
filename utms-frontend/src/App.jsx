@@ -7,6 +7,7 @@ import LoginView from './views/LoginView';
 import StudentDashboard from './views/StudentDashboard';
 import OIDBDashboard from './views/OIDBDashboard';
 import YGKDashboard from './views/YGKDashboard';
+import DeanDashboard from './views/DeanDashboard';
 
 // ==========================================
 // MAIN COMPONENT (App)
@@ -65,7 +66,7 @@ export default function App() {
         switch (role) {
             case 'ROLE_STUDENT': setCurrentView('student-dashboard'); break;
             case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
-            case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break; // Dean shares YGK view + Final Approval
+            case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break;
             case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
             default: setCurrentView('login');
         }
@@ -80,7 +81,7 @@ export default function App() {
             case 'student-dashboard': return <StudentDashboard user={user} />;
             case 'oidb-dashboard': return <OIDBDashboard user={user} />;
             case 'ygk-dashboard': return <YGKDashboard user={user} />;
-            case 'dean-dashboard': return <YGKDashboard user={user} />; // Dean uses YGK Dash for now
+            case 'dean-dashboard': return <DeanDashboard user={user} />;
             default: return <LoginView onLogin={handleLogin} error={error} loading={loading} />;
         }
     };
