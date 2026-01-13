@@ -46,3 +46,25 @@ export const apiFetch = async (endpoint, options = {}) => {
         return await response.text();
     }
 };
+
+// Auth Service methods
+export const login = async (username, password) => {
+    return await apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+    });
+};
+
+export const forgotPassword = async (email) => {
+    return await apiFetch('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
+};
+
+export const resetPassword = async (token, newPassword) => {
+    return await apiFetch('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, newPassword }),
+    });
+};

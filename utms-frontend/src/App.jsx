@@ -3,12 +3,15 @@ import { LogOut } from 'lucide-react';
 import { apiFetch, API_URL, MOCK_AUTH } from './services/api';
 
 // Views
+// Views
 import LoginView from './views/LoginView';
 import StudentDashboard from './views/StudentDashboard';
 import OIDBDashboard from './views/OIDBDashboard';
 import YGKDashboard from './views/YGKDashboard';
 import DeanDashboard from './views/DeanDashboard';
 import AuditLogsPage from './views/AuditLogsPage';
+import ForgotPasswordPage from './views/ForgotPasswordPage';
+import ResetPasswordPage from './views/ResetPasswordPage';
 
 // ==========================================
 // MAIN COMPONENT (App)
@@ -20,6 +23,12 @@ export default function App() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        // Check URL for reset password token
+        if (window.location.pathname === '/reset-password' || window.location.search.includes('token=')) {
+            setCurrentView('reset-password');
+            return;
+        }
+
         const savedUser = localStorage.getItem('utms_user');
         if (savedUser) {
             const parsedUser = JSON.parse(savedUser);
@@ -60,8 +69,11 @@ export default function App() {
     const handleLogout = () => {
         localStorage.removeItem('utms_user');
         setUser(null);
-        setUser(null);
         setCurrentView('login');
+        // Clear URL if on reset page
+        if (window.location.pathname === '/reset-password') {
+            window.history.pushState({}, '', '/');
+        }
     };
 
     const navigateToAuditLogs = () => {
@@ -93,18 +105,39 @@ export default function App() {
     };
 
     const renderView = () => {
+        // Public pages
+        if (currentView === 'forgot-password') {
+            return <ForgotPasswordPage onBack={() => setCurrentView('login')} />;
+        }
+        if (currentView === 'reset-password') {
+            return <ResetPasswordPage onSuccess={() => {
+                setCurrentView('login');
+                window.history.pushState({}, '', '/');
+            }} />;
+        }
+
         // If not logged in, force login view
-        if (!user) return <LoginView onLogin={handleLogin} error={error} loading={loading} />;
+        if (!user) return <LoginView
+            onLogin={handleLogin}
+            error={error}
+            loading={loading}
+            onForgotPassword={() => setCurrentView('forgot-password')}
+        />;
 
         switch (currentView) {
-            case 'login': return <LoginView onLogin={handleLogin} error={error} loading={loading} />;
+            case 'login': return <LoginView
+                onLogin={handleLogin}
+                error={error}
+                loading={loading}
+                onForgotPassword={() => setCurrentView('forgot-password')}
+            />;
             case 'student-dashboard': return <StudentDashboard user={user} />;
             case 'oidb-dashboard': return <OIDBDashboard user={user} />;
             case 'ygk-dashboard': return <YGKDashboard user={user} />;
             case 'dean-dashboard': return <DeanDashboard user={user} />;
 
             case 'audit-logs': return <AuditLogsPage onBack={navigateToDashboard} />;
-            default: return <LoginView onLogin={handleLogin} error={error} loading={loading} />;
+            default: return <LoginView onLogin={handleLogin} error={error} loading={loading} onForgotPassword={() => setCurrentView('forgot-password')} />;
         }
     };
 

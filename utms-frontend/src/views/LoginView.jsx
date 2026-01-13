@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, ChevronRight, AlertCircle } from 'lucide-react';
 import { API_URL, MOCK_AUTH } from '../services/api';
 
-export default function LoginView({ onLogin, error, loading }) {
+export default function LoginView({ onLogin, error, loading, onForgotPassword }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -47,6 +47,17 @@ export default function LoginView({ onLogin, error, loading }) {
                             required
                         />
                     </div>
+
+                    <div className="flex justify-end">
+                        <button
+                            type="button"
+                            onClick={onForgotPassword}
+                            className="text-sm text-red-900 hover:text-red-700 font-medium"
+                        >
+                            Forgot Password?
+                        </button>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={loading}
