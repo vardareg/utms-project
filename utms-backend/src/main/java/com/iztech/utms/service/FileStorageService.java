@@ -34,6 +34,7 @@ public class FileStorageService {
     private final Path rootLocation = Paths.get("uploads");
 
     private static final String ALLOWED_CONTENT_TYPE = "application/pdf";
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     @Transactional
     public void storeDocument(String username, Long applicationId, String docTypeStr, MultipartFile file) {
@@ -48,6 +49,10 @@ public class FileStorageService {
 
             if (!Objects.equals(file.getContentType(), ALLOWED_CONTENT_TYPE)) {
                 throw new RuntimeException("Invalid file type. Only PDF is allowed per Rule PR-11.");
+            }
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new RuntimeException("File size exceeds the 5MB limit (PR-11).");
             }
 
             Application application = applicationRepository.findById(applicationId)
