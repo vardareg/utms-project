@@ -52,25 +52,46 @@ public class FileStorageService {
 
             Application application = applicationRepository.findById(applicationId)
                     .orElseThrow(() -> new RuntimeException("Application not found"));
-            
+
             // Security: Only the student owner can upload
             if (!application.getStudent().getUsername().equals(username)) {
-                throw new RuntimeException("Security Alert: You are not authorized to upload documents for this application.");
+                throw new RuntimeException(
+                        "Security Alert: You are not authorized to upload documents for this application.");
             }
 
             DocumentType type = DocumentType.valueOf(docTypeStr);
             String cleanFileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-            String storageFileName = "APP_" + applicationId + "_" + type.name() + "_" + System.currentTimeMillis() + ".pdf";
+            String storageFileName = "APP_" + applicationId + "_" + type.name() + "_" + System.currentTimeMillis()
+                    + ".pdf";
 
             Path destinationFile = this.rootLocation.resolve(Paths.get(storageFileName)).normalize().toAbsolutePath();
             Files.copy(file.getInputStream(), destinationFile, StandardCopyOption.REPLACE_EXISTING);
 
-            Document document = Document.builder()
-                    .application(application)
-                    .documentType(type)
-                    .filePath(destinationFile.toString())
-                    .fileSize(file.getSize())
-                    .build();
+            // Check if document of this type already exists for this application
+            java.util.Optional<Document> existingDocOpt = documentRepository
+                    .findByApplicationIdAndDocumentType(applicationId, type);
+
+            Document document;
+            if (existingDocOpt.isPresent()) {
+                document = existingDocOpt.get();
+                // Delete old file if possible to save space
+                try {
+                    Files.deleteIfExists(Paths.get(document.getFilePath()));
+                } catch (IOException ignored) {
+                    // Log or ignore if file deletion fails
+                }
+                // Update existing entity
+                document.setFilePath(destinationFile.toString());
+                document.setFileSize(file.getSize());
+            } else {
+                // Create new entity
+                document = Document.builder()
+                        .application(application)
+                        .documentType(type)
+                        .filePath(destinationFile.toString())
+                        .fileSize(file.getSize())
+                        .build();
+            }
 
             documentRepository.save(document);
 
@@ -87,8 +108,9 @@ public class FileStorageService {
 
             // Access Control: Owner OR OIDB/Dean/YGK/Admin can view
             // In a real scenario, we'd check the user's role here more robustly.
-            // For now, we assume if the user is authenticated and asks via the Controller's role check, it's safe.
-            
+            // For now, we assume if the user is authenticated and asks via the Controller's
+            // role check, it's safe.
+
             Path filePath = Paths.get(doc.getFilePath());
             Resource resource = new UrlResource(filePath.toUri());
 
