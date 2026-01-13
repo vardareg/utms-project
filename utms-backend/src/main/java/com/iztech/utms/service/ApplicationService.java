@@ -11,6 +11,7 @@ import com.iztech.utms.repository.ApplicationRepository;
 import com.iztech.utms.repository.DepartmentRepository;
 import com.iztech.utms.repository.StudentProfileRepository;
 import com.iztech.utms.repository.UserRepository;
+import com.iztech.utms.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class ApplicationService {
         private final UserRepository userRepository;
         private final ScoringService scoringService;
         private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
+        private final DocumentRepository documentRepository;
 
         private static final BigDecimal MIN_GPA_THRESHOLD = new BigDecimal("2.50");
 
@@ -117,12 +119,22 @@ public class ApplicationService {
                 }
 
                 // PR-03 Enforcement: Check for English Proof
-                boolean hasEnglishProof = app.getDocuments() != null && app.getDocuments().stream()
-                                .anyMatch(d -> d.getDocumentType() == Document.DocumentType.ENGLISH_PROOF);
+                // Using Repository check to ensure data consistency and avoid Lazy Loading
+                // issues
+                boolean hasEnglishProof = documentRepository
+                                .findByApplicationIdAndDocumentType(applicationId, Document.DocumentType.ENGLISH_PROOF)
+                                .isPresent();
 
                 if (!hasEnglishProof) {
+                        // DEBUGGING: Inspect what IS in the database
+                        List<Document> allDocs = documentRepository.findByApplicationId(applicationId);
+                        String docTypes = allDocs.stream().map(d -> d.getDocumentType().name())
+                                        .collect(Collectors.joining(", "));
+
                         throw new RuntimeException(
-                                        "Missing Document: English Proof of Proficiency is required to forward the application.");
+                                        "Missing Document: English Proof of Proficiency is required. (Debug: AppID="
+                                                        + applicationId + ", DocsInDB=" + allDocs.size() + "["
+                                                        + docTypes + "])");
                 }
 
                 app.setStatus(ApplicationStatus.FORWARDED);

@@ -26,7 +26,6 @@ export default function OIDBDashboard({ user }) {
     }, [viewMode]);
 
     const handleForward = async (appId) => {
-        if (!window.confirm("Are you sure you want to forward this application to the Faculty?")) return;
         try {
             await apiFetch(`/applications/${appId}/forward`, { method: 'PATCH' });
             alert("Application forwarded successfully.");
@@ -103,10 +102,40 @@ export default function OIDBDashboard({ user }) {
         );
     };
 
+    const ConfirmationModal = ({ title, message, onClose, onConfirm }) => (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
+                <p className="text-sm text-gray-600 mb-6">{message}</p>
+                <div className="flex justify-end space-x-2">
+                    <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                    <button
+                        onClick={onConfirm}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
     const DetailModal = ({ app, onClose }) => {
         const [showReturn, setShowReturn] = useState(false);
+        const [showForwardConfirm, setShowForwardConfirm] = useState(false);
 
         if (showReturn) return <ReturnModal app={app} onClose={() => setShowReturn(false)} onConfirm={handleReturn} />;
+        if (showForwardConfirm) return (
+            <ConfirmationModal
+                title="Forward Application"
+                message="Are you sure you want to forward this application to the Faculty?"
+                onClose={() => setShowForwardConfirm(false)}
+                onConfirm={() => {
+                    handleForward(app.trackingId);
+                    setShowForwardConfirm(false);
+                }}
+            />
+        );
 
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -166,7 +195,7 @@ export default function OIDBDashboard({ user }) {
                             <XCircle className="w-4 h-4 mr-2" /> Return to Student
                         </button>
                         <button
-                            onClick={() => handleForward(app.trackingId)}
+                            onClick={() => setShowForwardConfirm(true)}
                             className="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded flex items-center shadow"
                         >
                             <CheckCircle className="w-4 h-4 mr-2" /> Forward to Faculty
