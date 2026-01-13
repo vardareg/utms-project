@@ -1,13 +1,5 @@
 package com.iztech.utms.service;
 
-// ... existing imports ...
-// This file updates the mapToResponse method in the existing Service to populate documents.
-
-/* NOTE: Please replace the existing mapToResponse method 
-   in src/main/java/com/iztech/utms/service/ApplicationService.java 
-   with this updated version.
-*/
-
 import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.model.Application;
 import com.iztech.utms.model.Application.ApplicationStatus;
@@ -23,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +26,7 @@ public class ApplicationService {
     private final StudentProfileRepository studentProfileRepository;
     private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
+    private final ScoringService scoringService;
 
     private static final BigDecimal MIN_GPA_THRESHOLD = new BigDecimal("2.50");
 
@@ -60,13 +52,15 @@ public class ApplicationService {
             throw new RuntimeException("Validation Error: You have already applied to " + department.getName());
         }
 
-        BigDecimal compositeScore = calculateCompositeScore(profile.getOverallGpa(), request.getYksScore());
+        // Apply Scoring Logic
+        BigDecimal convertedGpa = scoringService.convertGpaTo100(profile.getOverallGpa());
+        BigDecimal compositeScore = scoringService.calculateCompositeScore(convertedGpa, request.getYksScore());
 
         Application application = Application.builder()
                 .student(studentUser)
                 .targetDepartment(department)
                 .yksScore(request.getYksScore())
-                .convertedGpa(profile.getOverallGpa())
+                .convertedGpa(convertedGpa) // STORED AS 100-SCALE
                 .compositeScore(compositeScore)
                 .status(ApplicationStatus.NEW)
                 .build();
@@ -135,12 +129,6 @@ public class ApplicationService {
 
         app.setStatus(ApplicationStatus.APPROVED);
         applicationRepository.save(app);
-    }
-
-    private BigDecimal calculateCompositeScore(BigDecimal gpa, BigDecimal yks) {
-        BigDecimal gpaPart = gpa.multiply(new BigDecimal("0.5"));
-        BigDecimal yksPart = yks.multiply(new BigDecimal("0.5"));
-        return gpaPart.add(yksPart).setScale(3, RoundingMode.HALF_UP);
     }
 
     private ApplicationDTO.Response mapToResponse(Application app) {
