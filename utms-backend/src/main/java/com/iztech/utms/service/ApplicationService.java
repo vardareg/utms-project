@@ -35,6 +35,18 @@ public class ApplicationService {
         private final NotificationService notificationService;
         private final com.iztech.utms.service.OsymService osymService;
 
+        @Transactional(readOnly = true)
+        public ApplicationDTO.Response getMyApplication(String username) {
+                User studentUser = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                List<Application> apps = applicationRepository.findByStudentId(studentUser.getId());
+                if (apps.isEmpty()) {
+                        return null;
+                }
+                // Return the most recent application
+                return mapToResponse(apps.get(0));
+        }
+
         @Transactional
         public ApplicationDTO.Response submitApplication(String username, ApplicationDTO.Request request) {
                 User studentUser = userRepository.findByUsername(username)
@@ -308,11 +320,13 @@ public class ApplicationService {
                 response.setStudentName(app.getStudent().getUsername());
                 response.setStatus(app.getStatus().name());
                 response.setDepartmentName(app.getTargetDepartment().getName());
+                response.setTargetDepartmentId(app.getTargetDepartment().getId());
                 response.setCompositeScore(app.getCompositeScore());
                 response.setYksScore(app.getYksScore());
                 response.setGpa(app.getConvertedGpa());
                 response.setDataVerificationStatus(app.getDataVerificationStatus());
                 response.setSubmissionDate(app.getSubmissionDate().toString());
+                response.setReturnReason(app.getReturnReason());
 
                 // Map Documents
                 if (app.getDocuments() != null) {

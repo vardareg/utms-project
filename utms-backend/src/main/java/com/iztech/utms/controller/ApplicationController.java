@@ -38,6 +38,23 @@ public class ApplicationController {
         }
     }
 
+    // UC-STU-02: Get My Application
+    @GetMapping("/my-application")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> getMyApplication() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            ApplicationDTO.Response response = applicationService.getMyApplication(username);
+            if (response == null) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // Checking YKS Score (Helper for "Retrieve Score" button)
     @GetMapping("/my-yks-score")
     @PreAuthorize("hasRole('STUDENT')")

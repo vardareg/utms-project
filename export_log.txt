@@ -1,0 +1,26 @@
+* Host localhost:8080 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8080...
+* Connected to localhost (::1) port 8080
+* using HTTP/1.x
+> GET /api/evaluations/ranking/1/export?format=pdf HTTP/1.1
+> Host: localhost:8080
+> User-Agent: curl/8.15.0
+> Accept: */*
+> Authorization: Bearer Logging in as dean... [0;32mSUCCESS[0m
+> eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkZWFuIiwiaWF0IjoxNzY4NDI0MTkxLCJleHAiOjE3Njg0MjU5OTF9.UUrqQ_JTcotLbh3WihTlvV52QemSPGG_5fFpww72Chw
+> 
+* Request completely sent off
+< HTTP/1.1 400 
+< Content-Type: text/html;charset=utf-8
+< Content-Language: en
+< Content-Length: 435
+< Date: Wed, 14 Jan 2026 20:56:31 GMT
+< Connection: close
+< 
+{ [435 bytes data]
+100   435  100   435    0     0   126k      0 --:--:-- --:--:-- --:--:--  141k
+* shutting down connection #0

@@ -17,6 +17,7 @@ export default function StudentDashboard({ user }) {
     });
     const [status, setStatus] = useState({ loading: false, success: null, error: null });
     const [existingApp, setExistingApp] = useState(null);
+    const [isResubmitting, setIsResubmitting] = useState(false);
 
     // Profile State
     const [profile, setProfile] = useState(null);
@@ -31,6 +32,15 @@ export default function StudentDashboard({ user }) {
             setLoadingProfile(true);
             const data = await getMyProfile();
             setProfile(data); // null if 204 (not found), object if found
+
+            if (data) {
+                try {
+                    const appResponse = await apiFetch('/applications/my-application');
+                    if (appResponse) setExistingApp(appResponse);
+                } catch (ignore) {
+                    // silent fail if no app found yet
+                }
+            }
         } catch (error) {
             console.error("Failed to load profile", error);
         } finally {
@@ -81,6 +91,14 @@ export default function StudentDashboard({ user }) {
         }
     };
 
+    const handleEditResubmit = () => {
+        setFormData({
+            targetDepartmentId: existingApp.targetDepartmentId || 1,
+            yksScore: existingApp.yksScore
+        });
+        setIsResubmitting(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus({ loading: true, success: null, error: null });
@@ -108,7 +126,29 @@ export default function StudentDashboard({ user }) {
             await uploadFile(appId, 'ENGLISH_PROOF', files.englishProof);
 
             setStatus({ loading: false, success: `Application submitted successfully! Tracking ID: #${appId}`, error: null });
-            setExistingApp(appResponse); // Show read-only view or success state
+            setStatus({ loading: false, success: `Application submitted successfully! Tracking ID: #${appId}`, error: null });
+
+            // Refetch current application state or update locally
+            const updatedApp = {
+                ...existingApp,
+                trackingId: appId,
+                status: 'RESUBMITTED',
+                returnReason: null // Clear reason locally
+            };
+
+            // If it was a new app, we need to construct the object, but for resubmit existingApp is there.
+            // Simplified: Just reload profile/app to be sure, or manual update.
+            // Let's manually update to be instant.
+            setExistingApp(prev => prev ? updatedApp : {
+                trackingId: appId,
+                targetDepartmentId: formData.targetDepartmentId,
+                yksScore: formData.yksScore,
+                status: 'NEW',
+                submissionDate: new Date().toLocaleDateString(),
+                targetDepartment: { name: 'Computer Engineering' } // Mock name if raw ID used
+            });
+
+            setIsResubmitting(false); // <--- FIX: Switch to view mode
 
         } catch (err) {
             setStatus({ loading: false, success: null, error: err.message });
@@ -129,23 +169,84 @@ export default function StudentDashboard({ user }) {
         return <ProfileEntryForm onProfileCreated={loadProfile} />;
     }
 
-    // SUCCESS STATE (Application Submitted)
-    if (existingApp) {
-        return (
-            <div className="max-w-2xl mx-auto bg-green-50 border border-green-200 rounded-lg p-8 text-center">
-                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-green-900 mb-2">Application Received!</h2>
-                <p className="text-green-800 mb-4">{status.success}</p>
-                <div className="bg-white p-4 rounded shadow-sm inline-block text-left text-sm">
-                    <p><strong>Status:</strong> Forwarded to Student Affairs</p>
-                    <p><strong>Date:</strong> {new Date().toLocaleDateString()}</p>
+    // SUCCESS or RESUBMISSION REQUIRED STATE
+    if (existingApp && !isResubmitting) {
+        if (existingApp.status === "RETURNED") {
+            return (
+                <div className="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-lg p-8">
+                    <div className="text-center mb-6">
+                        <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold text-red-900 mb-2">Application Returned</h2>
+                        <p className="text-red-800">Your application requires corrections.</p>
+                    </div>
+
+                    <div className="bg-white p-6 rounded shadow-sm border border-red-100 mb-6">
+                        <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Return Reason</h3>
+                        <p className="text-gray-900">{existingApp.returnReason || "No reason provided."}</p>
+                    </div>
+
+                    <div className="flex justify-center">
+                        <button
+                            onClick={handleEditResubmit}
+                            className="bg-red-900 text-white font-bold py-2 px-6 rounded hover:bg-red-800 transition shadow"
+                        >
+                            Edit & Resubmit
+                        </button>
+                    </div>
                 </div>
-                <button
-                    onClick={() => window.location.reload()}
-                    className="block mx-auto mt-6 text-green-700 underline hover:text-green-900"
-                >
-                    Submit Another Application (Debug)
-                </button>
+            );
+        }
+        // DYNAMIC STATUS CARD
+        let statusColor = "blue";
+        let statusTitle = "Application Status";
+        let statusMessage = "Your application is being processed.";
+        let icon = <CheckCircle className="w-16 h-16 text-blue-600 mx-auto mb-4" />;
+
+        switch (existingApp.status) {
+            case "APPROVED":
+                statusColor = "green";
+                statusTitle = "Congratulations! Application Approved";
+                statusMessage = "You have been accepted for transfer. Please proceed to Student Affairs for registration.";
+                icon = <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />;
+                break;
+            case "REJECTED":
+                statusColor = "red";
+                statusTitle = "Application Rejected";
+                statusMessage = "We regret to inform you that your application has not been accepted.";
+                icon = <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />;
+                break;
+            case "NEW":
+            case "RESUBMITTED":
+                statusColor = "green";
+                statusTitle = "Application Received";
+                statusMessage = "Your application has been successfully submitted and is pending review.";
+                icon = <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />;
+                break;
+            case "FORWARDED":
+            case "UNDER_REVIEW":
+                statusColor = "blue";
+                statusTitle = "Under Review";
+                statusMessage = "Your application is currently under review by the Faculty/YGK.";
+                icon = <Loader className="w-16 h-16 text-blue-600 mx-auto mb-4" />;
+                break;
+            default:
+                // FINALIZED etc.
+                break;
+        }
+
+        return (
+            <div className={`max-w-2xl mx-auto bg-${statusColor}-50 border border-${statusColor}-200 rounded-lg p-8 text-center`}>
+                {icon}
+                <h2 className={`text-2xl font-bold text-${statusColor}-900 mb-2`}>{statusTitle}</h2>
+                <p className={`text-${statusColor}-800 mb-4`}>{statusMessage}</p>
+                <div className="bg-white p-4 rounded shadow-sm inline-block text-left text-sm w-full max-w-md">
+                    <div className="grid grid-cols-2 gap-2">
+                        <p><strong>Tracking ID:</strong> #{existingApp.trackingId || existingApp.id}</p>
+                        <p><strong>Status:</strong> <span className={`font-bold text-${statusColor}-700`}>{existingApp.status}</span></p>
+                        <p><strong>Department:</strong> {existingApp.departmentName || "N/A"}</p>
+                        <p><strong>Submission Date:</strong> {existingApp.submissionDate}</p>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -207,6 +308,17 @@ export default function StudentDashboard({ user }) {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {isResubmitting && existingApp && existingApp.returnReason && (
+                            <div className="bg-orange-50 border-l-4 border-orange-500 text-orange-700 p-4 mb-4">
+                                <h3 className="font-bold">Corrective Action Required</h3>
+                                <p className="text-sm mt-1">
+                                    Reason: <strong>{existingApp.returnReason}</strong>
+                                </p>
+                                <p className="text-xs mt-2 text-orange-600">
+                                    Please update the necessary fields and <strong>re-upload all required documents</strong>.
+                                </p>
+                            </div>
+                        )}
                         {/* Personal Info (Read-Only from Profile now ideally, but keeping user info for now) */}
                         <div className="bg-gray-50 p-4 rounded border border-gray-200">
                             <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Applicant Information</h3>
@@ -346,7 +458,7 @@ export default function StudentDashboard({ user }) {
                                     </>
                                 ) : (
                                     <>
-                                        <Send className="w-5 h-5 mr-2" /> Submit Application
+                                        <Send className="w-5 h-5 mr-2" /> {isResubmitting ? "Resubmit Application" : "Submit Application"}
                                     </>
                                 )}
                             </button>

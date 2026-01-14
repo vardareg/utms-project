@@ -41,10 +41,11 @@ export default function DeanDashboard({ user }) {
         try {
             await apiFetch(`/applications/${id}/assign-ygk`, { method: 'PATCH' });
             alert("Assigned to YGK.");
-            fetchIncoming();
-            fetchReview();
+            await fetchIncoming(); // Await refresh
+            await fetchReview();   // Await refresh
         } catch (e) {
-            alert(e.message);
+            console.error("Assign Error:", e);
+            alert("Failed to assign: " + e.message);
         }
     };
 
@@ -52,10 +53,11 @@ export default function DeanDashboard({ user }) {
         if (!window.confirm("Final Approve this application? Status will become APPROVED.")) return;
         try {
             await apiFetch(`/applications/${id}/approve`, { method: 'PATCH' });
-            alert("Application Approved!");
-            fetchReview();
+            alert("Application Approved successfully!");
+            await fetchReview(); // Await refresh to update UI immediately
         } catch (e) {
-            alert(e.message);
+            console.error("Approve Error:", e);
+            alert("Failed to approve: " + (e.message || "Unknown error"));
         }
     };
 

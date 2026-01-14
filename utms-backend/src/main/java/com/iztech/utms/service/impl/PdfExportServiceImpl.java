@@ -4,7 +4,6 @@ import com.iztech.utms.service.EvaluationService.RankingDTO;
 import com.iztech.utms.service.EvaluationService.RankingResponse;
 import com.iztech.utms.service.ExportService;
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -28,17 +27,14 @@ public class PdfExportServiceImpl implements ExportService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Font Settings (using built-in for simplicity, ideally load custom font for
-            // Turkish)
-            // Note: OpenPDF's HELVETICA supports basic Turkish chars in some encodings,
-            // but for full support we strictly need a TTF file (e.g. Arial).
-            // For this draft, we use IDENTITY_H with a standard font if available or
-            // default.
-            // Using standard helvetica with CP1254 (Turkish) encoding if possible.
-            BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, "Cp1254", BaseFont.NOT_EMBEDDED);
-            Font titleFont = new Font(baseFont, 18, Font.BOLD);
-            Font headerFont = new Font(baseFont, 12, Font.BOLD, Color.WHITE);
-            Font bodyFont = new Font(baseFont, 12, Font.NORMAL);
+            // Font Settings: Use HELVETICA (Standard Type 1 font) which doesn't require
+            // external files
+            // This is safe for headless Linux environments, though Turkish char support
+            // might be limited without embedded TTF.
+            // For MVP, stability is prioritized over perfect character rendering.
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE);
+            Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 12);
 
             // Title
             Paragraph title = new Paragraph("IZTECH Undergraduate Transfer Ranking", titleFont);
@@ -74,7 +70,7 @@ public class PdfExportServiceImpl implements ExportService {
             document.add(table);
             document.close();
 
-        } catch (DocumentException | IOException e) {
+        } catch (DocumentException e) {
             throw new RuntimeException("Error generating PDF", e);
         }
 

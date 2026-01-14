@@ -43,9 +43,13 @@ public class ExcelExportServiceImpl implements ExportService {
             // Wait List
             rowIdx = fillRows(sheet, data.getWaitList(), "WAITLIST", rowIdx);
 
-            // Autosize columns
+            // Autosize columns (Safe)
             for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
+                try {
+                    sheet.autoSizeColumn(i);
+                } catch (Exception e) {
+                    // Ignore font metrics errors in headless mode
+                }
             }
 
             workbook.write(out);

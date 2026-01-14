@@ -26,11 +26,13 @@ public class ApplicationDTO {
         private String status;
         private String submissionDate;
         private String departmentName;
+        private Integer targetDepartmentId; // Added for frontend pre-fill
         private BigDecimal compositeScore;
         private BigDecimal yksScore;
         private BigDecimal gpa;
         private String dataVerificationStatus; // Added field
         private List<DocumentResponse> documents; // WP-4: Critical for validation
+        private String returnReason; // Added for Resubmission UI
     }
 
     @Data
