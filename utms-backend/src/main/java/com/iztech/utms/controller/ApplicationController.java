@@ -38,6 +38,20 @@ public class ApplicationController {
         }
     }
 
+    // Checking YKS Score (Helper for "Retrieve Score" button)
+    @GetMapping("/my-yks-score")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> getMyYksScore() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            java.math.BigDecimal score = applicationService.retrieveYksScore(username);
+            return ResponseEntity.ok(java.util.Collections.singletonMap("score", score));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // WP-4 ADDITION: OIDB View Incoming
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('OIDB', 'DEAN', 'YGK')")

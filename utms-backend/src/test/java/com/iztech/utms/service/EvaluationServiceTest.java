@@ -42,6 +42,15 @@ public class EvaluationServiceTest {
     @Mock
     private AuditLogRepository auditLogRepository;
 
+    @Mock
+    private com.iztech.utms.repository.StudentProfileRepository studentProfileRepository;
+
+    @Mock
+    private UbysService ubysService;
+
+    @Mock
+    private StudentService studentService;
+
     @InjectMocks
     private EvaluationService evaluationService;
 

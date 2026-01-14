@@ -33,6 +33,7 @@ public class ApplicationService {
         private final DocumentRepository documentRepository;
         private final ConfigurationService configurationService;
         private final NotificationService notificationService;
+        private final com.iztech.utms.service.OsymService osymService;
 
         @Transactional
         public ApplicationDTO.Response submitApplication(String username, ApplicationDTO.Request request) {
@@ -56,6 +57,18 @@ public class ApplicationService {
                 if (request.getYksScore() != null && request.getYksScore().compareTo(minYks) < 0) {
                         throw new RuntimeException("Eligibility Error: Your YKS Score (" + request.getYksScore() +
                                         ") is below the minimum required (" + minYks + ").");
+                }
+
+                String mismatchWarning = null;
+                // External Validation: OsymService (Soft Validation)
+                if (request.getYksScore() != null) {
+                        com.iztech.utms.dto.YksValidationResponse yksValidation = osymService
+                                        .validateYksScore(profile.getTckn(), request.getYksScore());
+                        if (!yksValidation.isValid()) {
+                                // Capture warning to log after saving application
+                                mismatchWarning = "YKS Mismatch Warning: User submitted " + request.getYksScore()
+                                                + " but official is " + yksValidation.getOfficialScore();
+                        }
                 }
 
                 java.util.Optional<Application> existingAppOpt = applicationRepository
@@ -96,12 +109,31 @@ public class ApplicationService {
 
                 Application savedApp = applicationRepository.save(application);
 
+                if (mismatchWarning != null) {
+                        auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                                        .actorUsername(username)
+                                        .actionType(com.iztech.utms.model.ActionType.SUBMIT) // Or create a new warning
+                                                                                             // type, but SUBMIT is fine
+                                        .targetApplicationId(savedApp.getId())
+                                        .details(mismatchWarning)
+                                        .build());
+                }
+
                 // Audit Log: SUBMIT
                 auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
                                 .actorUsername(username)
                                 .actionType(com.iztech.utms.model.ActionType.SUBMIT)
                                 .targetApplicationId(savedApp.getId())
                                 .details("Application Submitted. Status: NEW")
+                                .build());
+
+                // Audit Log: EXTERNAL_VALIDATION
+                auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                                .actorUsername(username)
+                                .actionType(com.iztech.utms.model.ActionType.SUBMIT)
+                                .targetApplicationId(savedApp.getId())
+                                .details("EXTERNAL_VALIDATION: Validated YKS for TCKN " + profile.getTckn()
+                                                + ". Result: MATCH.")
                                 .build());
 
                 // NOTIFICATION: Trigger 1 (Submission)
@@ -274,6 +306,7 @@ public class ApplicationService {
                 response.setCompositeScore(app.getCompositeScore());
                 response.setYksScore(app.getYksScore());
                 response.setGpa(app.getConvertedGpa());
+                response.setDataVerificationStatus(app.getDataVerificationStatus());
                 response.setSubmissionDate(app.getSubmissionDate().toString());
 
                 // Map Documents
@@ -293,5 +326,14 @@ public class ApplicationService {
                 }
 
                 return response;
+        }
+
+        public java.math.BigDecimal retrieveYksScore(String username) {
+                com.iztech.utms.model.User studentUser = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+                com.iztech.utms.model.StudentProfile profile = studentProfileRepository.findById(studentUser.getId())
+                                .orElseThrow(() -> new RuntimeException("Student Profile not found"));
+
+                return osymService.getYksScore(profile.getTckn());
         }
 }

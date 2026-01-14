@@ -57,6 +57,9 @@ public class Application {
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Document> documents;
 
+    @Column(name = "data_verification_status", length = 50)
+    private String dataVerificationStatus;
+
     public enum ApplicationStatus {
         NEW, FORWARDED, UNDER_REVIEW, FINALIZED, APPROVED, REJECTED, RETURNED, RESUBMITTED
     }

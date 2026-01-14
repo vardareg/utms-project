@@ -29,6 +29,7 @@ public class ApplicationDTO {
         private BigDecimal compositeScore;
         private BigDecimal yksScore;
         private BigDecimal gpa;
+        private String dataVerificationStatus; // Added field
         private List<DocumentResponse> documents; // WP-4: Critical for validation
     }
 

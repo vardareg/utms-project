@@ -45,6 +45,8 @@ public class ApplicationServiceTest {
     private ConfigurationService configurationService; // MOCKED
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private OsymService osymService;
 
     @InjectMocks
     private ApplicationService applicationService;
@@ -107,7 +109,12 @@ public class ApplicationServiceTest {
         when(departmentRepository.findById(1)).thenReturn(Optional.of(dept));
 
         when(configurationService.getMinGpaThreshold()).thenReturn(new BigDecimal("2.50"));
-        when(configurationService.getMinYksThreshold()).thenReturn(new BigDecimal("150.00")); // New Mock
+        when(configurationService.getMinYksThreshold()).thenReturn(new BigDecimal("150.00"));
+
+        // Mock OsymService
+        profile.setTckn("12345678900");
+        when(osymService.validateYksScore(any(), any())).thenReturn(
+                com.iztech.utms.dto.YksValidationResponse.builder().valid(true).build());
 
         // Mock scoring service used later in method
         when(scoringService.convertGpaTo100(any())).thenReturn(new BigDecimal("80"));

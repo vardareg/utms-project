@@ -38,6 +38,21 @@ export default function OIDBDashboard({ user }) {
         }
     };
 
+    const handleVerify = async (appId) => {
+        try {
+            await apiFetch(`/evaluations/verify/${appId}`, { method: 'POST' });
+            alert("Verification completed. Check status.");
+            // Re-fetch applications to update list (though detail view might need explicit update if open)
+            // Ideally we re-fetch the specific app, but for now we simply refresh the list
+            // However, since we are in a Modal, we should probably close it or verify updates.
+            // Let's close it to be safe and force refresh.
+            setSelectedApp(null);
+            fetchApplications();
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
+    };
+
     const handleReturn = async (appId, reason) => {
         try {
             await apiFetch(`/applications/${appId}/return`, {
@@ -54,7 +69,6 @@ export default function OIDBDashboard({ user }) {
 
     const handleDownload = async (docId, fileName) => {
         try {
-            // We need to use fetch directly here to handle blob
             const userStr = localStorage.getItem('utms_user');
             const token = userStr ? JSON.parse(userStr).token : '';
 
@@ -155,9 +169,27 @@ export default function OIDBDashboard({ user }) {
                                 <div><span className="block text-gray-500">Department</span> <span className="font-medium">{app.departmentName}</span></div>
                                 <div><span className="block text-gray-500">YKS Score</span> <span className="font-medium">{app.yksScore}</span></div>
                                 <div><span className="block text-gray-500">GPA</span> <span className="font-medium">{app.gpa}</span></div>
+
                                 <div className="col-span-2 bg-blue-50 p-2 rounded">
                                     <span className="block text-xs uppercase text-blue-700">Calculated Score</span>
                                     <span className="font-mono text-xl font-bold text-blue-900">{app.compositeScore}</span>
+                                </div>
+
+                                <div className="col-span-2 bg-gray-50 p-2 rounded border flex justify-between items-center">
+                                    <div>
+                                        <span className="block text-xs uppercase text-gray-500">Data Verification</span>
+                                        <span className={`font-bold text-sm ${app.dataVerificationStatus === 'VERIFIED' ? 'text-green-600' : 'text-red-600'}`}>
+                                            {app.dataVerificationStatus || 'Pending'}
+                                        </span>
+                                    </div>
+                                    {!app.dataVerificationStatus && (
+                                        <button
+                                            onClick={() => handleVerify(app.trackingId)}
+                                            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
+                                        >
+                                            Verify with UBYS
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -289,4 +321,3 @@ export default function OIDBDashboard({ user }) {
         </div>
     );
 }
-

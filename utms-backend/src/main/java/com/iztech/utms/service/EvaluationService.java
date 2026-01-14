@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,11 @@ public class EvaluationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
+    private final com.iztech.utms.repository.StudentProfileRepository studentProfileRepository;
     private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
+    private final com.iztech.utms.service.UbysService ubysService;
+    private final com.iztech.utms.service.StudentService studentService; // Assuming access to student profile via
+                                                                         // service or repo
 
     // UC-YGK-01: Evaluate Single Application
     @Transactional
@@ -63,6 +68,60 @@ public class EvaluationService {
                 .targetApplicationId(app.getId())
                 .details("Evaluation Submitted. Eligible: " + isEligible + ". Note: " + note)
                 .build());
+
+    }
+
+    // Verify Student Data with UBYS
+    @Transactional
+    public void verifyStudentData(Long applicationId) {
+        Application app = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        com.iztech.utms.model.StudentProfile profile = studentProfileRepository.findById(app.getStudent().getId())
+                .orElseThrow(() -> new RuntimeException("Student Profile not found"));
+
+        String tckn = profile.getTckn();
+        List<com.iztech.utms.dto.TranscriptDto> transcripts = ubysService.getStudentTranscripts(tckn);
+
+        // Audit Log: EXTERNAL_READ
+        auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                .actorUsername("SYSTEM")
+                .actionType(com.iztech.utms.model.ActionType.VIEW)
+                .targetApplicationId(app.getId())
+                .details("EXTERNAL_READ: Fetched Transcripts from UBYS for verification.")
+                .build());
+
+        if (transcripts.isEmpty()) {
+            app.setDataVerificationStatus("UBYS_NO_DATA");
+        } else {
+            // Calculate Logic: For now just marking as Verified if data exists
+            // Real logic would compare GPA.
+
+            // Calculate Mock GPA (Simple average)
+            BigDecimal totalGrade = BigDecimal.ZERO;
+            int totalCredit = 0;
+            for (com.iztech.utms.dto.TranscriptDto t : transcripts) {
+                totalGrade = totalGrade.add(t.getGrade().multiply(new BigDecimal(t.getCredit())));
+                totalCredit += t.getCredit();
+            }
+
+            if (totalCredit > 0) {
+                BigDecimal calculatedGpa = totalGrade.divide(new BigDecimal(totalCredit), 2,
+                        java.math.RoundingMode.HALF_UP);
+                BigDecimal studentGpa = profile.getOverallGpa();
+
+                // Allow small difference due to calculation methods
+                if (calculatedGpa.subtract(studentGpa).abs().compareTo(new BigDecimal("0.1")) > 0) {
+                    app.setDataVerificationStatus("GPA_MISMATCH (calc: " + calculatedGpa + ")");
+                } else {
+                    app.setDataVerificationStatus("VERIFIED");
+                }
+            } else {
+                app.setDataVerificationStatus("UBYS_EMPTY_TRANSCRIPT");
+            }
+        }
+
+        applicationRepository.save(app);
     }
 
     // UC-YGK-01 / PR-10: Generate Ranked List

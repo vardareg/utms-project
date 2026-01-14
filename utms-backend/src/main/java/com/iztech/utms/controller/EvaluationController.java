@@ -40,6 +40,18 @@ public class EvaluationController {
         }
     }
 
+    // WP-4 ADDITION: Trigger Verification (Manually by OIDB)
+    @PostMapping("/verify/{appId}")
+    @PreAuthorize("hasAnyRole('OIDB', 'YGK')")
+    public ResponseEntity<?> verifyApplication(@PathVariable Long appId) {
+        try {
+            evaluationService.verifyStudentData(appId);
+            return ResponseEntity.ok("Verification completed.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // UC-YGK-01: Get Ranked List (Draft)
     @GetMapping("/ranking/{deptId}")
     @PreAuthorize("hasAnyRole('YGK', 'DEAN')")

@@ -46,6 +46,21 @@ export default function StudentDashboard({ user }) {
         setFiles({ ...files, [e.target.name]: e.target.files[0] });
     };
 
+    const handleRetrieveYksScore = async () => {
+        try {
+            setStatus({ loading: true, success: null, error: null });
+            const response = await apiFetch('/applications/my-yks-score');
+            if (response && response.score) {
+                setFormData(prev => ({ ...prev, yksScore: response.score }));
+                setStatus({ loading: false, success: "YKS Score retrieved successfully from ÖSYM.", error: null });
+            } else {
+                setStatus({ loading: false, success: null, error: "Could not retrieve score." });
+            }
+        } catch (err) {
+            setStatus({ loading: false, success: null, error: "Failed to retrieve YKS Score: " + err.message });
+        }
+    };
+
     const uploadFile = async (appId, type, file) => {
         if (!file) return;
         const form = new FormData();
@@ -115,7 +130,7 @@ export default function StudentDashboard({ user }) {
     }
 
     // SUCCESS STATE (Application Submitted)
-    if (status.success) {
+    if (existingApp) {
         return (
             <div className="max-w-2xl mx-auto bg-green-50 border border-green-200 rounded-lg p-8 text-center">
                 <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
@@ -172,6 +187,12 @@ export default function StudentDashboard({ user }) {
                             <span>{status.error}</span>
                         </div>
                     )}
+                    {status.success && !existingApp && (
+                        <div className="mb-6 bg-green-50 text-green-700 p-4 rounded flex items-start">
+                            <CheckCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+                            <span>{status.success}</span>
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Personal Info (Read-Only from Profile now ideally, but keeping user info for now) */}
@@ -208,18 +229,28 @@ export default function StudentDashboard({ user }) {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">YKS Score (0-500)</label>
-                                    <input
-                                        type="number"
-                                        name="yksScore"
-                                        step="0.001"
-                                        min="0"
-                                        max="500"
-                                        value={formData.yksScore}
-                                        onChange={handleInputChange}
-                                        placeholder="e.g. 485.500"
-                                        className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
-                                        required
-                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="number"
+                                            name="yksScore"
+                                            step="0.001"
+                                            min="0"
+                                            max="500"
+                                            value={formData.yksScore}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. 485.500"
+                                            className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleRetrieveYksScore}
+                                            className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 text-xs font-bold whitespace-nowrap flex items-center"
+                                            disabled={status.loading}
+                                        >
+                                            {status.loading ? <Loader className="animate-spin w-4 h-4" /> : "Retrieve"}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -299,7 +330,7 @@ export default function StudentDashboard({ user }) {
                             >
                                 {status.loading ? (
                                     <>
-                                        <Loader className="animate-spin w-5 h-5 mr-2" /> Processing Application...
+                                        <Loader className="animate-spin w-5 h-5 mr-2" /> Submitting Application...
                                     </>
                                 ) : (
                                     <>
