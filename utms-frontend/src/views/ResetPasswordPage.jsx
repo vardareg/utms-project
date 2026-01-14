@@ -30,6 +30,12 @@ export default function ResetPasswordPage({ onSuccess }) {
             return;
         }
 
+        const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            setError("Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.");
+            return;
+        }
+
         if (!token) {
             setError('Missing reset token.');
             return;
@@ -52,6 +58,10 @@ export default function ResetPasswordPage({ onSuccess }) {
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold text-center text-red-900 mb-6">Reset Password</h2>
+
+            <div className="mb-4 p-3 bg-blue-50 text-blue-800 rounded text-sm border border-blue-200">
+                Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.
+            </div>
 
             {message && (
                 <div className="mb-4 p-3 bg-green-100 text-green-700 rounded text-sm">
