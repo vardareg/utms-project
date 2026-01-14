@@ -28,12 +28,12 @@ INSERT INTO departments (faculty_id, name, quota) VALUES (3, 'City and Regional 
 -- ==================================================================================
 
 -- 1. ADMIN
-INSERT INTO users (username, password_hash, email, role, user_type) 
-VALUES ('admin', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'admin@iztech.edu.tr', 'ROLE_ADMIN', 'ADMIN');
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('admin', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'admin@iztech.edu.tr', 'ROLE_ADMIN', 'ADMIN', true);
 
 -- 2. STUDENT
-INSERT INTO users (username, password_hash, email, role, user_type) 
-VALUES ('student', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'student@iztech.edu.tr', 'ROLE_STUDENT', 'STUDENT');
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('student', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'student@iztech.edu.tr', 'ROLE_STUDENT', 'STUDENT', true);
 
 -- Student Profile (Linked to User ID 2 - assuming auto-increment starts at 1, so admin=1, student=2)
 -- Note: H2 usually resets IDs on restart in memory, but let's assume sequential insertion.
@@ -52,13 +52,13 @@ VALUES (
 */
 
 -- 3. OIDB OFFICER
-INSERT INTO users (username, password_hash, email, role, user_type) 
-VALUES ('oidb', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'oidb@iztech.edu.tr', 'ROLE_OIDB', 'STAFF');
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('oidb', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'oidb@iztech.edu.tr', 'ROLE_OIDB', 'STAFF', true);
 
 -- 4. YGK MEMBER (Transfer Commission)
-INSERT INTO users (username, password_hash, email, role, user_type) 
-VALUES ('ygk', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC');
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('ygk', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
 -- 5. DEAN
-INSERT INTO users (username, password_hash, email, role, user_type) 
-VALUES ('dean', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC');
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('dean', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);

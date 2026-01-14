@@ -24,4 +24,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     // Score (PR-07/PR-09)
     // Used for generating the Ranking List
     List<Application> findByTargetDepartmentIdOrderByCompositeScoreDesc(Integer departmentId);
+
+    void deleteByStudent(com.iztech.utms.model.User student);
 }

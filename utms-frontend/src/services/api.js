@@ -84,3 +84,28 @@ export const updateMyProfile = async (profileData) => {
         body: JSON.stringify(profileData),
     });
 };
+
+// Admin User Management
+export const getAllUsers = async () => {
+    return await apiFetch('/admin/users');
+};
+
+export const createUser = async (userData) => {
+    return await apiFetch('/admin/users', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    });
+};
+
+export const updateUser = async (id, userData) => {
+    return await apiFetch(`/admin/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(userData),
+    });
+};
+
+export const deleteUser = async (id) => {
+    return await apiFetch(`/admin/users/${id}`, {
+        method: 'DELETE',
+    });
+};

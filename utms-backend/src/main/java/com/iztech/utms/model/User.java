@@ -44,6 +44,10 @@ public class User {
     @Column(name = "user_type", nullable = false, length = 20)
     private String userType;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean enabled = true;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
