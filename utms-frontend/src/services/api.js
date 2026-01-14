@@ -19,10 +19,15 @@ export const getAuthHeader = () => {
 // Generic fetch wrapper
 export const apiFetch = async (endpoint, options = {}) => {
     const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // Default
         ...getAuthHeader(),
         ...options.headers,
     };
+
+    // If body is FormData, let browser set Content-Type with boundary
+    if (options.body instanceof FormData) {
+        delete headers['Content-Type'];
+    }
 
     const response = await fetch(`${API_URL}${endpoint}`, {
         ...options,

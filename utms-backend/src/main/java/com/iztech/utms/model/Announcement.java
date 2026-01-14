@@ -28,6 +28,12 @@ public class Announcement {
     @Column(nullable = false)
     private boolean active;
 
+    @Column
+    private String attachmentPath;
+
+    @Column
+    private String attachmentName;
+
     public Announcement() {
         this.publishDate = LocalDateTime.now();
         this.active = true;
@@ -87,5 +93,21 @@ public class Announcement {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getAttachmentPath() {
+        return attachmentPath;
+    }
+
+    public void setAttachmentPath(String attachmentPath) {
+        this.attachmentPath = attachmentPath;
+    }
+
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
     }
 }

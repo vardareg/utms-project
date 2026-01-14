@@ -235,18 +235,27 @@ export default function StudentDashboard({ user }) {
         }
 
         return (
-            <div className={`max-w-2xl mx-auto bg-${statusColor}-50 border border-${statusColor}-200 rounded-lg p-8 text-center`}>
-                {icon}
-                <h2 className={`text-2xl font-bold text-${statusColor}-900 mb-2`}>{statusTitle}</h2>
-                <p className={`text-${statusColor}-800 mb-4`}>{statusMessage}</p>
-                <div className="bg-white p-4 rounded shadow-sm inline-block text-left text-sm w-full max-w-md">
-                    <div className="grid grid-cols-2 gap-2">
-                        <p><strong>Tracking ID:</strong> #{existingApp.trackingId || existingApp.id}</p>
-                        <p><strong>Status:</strong> <span className={`font-bold text-${statusColor}-700`}>{existingApp.status}</span></p>
-                        <p><strong>Department:</strong> {existingApp.departmentName || "N/A"}</p>
-                        <p><strong>Submission Date:</strong> {existingApp.submissionDate}</p>
+            <div className="max-w-4xl mx-auto space-y-8">
+                {/* Status Card */}
+                <div className={`max-w-2xl mx-auto bg-${statusColor}-50 border border-${statusColor}-200 rounded-lg p-8 text-center`}>
+                    {icon}
+                    <h2 className={`text-2xl font-bold text-${statusColor}-900 mb-2`}>{statusTitle}</h2>
+                    <p className={`text-${statusColor}-800 mb-4`}>{statusMessage}</p>
+                    <div className="bg-white p-4 rounded shadow-sm inline-block text-left text-sm w-full max-w-md">
+                        <div className="grid grid-cols-2 gap-2">
+                            <p><strong>Tracking ID:</strong> #{existingApp.trackingId || existingApp.id}</p>
+                            <p><strong>Status:</strong> <span className={`font-bold text-${statusColor}-700`}>{existingApp.status}</span></p>
+                            <p><strong>Department:</strong> {existingApp.departmentName || "N/A"}</p>
+                            <p><strong>Submission Date:</strong> {existingApp.submissionDate}</p>
+                        </div>
                     </div>
                 </div>
+
+                {/* Announcements Section */}
+                <section className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Latest Announcements</h2>
+                    <NewsFeed />
+                </section>
             </div>
         );
     }

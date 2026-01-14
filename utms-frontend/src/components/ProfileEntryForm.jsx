@@ -6,9 +6,6 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
         tckn: '',
         currentUniversity: '',
         currentProgram: '',
-        tckn: '',
-        currentUniversity: '',
-        currentProgram: '',
         overallGpa: '',
         hasDisciplinaryRecord: false
     });

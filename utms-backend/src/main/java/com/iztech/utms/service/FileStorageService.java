@@ -105,6 +105,40 @@ public class FileStorageService {
         }
     }
 
+    public String storeGenericFile(MultipartFile file, String prefix) {
+        try {
+            if (!Files.exists(rootLocation)) {
+                Files.createDirectories(rootLocation);
+            }
+
+            if (file.isEmpty()) {
+                throw new RuntimeException("Failed to store empty file.");
+            }
+
+            if (file.getSize() > MAX_FILE_SIZE) {
+                throw new RuntimeException("File size exceeds the 5MB limit.");
+            }
+
+            // Allow PDF exclusively for announcements as well, or relax if needed.
+            // Requirement mentions "PDF attachment", so enforcing PDF seems safe per
+            // general security rules.
+            if (!Objects.equals(file.getContentType(), ALLOWED_CONTENT_TYPE)) {
+                throw new RuntimeException("Invalid file type. Only PDF is allowed.");
+            }
+
+            String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+            String storageFileName = prefix + System.currentTimeMillis() + "_" + originalFilename;
+
+            Path destinationFile = this.rootLocation.resolve(Paths.get(storageFileName)).normalize().toAbsolutePath();
+            Files.copy(file.getInputStream(), destinationFile, StandardCopyOption.REPLACE_EXISTING);
+
+            return destinationFile.toString();
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file.", e);
+        }
+    }
+
     // WP-4 ADDITION: Load file for viewing
     public Resource loadFileAsResource(Long documentId, String username) {
         try {
@@ -123,6 +157,21 @@ public class FileStorageService {
                 return resource;
             } else {
                 throw new RuntimeException("Could not read file: " + doc.getFilePath());
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Could not read file", e);
+        }
+    }
+
+    public Resource loadFileAsResource(String filePath) {
+        try {
+            Path file = Paths.get(filePath);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read file: " + filePath);
             }
         } catch (MalformedURLException e) {
             throw new RuntimeException("Could not read file", e);

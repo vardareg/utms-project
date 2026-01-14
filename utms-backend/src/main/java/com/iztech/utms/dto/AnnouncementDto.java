@@ -10,18 +10,29 @@ public class AnnouncementDto {
     private LocalDateTime publishDate;
     private Announcement.Priority priority;
     private boolean active;
+    private String attachmentName;
+    private String downloadUrl;
 
     public AnnouncementDto() {
     }
 
     public AnnouncementDto(Long id, String title, String content, LocalDateTime publishDate,
-            Announcement.Priority priority, boolean active) {
+            Announcement.Priority priority, boolean active, String attachmentName, String downloadUrl) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.publishDate = publishDate;
         this.priority = priority;
         this.active = active;
+        this.attachmentName = attachmentName;
+        this.downloadUrl = downloadUrl;
+    }
+
+    // Legacy constructor for backward compatibility if needed, or just update
+    // callers
+    public AnnouncementDto(Long id, String title, String content, LocalDateTime publishDate,
+            Announcement.Priority priority, boolean active) {
+        this(id, title, content, publishDate, priority, active, null, null);
     }
 
     // Getters and Setters
@@ -72,5 +83,21 @@ public class AnnouncementDto {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
     }
 }

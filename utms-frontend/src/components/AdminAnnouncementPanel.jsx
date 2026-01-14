@@ -29,6 +29,8 @@ const AdminAnnouncementPanel = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const [file, setFile] = useState(null);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -36,13 +38,25 @@ const AdminAnnouncementPanel = () => {
         setSuccess('');
 
         try {
+            const formDataToSend = new FormData();
+            formDataToSend.append('title', formData.title);
+            formDataToSend.append('content', formData.content);
+            formDataToSend.append('priority', formData.priority);
+            if (file) {
+                formDataToSend.append('file', file);
+            }
+
             await apiFetch(`/oidb/announcements`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                // Content-Type header is not needed for FormData, browser sets it with boundary
+                body: formDataToSend,
             });
             setSuccess('Announcement published successfully!');
             setFormData({ title: '', content: '', priority: 'NORMAL' });
+            setFile(null); // Reset file input
+            // Reset file input element manually if needed, or rely on key change
+            document.getElementById('fileInput').value = "";
+
             fetchAnnouncements(); // Refresh list
         } catch (err) {
             setError(err.message || 'Failed to publish announcement');
@@ -116,6 +130,16 @@ const AdminAnnouncementPanel = () => {
                         <option value="NORMAL">Normal</option>
                         <option value="CRITICAL">Critical</option>
                     </select>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Attachment (PDF only, max 5MB)</label>
+                    <input
+                        id="fileInput"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setFile(e.target.files[0])}
+                        className="mt-1 block w-full"
+                    />
                 </div>
 
                 {error && <div className="text-red-500 text-sm">{error}</div>}

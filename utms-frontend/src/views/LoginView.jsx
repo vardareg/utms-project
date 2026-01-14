@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, ChevronRight, AlertCircle } from 'lucide-react';
 import { API_URL, MOCK_AUTH } from '../services/api';
+import NewsFeed from '../components/NewsFeed';
 
 export default function LoginView({ onLogin, error, loading, onForgotPassword }) {
     const [username, setUsername] = useState('');
@@ -14,7 +15,8 @@ export default function LoginView({ onLogin, error, loading, onForgotPassword })
     };
 
     return (
-        <div className="flex justify-center items-center min-h-[60vh]">
+        <div className="min-h-[80vh] flex flex-col gap-8 items-center justify-center p-4">
+            {/* Login Form Section */}
             <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
                 <div className="bg-gray-100 px-6 py-4 border-b border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-800 flex items-center">
@@ -66,6 +68,16 @@ export default function LoginView({ onLogin, error, loading, onForgotPassword })
                         {loading ? 'Authenticating...' : <>Login <ChevronRight className="ml-1 w-4 h-4" /></>}
                     </button>
                 </form>
+            </div>
+
+            {/* Public Announcements Section */}
+            <div className="w-full max-w-md md:max-w-lg bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="bg-red-900 px-6 py-4 border-b border-red-800">
+                    <h2 className="text-xl font-bold text-white">Latest Announcements</h2>
+                </div>
+                <div className="p-6 max-h-[500px] overflow-y-auto">
+                    <NewsFeed />
+                </div>
             </div>
         </div>
     );

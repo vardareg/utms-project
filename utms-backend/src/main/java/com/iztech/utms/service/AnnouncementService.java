@@ -15,7 +15,11 @@ public class AnnouncementService {
     @Autowired
     private AnnouncementRepository announcementRepository;
 
-    public AnnouncementDto createAnnouncement(AnnouncementDto dto) {
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    public AnnouncementDto createAnnouncement(AnnouncementDto dto,
+            org.springframework.web.multipart.MultipartFile file) {
         Announcement announcement = new Announcement();
         announcement.setTitle(dto.getTitle());
         announcement.setContent(dto.getContent());
@@ -24,6 +28,12 @@ public class AnnouncementService {
         // overridden if needed
         if (dto.getPublishDate() != null) {
             announcement.setPublishDate(dto.getPublishDate());
+        }
+
+        if (file != null && !file.isEmpty()) {
+            String path = fileStorageService.storeGenericFile(file, "ANNOUNCEMENT_");
+            announcement.setAttachmentPath(path);
+            announcement.setAttachmentName(file.getOriginalFilename());
         }
 
         Announcement saved = announcementRepository.save(announcement);
@@ -45,12 +55,26 @@ public class AnnouncementService {
     }
 
     private AnnouncementDto convertToDto(Announcement announcement) {
-        return new AnnouncementDto(
+        AnnouncementDto dto = new AnnouncementDto(
                 announcement.getId(),
                 announcement.getTitle(),
                 announcement.getContent(),
                 announcement.getPublishDate(),
                 announcement.getPriority(),
                 announcement.isActive());
+
+        dto.setAttachmentName(announcement.getAttachmentName());
+        if (announcement.getAttachmentPath() != null) {
+            dto.setDownloadUrl("/public/announcements/" + announcement.getId() + "/attachment");
+        }
+
+        return dto;
     }
+
+    public String getAttachmentPath(Long id) {
+        Announcement announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Announcement not found"));
+        return announcement.getAttachmentPath();
+    }
+
 }
