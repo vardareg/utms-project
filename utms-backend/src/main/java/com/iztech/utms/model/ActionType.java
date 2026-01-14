@@ -6,5 +6,6 @@ public enum ActionType {
     RETURN,
     EVALUATE,
     APPROVE,
-    VIEW
+    VIEW,
+    ARCHIVE
 }

@@ -61,6 +61,6 @@ public class Application {
     private String dataVerificationStatus;
 
     public enum ApplicationStatus {
-        NEW, FORWARDED, UNDER_REVIEW, FINALIZED, APPROVED, REJECTED, RETURNED, RESUBMITTED
+        NEW, FORWARDED, UNDER_REVIEW, FINALIZED, APPROVED, REJECTED, RETURNED, RESUBMITTED, ARCHIVED
     }
 }

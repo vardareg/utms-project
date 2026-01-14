@@ -28,5 +28,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(
             Integer departmentId);
 
+    // PR-24: Automated Archival
+    List<Application> findBySubmissionDateBeforeAndStatusNot(java.time.LocalDateTime submissionDate,
+            ApplicationStatus status);
+
     void deleteByStudent(com.iztech.utms.model.User student);
 }
