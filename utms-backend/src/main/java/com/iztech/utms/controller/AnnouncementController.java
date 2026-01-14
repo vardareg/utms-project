@@ -23,13 +23,13 @@ public class AnnouncementController {
     }
 
     @PostMapping("/oidb/announcements")
-    @PreAuthorize("hasRole('OIDB')")
+    @PreAuthorize("hasAnyRole('OIDB', 'ADMIN')")
     public ResponseEntity<AnnouncementDto> createAnnouncement(@RequestBody AnnouncementDto dto) {
         return ResponseEntity.ok(announcementService.createAnnouncement(dto));
     }
 
     @DeleteMapping("/oidb/announcements/{id}")
-    @PreAuthorize("hasRole('OIDB')")
+    @PreAuthorize("hasAnyRole('OIDB', 'ADMIN')")
     public ResponseEntity<?> deleteAnnouncement(@PathVariable Long id) {
         announcementService.deleteAnnouncement(id);
         return ResponseEntity.ok().build();
