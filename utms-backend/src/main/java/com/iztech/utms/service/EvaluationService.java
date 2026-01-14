@@ -130,8 +130,11 @@ public class EvaluationService {
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
         // 1. Fetch all applications for this department, Sorted by Score (PR-07)
+        // Sort Order: Composite Score (Desc) -> YKS Score (Desc) -> GPA (Desc) ->
+        // Submission Date (Asc)
         List<Application> allApps = applicationRepository
-                .findByTargetDepartmentIdOrderByCompositeScoreDesc(departmentId);
+                .findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(
+                        departmentId);
 
         // 2. Filter only Eligible applications (Status: UNDER_REVIEW or APPROVED)
         // We exclude REJECTED, RETURNED, NEW, FORWARDED
@@ -171,6 +174,53 @@ public class EvaluationService {
                 app.getCompositeScore(),
                 app.getConvertedGpa(),
                 app.getYksScore());
+    }
+
+    // Helper for Manual Verification
+    @Transactional
+    public void seedRankingData(Integer departmentId) {
+        Department dept = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("Department not found. Ensure ID 1 exists."));
+
+        // Helper to create app
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        createSeededApp("studentA", departmentId, new BigDecimal("100"), new BigDecimal("450"), new BigDecimal("3.50"),
+                now);
+        createSeededApp("studentB", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.80"),
+                now);
+        createSeededApp("studentC", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
+                now);
+        createSeededApp("studentD", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
+                now.plusHours(1));
+    }
+
+    private void createSeededApp(String username, Integer deptId, BigDecimal score, BigDecimal yks, BigDecimal gpa,
+            java.time.LocalDateTime date) {
+        User student = userRepository.findByUsername(username).orElseGet(() -> {
+            User u = new User();
+            u.setUsername(username);
+            u.setEmail(username + "@std.iztech.edu.tr");
+            u.setPasswordHash("{noop}password"); // Simple hash for dev
+            u.setRole(com.iztech.utms.model.User.Role.ROLE_STUDENT);
+            u.setUserType("STUDENT");
+            u.setEnabled(true);
+            return userRepository.save(u);
+        });
+
+        // Check if app exists
+        if (applicationRepository.findByStudentIdAndTargetDepartmentId(student.getId(), deptId).isPresent())
+            return;
+
+        Application app = new Application();
+        app.setStudent(student);
+        app.setTargetDepartment(departmentRepository.findById(deptId).get());
+        app.setCompositeScore(score);
+        app.setYksScore(yks);
+        app.setConvertedGpa(gpa);
+        app.setSubmissionDate(date);
+        app.setStatus(ApplicationStatus.UNDER_REVIEW);
+        app.setDataVerificationStatus("VERIFIED");
+        applicationRepository.save(app);
     }
 
     // DTOs for Ranking

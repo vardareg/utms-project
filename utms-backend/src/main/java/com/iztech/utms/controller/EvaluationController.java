@@ -62,4 +62,16 @@ public class EvaluationController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // WP-5 Helper: Seed Data for Ranking Test
+    @PostMapping("/ranking/seed/{deptId}")
+    @PreAuthorize("hasAnyRole('YGK', 'DEAN', 'ADMIN')")
+    public ResponseEntity<?> seedRankingData(@PathVariable Integer deptId) {
+        try {
+            evaluationService.seedRankingData(deptId);
+            return ResponseEntity.ok("Draft data seeded for Department " + deptId);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

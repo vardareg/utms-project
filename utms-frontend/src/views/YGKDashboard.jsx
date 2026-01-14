@@ -222,6 +222,8 @@ export default function YGKDashboard({ user }) {
             {/* MODE: RANKING TABLE */}
             {viewMode === 'ranking' && rankingData && (
                 <div className="space-y-6">
+
+
                     {/* PRIMARY LIST */}
                     <div className="bg-white rounded-lg shadow overflow-hidden border-l-4 border-green-500">
                         <div className="bg-green-50 px-6 py-4 border-b border-green-100 flex justify-between">
@@ -234,6 +236,8 @@ export default function YGKDashboard({ user }) {
                                     <th className="px-6 py-2">Rank</th>
                                     <th className="px-6 py-2">Student</th>
                                     <th className="px-6 py-2">Composite Score</th>
+                                    <th className="px-6 py-2">YKS Score</th>
+                                    <th className="px-6 py-2">GPA</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -241,11 +245,13 @@ export default function YGKDashboard({ user }) {
                                     <tr key={row.trackingId} className="border-b">
                                         <td className="px-6 py-3 font-bold text-green-700">#{row.rank}</td>
                                         <td className="px-6 py-3">{row.studentName}</td>
-                                        <td className="px-6 py-3 font-mono font-bold">{row.compositeScore}</td>
+                                        <td className="px-6 py-3 font-mono font-bold text-lg">{row.compositeScore}</td>
+                                        <td className="px-6 py-3 font-mono text-gray-600">{row.yks}</td>
+                                        <td className="px-6 py-3 font-mono text-gray-600">{row.gpa}</td>
                                     </tr>
                                 ))}
                                 {rankingData.primaryList.length === 0 && (
-                                    <tr><td colSpan="3" className="p-4 text-center text-gray-500">No eligible candidates yet.</td></tr>
+                                    <tr><td colSpan="5" className="p-4 text-center text-gray-500">No eligible candidates yet.</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -262,6 +268,8 @@ export default function YGKDashboard({ user }) {
                                     <th className="px-6 py-2">Rank</th>
                                     <th className="px-6 py-2">Student</th>
                                     <th className="px-6 py-2">Composite Score</th>
+                                    <th className="px-6 py-2">YKS Score</th>
+                                    <th className="px-6 py-2">GPA</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -269,11 +277,13 @@ export default function YGKDashboard({ user }) {
                                     <tr key={row.trackingId} className="border-b">
                                         <td className="px-6 py-3 font-bold text-yellow-700">#{row.rank}</td>
                                         <td className="px-6 py-3">{row.studentName}</td>
-                                        <td className="px-6 py-3 font-mono font-bold">{row.compositeScore}</td>
+                                        <td className="px-6 py-3 font-mono font-bold text-lg">{row.compositeScore}</td>
+                                        <td className="px-6 py-3 font-mono text-gray-600">{row.yks}</td>
+                                        <td className="px-6 py-3 font-mono text-gray-600">{row.gpa}</td>
                                     </tr>
                                 ))}
                                 {rankingData.waitList.length === 0 && (
-                                    <tr><td colSpan="3" className="p-4 text-center text-gray-500">Waitlist is empty.</td></tr>
+                                    <tr><td colSpan="5" className="p-4 text-center text-gray-500">Waitlist is empty.</td></tr>
                                 )}
                             </tbody>
                         </table>

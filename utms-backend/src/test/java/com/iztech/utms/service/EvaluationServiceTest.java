@@ -85,7 +85,9 @@ public class EvaluationServiceTest {
             apps.add(app);
         }
 
-        when(applicationRepository.findByTargetDepartmentIdOrderByCompositeScoreDesc(1)).thenReturn(apps);
+        when(applicationRepository
+                .findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(1))
+                .thenReturn(apps);
 
         // Execute
         RankingResponse response = evaluationService.generateRanking(1);
@@ -122,11 +124,73 @@ public class EvaluationServiceTest {
             apps.add(app);
         }
 
-        when(applicationRepository.findByTargetDepartmentIdOrderByCompositeScoreDesc(1)).thenReturn(apps);
+        when(applicationRepository
+                .findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(1))
+                .thenReturn(apps);
 
         RankingResponse response = evaluationService.generateRanking(1);
 
         assertEquals(5, response.getPrimaryList().size());
         assertEquals(3, response.getWaitList().size());
+    }
+
+    @Test
+    void testGenerateRanking_TieBreaking() {
+        Department dept = new Department();
+        dept.setId(1);
+        dept.setName("Computer Engineering");
+        dept.setQuota(10);
+
+        when(departmentRepository.findById(1)).thenReturn(Optional.of(dept));
+
+        List<Application> apps = new ArrayList<>();
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+        // Candidate A: Score 100, YKS 450, GPA 3.5
+        Application appA = createMockApp(1L, "A", new BigDecimal("100"), new BigDecimal("450"), new BigDecimal("3.50"),
+                now);
+        // Candidate B: Score 100, YKS 440, GPA 3.8
+        Application appB = createMockApp(2L, "B", new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.80"),
+                now);
+        // Candidate C: Score 100, YKS 440, GPA 3.5, Date T
+        Application appC = createMockApp(3L, "C", new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
+                now);
+        // Candidate D: Score 100, YKS 440, GPA 3.5, Date T+1
+        Application appD = createMockApp(4L, "D", new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
+                now.plusSeconds(1));
+
+        apps.add(appA);
+        apps.add(appB);
+        apps.add(appC);
+        apps.add(appD);
+
+        // Mock repo returning them in assumed sorted order (Repo is responsible for
+        // sorting, Service just respects it)
+        when(applicationRepository
+                .findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(1))
+                .thenReturn(apps);
+
+        RankingResponse response = evaluationService.generateRanking(1);
+
+        assertEquals(4, response.getPrimaryList().size());
+        assertEquals(appA.getId(), response.getPrimaryList().get(0).getTrackingId()); // A First
+        assertEquals(appB.getId(), response.getPrimaryList().get(1).getTrackingId()); // B Second (Lower YKS)
+        assertEquals(appC.getId(), response.getPrimaryList().get(2).getTrackingId()); // C Third (Lower GPA)
+        assertEquals(appD.getId(), response.getPrimaryList().get(3).getTrackingId()); // D Fourth (Later Date)
+    }
+
+    private Application createMockApp(Long id, String username, BigDecimal score, BigDecimal yks, BigDecimal gpa,
+            java.time.LocalDateTime date) {
+        Application app = new Application();
+        app.setId(id);
+        app.setStatus(ApplicationStatus.UNDER_REVIEW);
+        app.setCompositeScore(score);
+        app.setYksScore(yks);
+        app.setConvertedGpa(gpa);
+        app.setSubmissionDate(date);
+        User student = new User();
+        student.setUsername(username);
+        app.setStudent(student);
+        return app;
     }
 }

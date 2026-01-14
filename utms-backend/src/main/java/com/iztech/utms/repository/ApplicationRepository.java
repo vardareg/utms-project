@@ -23,7 +23,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     // WP-5 ADDITION: Fetch all applications for a department, sorted by Composite
     // Score (PR-07/PR-09)
     // Used for generating the Ranking List
-    List<Application> findByTargetDepartmentIdOrderByCompositeScoreDesc(Integer departmentId);
+    // Sort Order: Composite Score (Desc) -> YKS Score (Desc) -> GPA (Desc) ->
+    // Submission Date (Asc)
+    List<Application> findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(
+            Integer departmentId);
 
     void deleteByStudent(com.iztech.utms.model.User student);
 }
