@@ -30,7 +30,7 @@ export default function OIDBDashboard({ user }) {
     const handleForward = async (appId) => {
         try {
             await apiFetch(`/applications/${appId}/forward`, { method: 'PATCH' });
-            alert("Application forwarded successfully.");
+            alert("Application forwarded successfully. Notification email sent to student.");
             setSelectedApp(null);
             fetchApplications();
         } catch (err) {
@@ -44,7 +44,7 @@ export default function OIDBDashboard({ user }) {
                 method: 'PATCH',
                 body: JSON.stringify({ reason })
             });
-            alert("Application returned to student.");
+            alert("Application returned. Notification email sent to student.");
             setSelectedApp(null);
             fetchApplications();
         } catch (err) {

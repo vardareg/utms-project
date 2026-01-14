@@ -43,6 +43,8 @@ public class ApplicationServiceTest {
     private DocumentRepository documentRepository;
     @Mock
     private ConfigurationService configurationService; // MOCKED
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private ApplicationService applicationService;

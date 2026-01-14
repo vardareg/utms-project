@@ -31,11 +31,14 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private NotificationService notificationService;
+
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, tokenRepository, passwordEncoder);
+        authService = new AuthService(userRepository, tokenRepository, passwordEncoder, notificationService);
     }
 
     @Test

@@ -19,6 +19,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     @Transactional
     public void initiatePasswordReset(String email) {
@@ -40,9 +41,8 @@ public class AuthService {
 
         // Simulate Email Sending
         String resetLink = "http://localhost:5173/reset-password?token=" + token.getToken();
-        System.out.println("==================================================");
-        System.out.println("PASSWORD RESET LINK: " + resetLink);
-        System.out.println("==================================================");
+        notificationService.sendNotification(email, "Password Reset Request",
+                "Click the following link to reset your password: " + resetLink);
     }
 
     @Transactional

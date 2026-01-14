@@ -32,6 +32,7 @@ public class ApplicationService {
         private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
         private final DocumentRepository documentRepository;
         private final ConfigurationService configurationService;
+        private final NotificationService notificationService;
 
         @Transactional
         public ApplicationDTO.Response submitApplication(String username, ApplicationDTO.Request request) {
@@ -102,6 +103,13 @@ public class ApplicationService {
                                 .targetApplicationId(savedApp.getId())
                                 .details("Application Submitted. Status: NEW")
                                 .build());
+
+                // NOTIFICATION: Trigger 1 (Submission)
+                notificationService.sendNotification(
+                                studentUser.getEmail(),
+                                "UTMS Application Received",
+                                "Dear " + studentUser.getUsername() + ", your application for " + department.getName()
+                                                + " has been received.");
 
                 return mapToResponse(savedApp);
         }
@@ -174,6 +182,15 @@ public class ApplicationService {
                                 .details("Forwarded to Faculty. Status: OLD(" + ApplicationStatus.NEW
                                                 + ") -> NEW(FORWARDED)")
                                 .build());
+
+                // NOTIFICATION: Trigger 3 (Forward) - Optional
+                // Sending to a generic faculty email for the department as we don't have
+                // Faculty users linked yet
+                notificationService.sendNotification(
+                                "faculty@" + app.getTargetDepartment().getName().toLowerCase().replace(" ", "")
+                                                + ".iztech.edu.tr",
+                                "New Application Pending Review",
+                                "A new application (ID: " + app.getId() + ") is pending review for your department.");
         }
 
         // WP-4 ADDITION: Return to Student
@@ -193,6 +210,13 @@ public class ApplicationService {
                                 .targetApplicationId(app.getId())
                                 .details("Returned to Student. Reason: " + reason)
                                 .build());
+
+                // NOTIFICATION: Trigger 2 (Return)
+                notificationService.sendNotification(
+                                app.getStudent().getEmail(),
+                                "Application Returned for Correction",
+                                "Your application has been returned. Reason: " + reason
+                                                + ". Please correct and resubmit.");
         }
 
         // UC-DEAN-01: Dean Assigns to YGK
@@ -232,6 +256,12 @@ public class ApplicationService {
                                 .targetApplicationId(app.getId())
                                 .details("Application Approved and Finalized.")
                                 .build());
+
+                // NOTIFICATION: Trigger 4 (Final Decision)
+                notificationService.sendNotification(
+                                app.getStudent().getEmail(),
+                                "Application Result Announced",
+                                "Your application has been approved. Please check the portal for details.");
         }
 
         private ApplicationDTO.Response mapToResponse(Application app) {

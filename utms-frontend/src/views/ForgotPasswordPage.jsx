@@ -14,8 +14,8 @@ export default function ForgotPasswordPage({ onBack }) {
         setMessage('');
 
         try {
-            const response = await forgotPassword(email);
-            setMessage(response); // "If an account exists..."
+            await forgotPassword(email);
+            setMessage("If an account exists, a reset link has been sent to your email.");
         } catch (err) {
             setError(err.message || 'Failed to send request');
         } finally {
