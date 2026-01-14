@@ -3,9 +3,13 @@ package com.iztech.utms.service;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ScoringService {
+
+    private final ConfigurationService configurationService;
 
     private static final BigDecimal MAX_GPA_4 = new BigDecimal("4.00");
     private static final BigDecimal MIN_GPA_4 = new BigDecimal("2.00");
@@ -67,7 +71,7 @@ public class ScoringService {
 
     /**
      * Calculates Composite Score (PR-07)
-     * Score = (GPA_100 * 0.5) + (YKS * 0.5)
+     * Score = (GPA_100 * WEIGHT_GPA) + (YKS * WEIGHT_YKS)
      */
     public BigDecimal calculateCompositeScore(BigDecimal gpa100, BigDecimal yks) {
         if (gpa100 == null)
@@ -75,8 +79,11 @@ public class ScoringService {
         if (yks == null)
             yks = BigDecimal.ZERO;
 
-        BigDecimal gpaPart = gpa100.multiply(new BigDecimal("0.5"));
-        BigDecimal yksPart = yks.multiply(new BigDecimal("0.5"));
+        BigDecimal weightGpa = configurationService.getGpaWeight();
+        BigDecimal weightYks = configurationService.getYksWeight();
+
+        BigDecimal gpaPart = gpa100.multiply(weightGpa);
+        BigDecimal yksPart = yks.multiply(weightYks);
 
         return gpaPart.add(yksPart).setScale(3, RoundingMode.HALF_UP);
     }

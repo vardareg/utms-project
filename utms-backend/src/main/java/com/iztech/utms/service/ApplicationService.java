@@ -31,8 +31,7 @@ public class ApplicationService {
         private final ScoringService scoringService;
         private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
         private final DocumentRepository documentRepository;
-
-        private static final BigDecimal MIN_GPA_THRESHOLD = new BigDecimal("2.50");
+        private final ConfigurationService configurationService;
 
         @Transactional
         public ApplicationDTO.Response submitApplication(String username, ApplicationDTO.Request request) {
@@ -46,9 +45,16 @@ public class ApplicationService {
                 Department department = departmentRepository.findById(request.getTargetDepartmentId())
                                 .orElseThrow(() -> new RuntimeException("Invalid Department ID"));
 
-                if (profile.getOverallGpa().compareTo(MIN_GPA_THRESHOLD) < 0) {
+                BigDecimal minGpa = configurationService.getMinGpaThreshold();
+                if (profile.getOverallGpa().compareTo(minGpa) < 0) {
                         throw new RuntimeException("Eligibility Error: Your GPA (" + profile.getOverallGpa() +
-                                        ") is below the minimum required (" + MIN_GPA_THRESHOLD + ").");
+                                        ") is below the minimum required (" + minGpa + ").");
+                }
+
+                BigDecimal minYks = configurationService.getMinYksThreshold();
+                if (request.getYksScore() != null && request.getYksScore().compareTo(minYks) < 0) {
+                        throw new RuntimeException("Eligibility Error: Your YKS Score (" + request.getYksScore() +
+                                        ") is below the minimum required (" + minYks + ").");
                 }
 
                 java.util.Optional<Application> existingAppOpt = applicationRepository

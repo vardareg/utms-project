@@ -12,6 +12,7 @@ import DeanDashboard from './views/DeanDashboard';
 import AuditLogsPage from './views/AuditLogsPage';
 import ForgotPasswordPage from './views/ForgotPasswordPage';
 import ResetPasswordPage from './views/ResetPasswordPage';
+import AdminRulesPage from './views/AdminRulesPage';
 
 // ==========================================
 // MAIN COMPONENT (App)
@@ -80,6 +81,10 @@ export default function App() {
         setCurrentView('audit-logs');
     };
 
+    const navigateToAdminRules = () => {
+        setCurrentView('admin-rules');
+    };
+
     const navigateToDashboard = () => {
         if (!user) {
             setCurrentView('login');
@@ -90,6 +95,7 @@ export default function App() {
             case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
             case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
             case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break;
+            case 'ROLE_ADMIN': setCurrentView('admin-rules'); break;
             default: setCurrentView('login');
         }
     };
@@ -100,6 +106,7 @@ export default function App() {
             case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
             case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break;
             case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
+            case 'ROLE_ADMIN': setCurrentView('admin-rules'); break;
             default: setCurrentView('login');
         }
     };
@@ -135,6 +142,7 @@ export default function App() {
             case 'oidb-dashboard': return <OIDBDashboard user={user} />;
             case 'ygk-dashboard': return <YGKDashboard user={user} />;
             case 'dean-dashboard': return <DeanDashboard user={user} />;
+            case 'admin-rules': return <AdminRulesPage onBack={navigateToDashboard} />;
 
             case 'audit-logs': return <AuditLogsPage onBack={navigateToDashboard} />;
             default: return <LoginView onLogin={handleLogin} error={error} loading={loading} onForgotPassword={() => setCurrentView('forgot-password')} />;
@@ -163,6 +171,14 @@ export default function App() {
                                     className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"
                                 >
                                     Audit Logs
+                                </button>
+                            )}
+                            {user.role === 'ROLE_ADMIN' && (
+                                <button
+                                    onClick={navigateToAdminRules}
+                                    className="bg-green-800 hover:bg-green-700 px-3 py-1 rounded text-sm transition"
+                                >
+                                    System Rules
                                 </button>
                             )}
                             <button

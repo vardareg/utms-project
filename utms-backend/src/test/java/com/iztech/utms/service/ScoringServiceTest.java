@@ -4,9 +4,14 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
+@org.junit.jupiter.api.extension.ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 public class ScoringServiceTest {
 
-    private final ScoringService scoringService = new ScoringService();
+    @org.mockito.Mock
+    private ConfigurationService configurationService;
+
+    @org.mockito.InjectMocks
+    private ScoringService scoringService;
 
     @Test
     void testConvertGpaTo100_PerfectScore() {
@@ -34,6 +39,10 @@ public class ScoringServiceTest {
 
     @Test
     void testCalculateCompositeScore() {
+        // Mock weights
+        org.mockito.Mockito.when(configurationService.getGpaWeight()).thenReturn(new BigDecimal("0.5"));
+        org.mockito.Mockito.when(configurationService.getYksWeight()).thenReturn(new BigDecimal("0.5"));
+
         // PR-07: (GPA_100 * 0.5) + (YKS * 0.5)
         BigDecimal gpa100 = new BigDecimal("80.00");
         BigDecimal yks = new BigDecimal("400.00");
@@ -45,6 +54,10 @@ public class ScoringServiceTest {
 
     @Test
     void testCalculateCompositeScore_RealExample() {
+        // Mock weights
+        org.mockito.Mockito.when(configurationService.getGpaWeight()).thenReturn(new BigDecimal("0.5"));
+        org.mockito.Mockito.when(configurationService.getYksWeight()).thenReturn(new BigDecimal("0.5"));
+
         // Student with 3.50 GPA (approx 88.33) and 450 YKS
         // 3.50 -> (1.5 * 23.335) + 53.33 = 35.0025 + 53.33 = 88.3325 -> 88.33
         BigDecimal gpa = new BigDecimal("3.50");
