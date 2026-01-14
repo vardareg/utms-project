@@ -132,4 +132,38 @@ public class ApplicationServiceTest {
         // Assert
         verify(applicationRepository).save(any());
     }
+
+    @Test
+    void testSubmitApplication_ThrowsOnDisciplinaryRecord() {
+        // Setup
+        ApplicationDTO.Request request = new ApplicationDTO.Request();
+        request.setTargetDepartmentId(1);
+        request.setYksScore(new BigDecimal("450.00"));
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("student1");
+
+        StudentProfile profile = new StudentProfile();
+        profile.setId(1L);
+        profile.setTckn("12345678901");
+        profile.setOverallGpa(new BigDecimal("3.50"));
+        profile.setHasDisciplinaryRecord(true); // Active Penalty
+
+        Department department = new Department();
+        department.setId(1);
+
+        when(userRepository.findByUsername("student1")).thenReturn(Optional.of(user));
+        when(studentProfileRepository.findById(1L)).thenReturn(Optional.of(profile));
+        when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
+        when(configurationService.getMinGpaThreshold()).thenReturn(new BigDecimal("2.00"));
+
+        // Execute & Assert
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            applicationService.submitApplication("student1", request);
+        });
+
+        assertTrue(exception.getMessage().contains("disciplinary penalties"));
+        verify(applicationRepository, never()).save(any());
+    }
 }

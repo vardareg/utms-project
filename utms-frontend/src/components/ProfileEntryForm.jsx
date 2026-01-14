@@ -6,14 +6,21 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
         tckn: '',
         currentUniversity: '',
         currentProgram: '',
-        overallGpa: ''
+        tckn: '',
+        currentUniversity: '',
+        currentProgram: '',
+        overallGpa: '',
+        hasDisciplinaryRecord: false
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
     };
 
     const validate = () => {
@@ -130,6 +137,25 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
                             required
                         />
                         <p className="text-xs text-gray-500 mt-1">Enter your current GPA on a 4.00 scale.</p>
+                    </div>
+
+                    <div className="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+                        <label className="flex items-start space-x-3">
+                            <input
+                                type="checkbox"
+                                name="hasDisciplinaryRecord"
+                                checked={formData.hasDisciplinaryRecord}
+                                onChange={handleChange}
+                                className="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded mt-0.5"
+                            />
+                            <div>
+                                <span className="text-sm font-bold text-gray-800">I have an active disciplinary record / penalty.</span>
+                                <p className="text-xs text-gray-600 mt-1">
+                                    Check this box if you have any active disciplinary actions on your record.
+                                    <strong>Note:</strong> Students with active disciplinary penalties are not eligible for transfer.
+                                </p>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

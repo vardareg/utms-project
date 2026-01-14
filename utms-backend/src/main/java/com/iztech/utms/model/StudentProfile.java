@@ -40,6 +40,10 @@ public class StudentProfile {
     @Column(name = "current_program", nullable = false, length = 100)
     private String currentProgram;
 
+    @Builder.Default
+    @Column(name = "has_disciplinary_record", nullable = false)
+    private boolean hasDisciplinaryRecord = false;
+
     // PR-01: Minimum GPA Rule foundation
     @DecimalMin("0.00")
     @DecimalMax("4.00")

@@ -40,6 +40,7 @@ public class StudentService {
                 profile.setCurrentUniversity(request.getCurrentUniversity());
                 profile.setCurrentProgram(request.getCurrentProgram());
                 profile.setOverallGpa(request.getOverallGpa());
+                profile.setHasDisciplinaryRecord(request.isHasDisciplinaryRecord());
 
                 StudentProfile saved = profileRepository.save(profile);
                 return mapToResponse(saved, user);
@@ -51,6 +52,7 @@ public class StudentService {
                                 .currentUniversity(profile.getCurrentUniversity())
                                 .currentProgram(profile.getCurrentProgram())
                                 .overallGpa(profile.getOverallGpa())
+                                .hasDisciplinaryRecord(profile.isHasDisciplinaryRecord())
                                 .username(user.getUsername())
                                 .email(user.getEmail())
                                 .build();

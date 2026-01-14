@@ -172,6 +172,18 @@ export default function StudentDashboard({ user }) {
                 </div>
             </section>
 
+            {profile.hasDisciplinaryRecord && (
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow">
+                    <div className="flex items-center">
+                        <AlertCircle className="w-6 h-6 mr-2" />
+                        <h3 className="font-bold">Ineligible for Application</h3>
+                    </div>
+                    <p className="mt-1">
+                        Our records indicate you have an active disciplinary penalty. Students with disciplinary records cannot apply for transfer. Please contact Student Affairs if this is an error.
+                    </p>
+                </div>
+            )}
+
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="bg-red-900 px-6 py-4 border-b border-red-800">
                     <h2 className="text-xl font-bold text-white flex items-center">

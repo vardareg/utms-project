@@ -35,6 +35,8 @@ public class StudentProfileDto {
         @DecimalMin(value = "0.00", message = "GPA cannot be less than 0.00")
         @DecimalMax(value = "4.00", message = "GPA cannot be greater than 4.00")
         private BigDecimal overallGpa;
+
+        private boolean hasDisciplinaryRecord;
     }
 
     @Data
@@ -46,6 +48,7 @@ public class StudentProfileDto {
         private String currentUniversity;
         private String currentProgram;
         private BigDecimal overallGpa;
+        private boolean hasDisciplinaryRecord;
         private String username;
         private String email;
     }

@@ -48,6 +48,11 @@ public class ApplicationService {
                                 .orElseThrow(() -> new RuntimeException("Invalid Department ID"));
 
                 BigDecimal minGpa = configurationService.getMinGpaThreshold();
+                if (profile.isHasDisciplinaryRecord()) {
+                        throw new RuntimeException(
+                                        "Eligibility Error: Applications cannot be processed for students with active disciplinary penalties.");
+                }
+
                 if (profile.getOverallGpa().compareTo(minGpa) < 0) {
                         throw new RuntimeException("Eligibility Error: Your GPA (" + profile.getOverallGpa() +
                                         ") is below the minimum required (" + minGpa + ").");
