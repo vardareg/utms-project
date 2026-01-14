@@ -29,6 +29,10 @@ export const apiFetch = async (endpoint, options = {}) => {
         headers,
     });
 
+    if (response.status === 204) {
+        return null;
+    }
+
     if (!response.ok) {
         // Handle 401 Unauthorized globally if needed
         if (response.status === 401) {
@@ -66,5 +70,17 @@ export const resetPassword = async (token, newPassword) => {
     return await apiFetch('/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({ token, newPassword }),
+    });
+};
+
+// Student Profile methods
+export const getMyProfile = async () => {
+    return await apiFetch('/student/profile');
+};
+
+export const updateMyProfile = async (profileData) => {
+    return await apiFetch('/student/profile', {
+        method: 'POST',
+        body: JSON.stringify(profileData),
     });
 };

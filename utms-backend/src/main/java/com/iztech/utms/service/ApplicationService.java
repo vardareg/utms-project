@@ -38,7 +38,7 @@ public class ApplicationService {
                 User studentUser = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-                StudentProfile profile = studentProfileRepository.findByUserId(studentUser.getId())
+                StudentProfile profile = studentProfileRepository.findById(studentUser.getId())
                                 .orElseThrow(() -> new RuntimeException(
                                                 "Student Profile not found. Please contact OIDB."));
 

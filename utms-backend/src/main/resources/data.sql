@@ -40,6 +40,7 @@ VALUES ('student', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa
 -- Using Select to be safe if possible, but H2 SQL support for subqueries in INSERT VALUES varies.
 -- Hardcoding ID 2 is risky if IDs skip. 
 -- However, for seed data on fresh DB, it usually works. 
+/*
 INSERT INTO student_profiles (user_id, tckn, current_university, current_program, overall_gpa)
 VALUES (
     (SELECT id FROM users WHERE username = 'student'), 
@@ -48,6 +49,7 @@ VALUES (
     'Computer Science', 
     3.50
 );
+*/
 
 -- 3. OIDB OFFICER
 INSERT INTO users (username, password_hash, email, role, user_type) 

@@ -71,7 +71,7 @@ public class AuditLogVerificationTest {
         app.setConvertedGpa(BigDecimal.TEN);
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(studentProfileRepository.findByUserId(user.getId())).thenReturn(Optional.of(profile));
+        when(studentProfileRepository.findById(user.getId())).thenReturn(Optional.of(profile));
         when(departmentRepository.findById(1)).thenReturn(Optional.of(department));
         when(applicationRepository.existsByStudentIdAndTargetDepartmentId(any(), any())).thenReturn(false);
         when(scoringService.convertGpaTo100(any())).thenReturn(new BigDecimal("80"));

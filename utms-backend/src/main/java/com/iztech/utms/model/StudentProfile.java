@@ -21,8 +21,7 @@ import java.math.BigDecimal;
 public class StudentProfile {
 
     @Id
-    @Column(name = "user_id")
-    private Long userId;
+    private Long id;
 
     @OneToOne
     @MapsId

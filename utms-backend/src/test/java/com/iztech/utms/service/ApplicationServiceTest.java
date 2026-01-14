@@ -61,7 +61,7 @@ public class ApplicationServiceTest {
 
         StudentProfile profile = new StudentProfile();
         profile.setOverallGpa(new BigDecimal("2.40")); // Below standard
-        when(studentProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(studentProfileRepository.findById(1L)).thenReturn(Optional.of(profile));
 
         Department dept = new Department();
         dept.setId(1); // Integer
@@ -98,7 +98,7 @@ public class ApplicationServiceTest {
         StudentProfile profile = new StudentProfile();
         // If config is 2.50, and GPA is 2.60, should pass eligibility check
         profile.setOverallGpa(new BigDecimal("2.60"));
-        when(studentProfileRepository.findByUserId(1L)).thenReturn(Optional.of(profile));
+        when(studentProfileRepository.findById(1L)).thenReturn(Optional.of(profile));
 
         Department dept = new Department();
         dept.setId(1); // Integer
