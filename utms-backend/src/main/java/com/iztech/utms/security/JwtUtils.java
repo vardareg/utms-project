@@ -20,9 +20,9 @@ public class JwtUtils {
     // Ideally stored in application.properties. Using a fixed key for Dev/POC.
     // In production, this must be a secure 256-bit environment variable.
     private final String jwtSecret = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    
-    // 24 Hours validity for ease of testing
-    private final int jwtExpirationMs = 86400000;
+
+    // 30 Minutes validity (SEC-06 Compliance)
+    private final int jwtExpirationMs = 1800000;
 
     public String generateJwtToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
