@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle, Clock } from 'lucide-react';
-import { apiFetch } from '../services/api';
+import { ArrowRight, CheckCircle, Clock, FileText, Download } from 'lucide-react';
+import { apiFetch, API_URL } from '../services/api';
 
 export default function DeanDashboard({ user }) {
     const [incomingApps, setIncomingApps] = useState([]);
@@ -59,9 +59,40 @@ export default function DeanDashboard({ user }) {
         }
     };
 
+    const handleExport = async (format) => {
+        // Mock Dept ID 1
+        const deptId = 1;
+        try {
+            const response = await fetch(`${API_URL}/evaluations/ranking/${deptId}/export?format=${format}`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (!response.ok) throw new Error("Export failed");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ranking_${deptId}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    };
+
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">Dean's Office Dashboard</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">Dean's Office Dashboard</h2>
+                <div className="flex space-x-2">
+                    <button onClick={() => handleExport('pdf')} className="text-red-700 hover:bg-red-50 px-3 py-2 rounded flex items-center border border-red-200 bg-white">
+                        <FileText className="w-4 h-4 mr-2" /> Export Ranking PDF
+                    </button>
+                    <button onClick={() => handleExport('xlsx')} className="text-green-700 hover:bg-green-50 px-3 py-2 rounded flex items-center border border-green-200 bg-white">
+                        <Download className="w-4 h-4 mr-2" /> Export Ranking Excel
+                    </button>
+                </div>
+            </div>
 
             {/* TABS */}
             <div className="flex border-b border-gray-200">

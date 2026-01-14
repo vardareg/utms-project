@@ -87,6 +87,25 @@ export default function YGKDashboard({ user }) {
         }
     };
 
+    const handleExport = async (format) => {
+        try {
+            const response = await fetch(`${API_URL}/evaluations/ranking/${DEPARTMENT_ID}/export?format=${format}`, {
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            if (!response.ok) throw new Error("Export failed");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ranking_${DEPARTMENT_ID}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } catch (error) {
+            alert("Error: " + error.message);
+        }
+    };
+
     // ------------------------------------------
     // SUB-COMPONENT: EVALUATION MODAL
     // ------------------------------------------
@@ -178,6 +197,17 @@ export default function YGKDashboard({ user }) {
                     >
                         <ListOrdered className="w-4 h-4 inline mr-2" /> Ranking List
                     </button>
+                    {viewMode === 'ranking' && (
+                        <>
+                            <div className="w-px bg-gray-300 mx-2"></div>
+                            <button onClick={() => handleExport('pdf')} className="text-red-700 hover:bg-red-50 px-3 py-2 rounded" title="Export PDF">
+                                <FileText className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleExport('xlsx')} className="text-green-700 hover:bg-green-50 px-3 py-2 rounded" title="Export Excel">
+                                <Download className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
 

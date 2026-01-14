@@ -61,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
+                                                                                // APIs
                         // .requestMatchers("/api/oidb/**").hasRole("OIDB") // Let method security
                         // handle specifics
                         .anyRequest().authenticated());
