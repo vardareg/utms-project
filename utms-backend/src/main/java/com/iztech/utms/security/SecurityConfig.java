@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll() // Allow H2 Console
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
@@ -66,6 +67,9 @@ public class SecurityConfig {
                         // .requestMatchers("/api/oidb/**").hasRole("OIDB") // Let method security
                         // handle specifics
                         .anyRequest().authenticated());
+
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin())); // Allow frames for H2
+                                                                                                  // Console
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);

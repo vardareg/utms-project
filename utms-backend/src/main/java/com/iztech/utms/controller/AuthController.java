@@ -2,6 +2,9 @@ package com.iztech.utms.controller;
 
 import com.iztech.utms.model.User;
 import com.iztech.utms.repository.UserRepository;
+import com.iztech.utms.repository.AuditLogRepository;
+import com.iztech.utms.model.AuditLog;
+import com.iztech.utms.model.ActionType;
 import com.iztech.utms.security.JwtUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -25,22 +28,44 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;
     private final JwtUtils jwtUtils;
     private final com.iztech.utms.service.AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        // Authenticate (SEC-03 BCrypt check happens inside authenticationManager)
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        try {
+            // Authenticate (SEC-03 BCrypt check happens inside authenticationManager)
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
 
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), role));
+            // Log Successful Login
+            auditLogRepository.save(AuditLog.builder()
+                    .actorUsername(userDetails.getUsername())
+                    .actionType(ActionType.LOGIN_SUCCESS)
+                    .details("User logged in successfully.")
+                    .targetApplicationId(0L) // System-level event
+                    .build());
+
+            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), role));
+
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            // Log Failed Login
+            auditLogRepository.save(AuditLog.builder()
+                    .actorUsername(loginRequest.getUsername() != null ? loginRequest.getUsername() : "UNKNOWN")
+                    .actionType(ActionType.LOGIN_FAILED)
+                    .details("Failed login attempt for username: " + loginRequest.getUsername())
+                    .targetApplicationId(0L) // System-level event
+                    .build());
+
+            throw e;
+        }
     }
 
     @PostMapping("/forgot-password")

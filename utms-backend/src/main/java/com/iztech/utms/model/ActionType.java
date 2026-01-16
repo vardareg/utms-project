@@ -7,5 +7,7 @@ public enum ActionType {
     EVALUATE,
     APPROVE,
     VIEW,
-    ARCHIVE
+    ARCHIVE,
+    LOGIN_SUCCESS,
+    LOGIN_FAILED
 }
