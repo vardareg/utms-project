@@ -142,3 +142,7 @@ export const deleteUser = async (id) => {
         method: 'DELETE',
     });
 };
+
+export const getSystemStats = async () => {
+    return await apiFetch('/admin/monitor/stats');
+};

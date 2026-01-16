@@ -69,8 +69,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/structure/**").authenticated() // Allow auth users to fetch structure
                         .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
                                                                                 // APIs
-                        // .requestMatchers("/api/oidb/**").hasRole("OIDB") // Let method security
-                        // handle specifics
+                        // Handle specifics
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin())); // Allow frames for H2

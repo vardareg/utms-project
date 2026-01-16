@@ -4,7 +4,8 @@ import AdminAnnouncementPanel from '../components/AdminAnnouncementPanel';
 import UserListTable from '../components/UserListTable';
 import AuditLogsTable from '../components/AuditLogsTable';
 import UserFormModal from '../components/UserFormModal';
-import { Settings, Megaphone, Users, Plus, Activity } from 'lucide-react';
+import SystemHealthPanel from './SystemHealthPanel';
+import { Settings, Megaphone, Users, Plus, Activity, Server } from 'lucide-react';
 import { getAllUsers, createUser, updateUser, deleteUser, getAuditLogs } from '../services/api';
 
 export default function AdminDashboard({ user }) {
@@ -155,6 +156,16 @@ export default function AdminDashboard({ user }) {
                         <Activity size={16} className="mr-2" />
                         Audit Logs
                     </button>
+                    <button
+                        onClick={() => setActiveTab('monitoring')}
+                        className={`px-4 py-2 rounded text-sm font-medium transition flex items-center ${activeTab === 'monitoring'
+                            ? 'bg-red-900 text-white'
+                            : 'bg-white text-gray-600 border hover:bg-gray-50'
+                            }`}
+                    >
+                        <Server size={16} className="mr-2" />
+                        System Monitoring
+                    </button>
                 </div>
             </div>
 
@@ -204,6 +215,12 @@ export default function AdminDashboard({ user }) {
                             </button>
                         </div>
                         <AuditLogsTable logs={auditLogs} />
+                    </div>
+                )}
+
+                {activeTab === 'monitoring' && (
+                    <div className="animate-fade-in-up">
+                        <SystemHealthPanel />
                     </div>
                 )}
             </div>
