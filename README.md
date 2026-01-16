@@ -1,64 +1,66 @@
 # Undergraduate Transfer Management System (UTMS)
 
-**Team 3 - IZTECH Computer Engineering**
-**Course:** SEDS 505
-**Version:** 1.0.0 (MVP)
+**Team 3 - IZTECH Computer Engineering**  
+**Course:** SEDS 505  
+**Version:** 1.1.0
 
 ## 1. Project Overview
 
-The **Undergraduate Transfer Management System (UTMS)** is a web-based platform designed to automate the undergraduate transfer (yatay geçiş) workflow at IZTECH. It replaces manual processes with a secure, centralized digital system connecting Students, Student Affairs (ÖİDB), Deans, and Transfer Commissions (YGK).
+The **Undergraduate Transfer Management System (UTMS)** is a web-based platform designed to automate the undergraduate transfer (yatay geçiş) workflow at IZTECH. It replaces manual processes with a secure, centralized digital system connecting Students, Student Affairs (ÖİDB), Dean's Office Staff, and Transfer Commissions (YGK).
 
 ### Key Capabilities
 
-- **Students**: Submit applications, upload documents, track status.
+- **Students**: Submit applications, upload documents, track status in real-time.
 - **ÖİDB**: Validate documents, forward to faculties, return incomplete applications.
-- **YGK**: Evaluate academic eligibility, view auto-generated rankings based on Composite Scores.
+- **YGK (Transfer Commission)**: Evaluate academic eligibility, view auto-generated rankings based on Composite Scores.
+- **Dean's Office Staff**: Assign applications to YGK, make final approval/rejection decisions.
+- **Admin**: Manage users, assign faculty/department scopes, view system-wide data.
 
 ## 2. Architecture
 
 The system follows a 3-Layer Monolithic Architecture as defined in the Software Design Description (SDD):
 
-- **Frontend**: React.js (Single Page Application) with Tailwind CSS.
+- **Frontend**: React.js (Single Page Application) with Vite and Vanilla CSS.
 - **Backend**: Spring Boot 3.2 (Java 17) with RESTful APIs.
-- **Database**: PostgreSQL (Relational Schema in 3NF).
+- **Database**: H2 In-Memory (Development) / PostgreSQL (Production).
 - **Security**: JWT (JSON Web Tokens) for Stateless Authentication + RBAC.
 
 ## 3. Prerequisites
 
 Ensure you have the following installed:
 
-- Java Development Kit (JDK) 17 or higher.
-- Node.js (v18+) and npm.
-- Maven (v3.8+).
-- PostgreSQL (Optional; creating `application.properties` allows switching between H2 In-Memory and Postgres).
-- Bash Terminal (Linux/Mac) or Git Bash (Windows).
+- **Java Development Kit (JDK)** 17 or higher
+- **Node.js** (v18+) and npm
+- **Maven** (v3.8+)
+- **Python 3** (for test data generation scripts)
+- Bash Terminal (Linux/Mac) or Git Bash (Windows)
 
 ## 4. Installation & Setup
 
-### Step 1: Initialize Workspace
+### Step 1: Clone Repository
 
-We provide an automated script to create the standard directory structure.
+```bash
+git clone <repository-url>
+cd utms-project
+```
 
-1. Save the `setup_utms_structure.sh` script to your desired location.
-2. Run the script:
+### Step 2: Backend Configuration
 
-   ```bash
-   chmod +x setup_utms_structure.sh
-   ./setup_utms_structure.sh
-   ```
+The system uses an **H2 In-Memory Database** by default for ease of development. Configuration is found in `utms-backend/src/main/resources/application.properties`.
 
-   This creates the `utms-project` folder containing `utms-backend` and `utms-frontend`.
+**Default Configuration:**
 
-### Step 2: Populate Code
+- Database resets on each restart
+- Pre-seeded with default users and university structure
+- No external database setup required
 
-The script creates empty files. You must populate them with the code generated in the development phases (WP-2 to WP-5).
-*Note: The current repository state has all necessary code pre-populated.*
+### Step 3: Frontend Configuration
 
-**Backend Configuration**:
-The system uses an **H2 In-Memory Database** by default for ease of development. Configuration is found in `src/main/resources/application.properties`.
+The frontend is a **Vite + React** app styled with Vanilla CSS.
 
-**Frontend Configuration**:
-The frontend is a **Vite + React** app styled with **Tailwind CSS**.
+- Dynamic faculty and department dropdowns
+- Color-coded role badges
+- Real-time status tracking
 
 ## 5. Running the Application
 
@@ -67,7 +69,7 @@ The frontend is a **Vite + React** app styled with **Tailwind CSS**.
 1. Navigate to the backend directory:
 
    ```bash
-   cd utms-project/utms-backend
+   cd utms-backend
    ```
 
 2. Run the application using Maven:
@@ -83,10 +85,10 @@ The frontend is a **Vite + React** app styled with **Tailwind CSS**.
 1. Navigate to the frontend directory:
 
    ```bash
-   cd utms-project/utms-frontend
+   cd utms-frontend
    ```
 
-2. Install dependencies (including Tailwind CSS):
+2. Install dependencies:
 
    ```bash
    npm install
@@ -100,50 +102,259 @@ The frontend is a **Vite + React** app styled with **Tailwind CSS**.
 
    Client will start on `http://localhost:5173`.
 
-## 6. Quick Start Credentials
+## 6. Default Credentials
 
-See `credentials.txt` for a full list. All accounts use **Password:** `password123`.
+See `credentials.txt` for a complete list.
 
-| Role | Username |
-| :--- | :--- |
-| **Student** | `student` |
-| **Student Affairs (ÖİDB)** | `oidb` |
-| **Transfer Commission (YGK)** | `ygk` |
-| **Admin** | `admin` |
+### Default Accounts (Password: `password123`)
 
-## 7. Usage Guide (Flows)
+| Role | Username | Scope |
+|------|----------|-------|
+| **Admin** | `admin` | System-wide |
+| **Student** | `student` | Self only |
+| **ÖİDB Officer** | `oidb` | All applications |
+| **YGK - Computer Eng** | `ygk_cse` | Computer Engineering |
+| **YGK - Mechanical Eng** | `ygk_mech` | Mechanical Engineering |
+| **YGK - Architecture** | `ygk_arch` | Architecture |
+| **Dean's Office - Engineering** | `dean_eng` | Engineering Faculty |
+| **Dean's Office - Architecture** | `dean_arch` | Architecture Faculty |
 
-The system is pre-seeded with data (via `data.sql`).
+### Test Students (Password: `Student123!`)
 
-### 1. Student Flow (WP-3)
+50 test students can be generated using the `init_data.py` script:
 
-- **Login**: Use `student`.
-- **Action**: Click "New Application", select Department, enter YKS Score, Upload PDF.
-- **Outcome**: Status becomes `NEW`.
+```bash
+python3 init_data.py
+```
 
-### 2. ÖİDB Officer Flow (WP-4)
+Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 
-- **Login**: Use `oidb`.
-- **Action**: View "Pending Evaluations", Download Documents to verify.
-- **Outcome**: Click "Forward" -> Status becomes `FORWARDED`.
+- **Departments**: `cse`, `mech`, `arch`
+- **Statuses**: `new`, `forwarded`, `evaluated`, `approved`, `rejected`
 
-### 3. YGK Member Flow (WP-5)
+## 7. University Structure
 
-- **Login**: Use `ygk`.
-- **Action**: View "Evaluations", click "Evaluate", mark "Eligible".
-- **Outcome**: Status becomes `UNDER_REVIEW`.
-- **Ranking**: Click "Ranking List" to see the auto-generated Primary/Waitlist.
+### Active Faculties and Departments
 
-## 8. API Documentation
+**Faculty of Engineering (ID: 1)**
 
-For detailed API endpoints, request/response formats, and business rules logic, refer to the `manual.md` file (formerly `API_DOCUMENTATION.md`) included in the delivery package.
+- Computer Engineering (ID: 1, Quota: 5)
+- Mechanical Engineering (ID: 2, Quota: 3)
 
-## 9. Troubleshooting
+**Faculty of Architecture (ID: 2)**
 
-- **Login Fails (403/401)**: Ensure the backend is running. If recently restarted, the in-memory H2 database resets; ensure you are using the seeded credentials.
-- **Database Errors**: The system uses `application.properties` to configure H2. Ensure `schema.sql` (if present) does not conflict with Hibernate's `ddl-auto` setting. Currently, `schema.sql.bak` is disabled to allow Hibernate to manage the schema.
-- **CORS Issues**: The `SecurityConfig.java` is configured to allow requests from `localhost:5173`.
-- **Styling Missing**: Ensure you ran `npm install` to download Tailwind dependencies and `npm run dev` to compile the styles.
+- Architecture (ID: 3, Quota: 5)
+
+## 8. Usage Guide (Flows)
+
+### 1. Student Flow
+
+1. **Login**: Use `student` or any test student account
+2. **Create Profile**: Fill in TCKN, current university, program, and GPA
+3. **Submit Application**: Select target department, enter YKS score
+4. **Upload Documents**: Attach required PDFs (max 5MB each)
+5. **Track Status**: Monitor application progress in real-time
+
+### 2. ÖİDB Officer Flow
+
+1. **Login**: Use `oidb`
+2. **View Applications**: See all incoming applications with status `NEW`
+3. **Validate Documents**: Download and verify uploaded files
+4. **Actions**:
+   - **Forward**: Send to appropriate faculty → Status: `FORWARDED`
+   - **Return**: Send back to student for corrections → Status: `RETURNED`
+
+### 3. Dean's Office Staff Flow
+
+1. **Login**: Use `dean_eng` or `dean_arch`
+2. **View Forwarded Applications**: See applications within faculty scope
+3. **Assign to YGK**: Send application for academic evaluation → Status: `UNDER_REVIEW`
+4. **Final Decision** (after YGK evaluation):
+   - **Approve**: Grant transfer → Status: `APPROVED`
+   - Rejection is handled by not approving
+
+### 4. YGK Member Flow
+
+1. **Login**: Use `ygk_cse`, `ygk_mech`, or `ygk_arch`
+2. **View Assigned Applications**: See department-specific applications
+3. **Evaluate**: Mark as eligible/ineligible with notes → Status: `EVALUATED`
+4. **Generate Ranking**: View auto-calculated rankings based on composite scores
+5. **Export**: Download ranking list as PDF or Excel
+
+### 5. Admin Flow
+
+1. **Login**: Use `admin`
+2. **User Management**:
+   - Create new users with specific roles
+   - Assign faculty/department scopes to Dean's Office Staff and YGK members
+   - Update user roles and assignments
+   - View all users with color-coded role badges
+3. **System Overview**: Access all dashboards and features
+
+## 9. Features
+
+### Security Features
+
+- ✅ JWT-based stateless authentication (30-minute expiration)
+- ✅ BCrypt password hashing
+- ✅ Password complexity requirements (SEC-09)
+- ✅ Role-based access control (RBAC)
+- ✅ Scope-based data isolation for Dean's Office and YGK
+
+### Application Features
+
+- ✅ Composite score calculation (PR-07)
+- ✅ YKS score validation with OSYM service
+- ✅ GPA threshold enforcement (minimum 2.50)
+- ✅ Disciplinary record checking
+- ✅ Duplicate application prevention
+- ✅ Document upload with type validation (PDF only)
+- ✅ Auto-generated rankings with quota management
+- ✅ Tie-breaking logic (PR-09)
+
+### Admin Panel Features
+
+- ✅ User creation and management
+- ✅ Dynamic faculty/department assignment
+- ✅ Auto user type assignment based on role
+- ✅ Color-coded role badges for easy identification
+- ✅ Administrative profile auto-management
+- ✅ Audit logging for all actions
+
+### UI Enhancements
+
+- ✅ Real-time status tracking
+- ✅ Responsive design with modern aesthetics
+- ✅ Dynamic dropdown population
+- ✅ Assignment display in user lists
+- ✅ Differentiated role colors
+
+## 10. API Documentation
+
+For detailed API endpoints, request/response formats, and business rules logic, refer to the `manual.md` file included in the project root.
+
+**Quick Reference:**
+
+- Authentication: `POST /api/auth/login`
+- Applications: `/api/applications`
+- Student Profile: `/api/student/profile`
+- Documents: `/api/documents`
+- Evaluations: `/api/evaluations`
+- University Structure: `/api/structure`
+- Admin: `/api/admin`
+
+## 11. Testing
+
+### Test Data Generation
+
+Generate 50 test students with varied data:
+
+```bash
+python3 init_data.py
+```
+
+This creates:
+
+- 50 student accounts across 3 departments
+- Applications in different workflow stages
+- Realistic GPAs (2.5-4.0) and YKS scores (400-520)
+- Varied university backgrounds
+
+### Manual Testing
+
+1. **Restart Backend** to clear database
+2. **Run init_data.py** to populate data
+3. **Login** with different roles to test workflows
+4. **Verify** status transitions and calculations
+
+## 12. Troubleshooting
+
+### Login Fails (403/401)
+
+- Ensure the backend is running at `http://localhost:8080`
+- Use the correct password: `password123` (default) or `Student123!` (test students)
+- JWT tokens expire after 30 minutes; login again if expired
+
+### Database Errors
+
+- The H2 database resets on backend restart
+- All changes are lost unless using PostgreSQL
+- Re-run `init_data.py` after restart to restore test data
+
+### CORS Issues
+
+- Backend is configured for `http://localhost:5173`
+- Ensure frontend runs on the correct port
+- Check `SecurityConfig.java` if using different ports
+
+### Password Validation Errors
+
+- Passwords must be at least 8 characters
+- Must include: uppercase, lowercase, numbers, special characters
+- Example valid password: `Password123!`
+
+### User Creation Fails
+
+- Ensure faculty/department IDs are correct
+- DEAN_OFFICE_STAFF requires `facultyId`
+- YGK requires `departmentId`
+- Other roles should not have these fields
+
+### Styling Issues
+
+- Run `npm install` in utms-frontend
+- Ensure `npm run dev` is running
+- Clear browser cache if styles don't update
+
+## 13. Project Structure
+
+```
+utms-project/
+├── utms-backend/
+│   ├── src/main/java/com/iztech/utms/
+│   │   ├── controller/      # REST API endpoints
+│   │   ├── service/         # Business logic
+│   │   ├── model/           # JPA entities
+│   │   ├── repository/      # Data access layer
+│   │   ├── security/        # JWT & authentication
+│   │   ├── dto/             # Data transfer objects
+│   │   └── payload/         # Request/response classes
+│   └── src/main/resources/
+│       ├── application.properties
+│       └── data.sql         # Seed data
+├── utms-frontend/
+│   ├── src/
+│   │   ├── components/      # React components
+│   │   ├── services/        # API calls
+│   │   ├── App.jsx          # Main app component
+│   │   └── index.css        # Global styles
+│   └── package.json
+├── init_data.py             # Test data generator
+├── credentials.txt          # All login credentials
+├── manual.md               # API documentation
+└── README.md               # This file
+```
+
+## 14. Development Notes
+
+- **Database**: H2 in-memory resets on restart; use PostgreSQL for persistence
+- **Passwords**: BCrypt hashed with strength factor 10
+- **JWT**: Signed with HS256 algorithm
+- **Sessions**: Completely stateless (no server-side sessions)
+- **File Storage**: Local filesystem in `uploads/` directory
+- **Seed Data**: Automatically loaded from `data.sql` on startup
 
 ---
-© 2026 IZTECH Team 3
+
+## 15. Support & Contact
+
+For questions or issues:
+
+- Review `manual.md` for API details
+- Check `credentials.txt` for login information
+- Consult SRS and SDD documents for requirements
+
+---
+
+© 2026 IZTECH Team 3  
+Course: SEDS 505 - Software Engineering Design Studio
