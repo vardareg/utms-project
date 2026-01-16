@@ -31,6 +31,7 @@ public class AuthController {
     private final AuditLogRepository auditLogRepository;
     private final JwtUtils jwtUtils;
     private final com.iztech.utms.service.AuthService authService;
+    private final com.iztech.utms.repository.AdministrativeProfileRepository administrativeProfileRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -53,7 +54,25 @@ public class AuthController {
                     .targetApplicationId(0L) // System-level event
                     .build());
 
-            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), role));
+            // Fetch Admin Profile if exists
+            com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository.findById(
+                    userRepository.findByUsername(userDetails.getUsername()).get().getId()).orElse(null);
+
+            Integer deptId = (profile != null && profile.getDepartment() != null) ? profile.getDepartment().getId()
+                    : null;
+            Integer facultyId = (profile != null && profile.getFaculty() != null) ? profile.getFaculty().getId() : null;
+
+            String scopeName = null;
+            if (profile != null) {
+                if (profile.getDepartment() != null) {
+                    scopeName = profile.getDepartment().getName();
+                } else if (profile.getFaculty() != null) {
+                    scopeName = profile.getFaculty().getName();
+                }
+            }
+
+            return ResponseEntity
+                    .ok(new JwtResponse(jwt, userDetails.getUsername(), role, deptId, facultyId, scopeName));
 
         } catch (org.springframework.security.core.AuthenticationException e) {
             // Log Failed Login
@@ -113,6 +132,9 @@ public class AuthController {
         private String token;
         private String username;
         private String role;
+        private Integer departmentId;
+        private Integer facultyId;
+        private String scopeName;
         private final String type = "Bearer";
     }
 }

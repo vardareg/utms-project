@@ -14,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -61,6 +63,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Allow H2 Console
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/api/admin/audit-logs").hasAnyRole("ADMIN", "DEAN", "OIDB") // Allow Audit
+                                                                                                      // Logs for Staff
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
                                                                                 // APIs
@@ -70,6 +74,9 @@ public class SecurityConfig {
 
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin())); // Allow frames for H2
                                                                                                   // Console
+
+        // Fix for 403 vs 401: Return 401 Unauthorized for unauthenticated requests
+        http.exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);

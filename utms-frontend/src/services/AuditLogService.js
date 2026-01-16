@@ -2,7 +2,7 @@ import { apiFetch } from './api';
 
 class AuditLogService {
     getAllAuditLogs() {
-        return apiFetch('/audit-logs');
+        return apiFetch('/admin/audit-logs');
     }
 }
 

@@ -57,7 +57,14 @@ export default function App() {
                 data = await response.json();
             }
 
-            const userData = { username: data.username, role: data.role, token: data.token };
+            const userData = {
+                username: data.username,
+                role: data.role,
+                token: data.token,
+                departmentId: data.departmentId,
+                facultyId: data.facultyId,
+                scopeName: data.scopeName
+            };
             localStorage.setItem('utms_user', JSON.stringify(userData));
             setUser(userData);
             routeUser(userData.role);

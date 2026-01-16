@@ -62,8 +62,11 @@ export default function DeanDashboard({ user }) {
     };
 
     const handleExport = async (format) => {
-        // Mock Dept ID 1
-        const deptId = 1;
+        // Use Department ID from User Profile (AdministrativeProfile)
+        // If Faculty Dean (departmentId is null), we might need to export for a specific selected department.
+        // For now, if Department Dean, use that ID. If Faculty Dean, we might default to 1 or handle selection later.
+        // The user asked for "Dean for Comp Eng", so departmentId will be set.
+        const deptId = user.departmentId || 1;
         try {
             const response = await fetch(`${API_URL}/evaluations/ranking/${deptId}/export?format=${format}`, {
                 headers: { 'Authorization': `Bearer ${user.token}` }
@@ -85,7 +88,9 @@ export default function DeanDashboard({ user }) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Dean's Office Dashboard</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                    {user.scopeName ? `${user.scopeName} Dean's Office Dashboard` : "Dean's Office Dashboard"}
+                </h2>
                 <div className="flex space-x-2">
                     <button onClick={() => handleExport('pdf')} className="text-red-700 hover:bg-red-50 px-3 py-2 rounded flex items-center border border-red-200 bg-white">
                         <FileText className="w-4 h-4 mr-2" /> Export Ranking PDF

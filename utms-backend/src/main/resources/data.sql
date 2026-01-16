@@ -62,3 +62,40 @@ VALUES ('ygk', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', '
 -- 5. DEAN
 INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
 VALUES ('dean', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+
+-- 6. DEAN OF COMPUTER ENGINEERING (Department Scope)
+INSERT INTO users (username, password_hash, email, role, user_type, enabled)
+VALUES ('dean_cse', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_cse@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+
+-- 7. DEAN OF MECHANICAL ENGINEERING (Department Scope)
+INSERT INTO users (username, password_hash, email, role, user_type, enabled)
+VALUES ('dean_mech', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_mech@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+
+-- 8. DEAN OF ENGINEERING FACULTY (Faculty Scope)
+INSERT INTO users (username, password_hash, email, role, user_type, enabled)
+VALUES ('dean_eng', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_eng@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+
+-- ADMINISTRATIVE PROFILES
+-- Link 'dean_cse' (ID 6) to Dept 1 (Computer Engineering)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'dean_cse'), 1, NULL
+);
+
+-- Link 'dean_mech' (ID 7) to Dept 2 (Mechanical Engineering)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'dean_mech'), 2, NULL
+);
+
+-- Link 'dean_eng' (ID 8) to Faculty 1 (Engineering)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'dean_eng'), NULL, 1
+);
+
+-- 9. DEAN OF ARCHITECTURE FACULTY
+INSERT INTO users (username, password_hash, email, role, user_type, enabled)
+VALUES ('dean_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_arch@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+
+-- Link 'dean_arch' to Faculty 3 (Architecture)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'dean_arch'), NULL, 3
+);

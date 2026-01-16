@@ -39,17 +39,28 @@ export const apiFetch = async (endpoint, options = {}) => {
     }
 
     if (!response.ok) {
-        // Handle 401 Unauthorized globally if needed
+        // Handle 401 Unauthorized globally
         if (response.status === 401) {
-            // Could trigger logout here
+            localStorage.removeItem('utms_user');
+            // Optional: alert("Session expired. Please log in again.");
+            window.location.href = '/login';
+            return; // Stop further processing
         }
 
         let errorData;
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {
             errorData = await response.json();
-            // If it's a validation error map (field -> message)
-            // or a Spring standard error structure, we attach it to the error object.
+
+            // CHECK: Is it a standard Spring Boot error response? (Has status & error fields)
+            // e.g. { "timestamp":..., "status": 403, "error": "Forbidden", "message": "..." }
+            if (errorData.status && errorData.error) {
+                // Use the 'message' if available, otherwise 'error', otherwise generic text
+                const msg = errorData.message || errorData.error || `Error ${errorData.status}`;
+                throw new Error(msg);
+            }
+
+            // Otherwise, assume it's a Validation Error Map (Field -> Message)
             const error = new Error("Validation Failed");
             error.validationErrors = errorData;
             throw error;

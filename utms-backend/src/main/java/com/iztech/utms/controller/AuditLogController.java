@@ -18,7 +18,24 @@ public class AuditLogController {
     private final AuditLogRepository auditLogRepository;
 
     @GetMapping
-    public List<AuditLog> getAllAuditLogs() {
-        return auditLogRepository.findAll(Sort.by(Sort.Direction.DESC, "timestamp"));
+    public java.util.List<AuditLog> getAllAuditLogs() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            return auditLogRepository.findAll(Sort.by(Sort.Direction.DESC, "timestamp"));
+        } else {
+            // Filter for OIDB / DEAN / YGK: Only show App Status changes
+            java.util.List<com.iztech.utms.model.ActionType> visibleActions = java.util.Arrays.asList(
+                    com.iztech.utms.model.ActionType.SUBMIT,
+                    com.iztech.utms.model.ActionType.FORWARD,
+                    com.iztech.utms.model.ActionType.RETURN,
+                    com.iztech.utms.model.ActionType.EVALUATE,
+                    com.iztech.utms.model.ActionType.APPROVE,
+                    com.iztech.utms.model.ActionType.ARCHIVE);
+            return auditLogRepository.findByActionTypeIn(visibleActions, Sort.by(Sort.Direction.DESC, "timestamp"));
+        }
     }
 }

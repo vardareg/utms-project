@@ -11,4 +11,7 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     List<AuditLog> findByTargetApplicationId(Long targetApplicationId);
 
     List<AuditLog> findByActorUsername(String actorUsername);
+
+    List<AuditLog> findByActionTypeIn(java.util.Collection<com.iztech.utms.model.ActionType> types,
+            org.springframework.data.domain.Sort sort);
 }

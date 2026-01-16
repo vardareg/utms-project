@@ -7,7 +7,6 @@ import com.iztech.utms.model.Evaluation;
 import com.iztech.utms.model.UniversityStructure.Department;
 import com.iztech.utms.model.User;
 import com.iztech.utms.repository.ApplicationRepository;
-import com.iztech.utms.repository.DepartmentRepository;
 import com.iztech.utms.repository.EvaluationRepository;
 import com.iztech.utms.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,8 @@ public class EvaluationService {
     private final EvaluationRepository evaluationRepository;
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
-    private final DepartmentRepository departmentRepository;
+    private final com.iztech.utms.repository.DepartmentRepository departmentRepository;
+    private final com.iztech.utms.repository.AdministrativeProfileRepository administrativeProfileRepository;
     private final com.iztech.utms.repository.StudentProfileRepository studentProfileRepository;
     private final com.iztech.utms.repository.AuditLogRepository auditLogRepository;
     private final com.iztech.utms.service.UbysService ubysService;
@@ -41,6 +41,24 @@ public class EvaluationService {
 
         Application app = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        // ACCESS CONTROL: Link YGK User to Department
+        com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository
+                .findById(ygkMember.getId())
+                .orElse(null);
+
+        if (profile != null) {
+            if (profile.getDepartment() != null
+                    && !profile.getDepartment().getId().equals(app.getTargetDepartment().getId())) {
+                throw new RuntimeException(
+                        "Access Denied: You are authorized for " + profile.getDepartment().getName() + " only.");
+            }
+            if (profile.getFaculty() != null
+                    && !profile.getFaculty().getId().equals(app.getTargetDepartment().getFaculty().getId())) {
+                throw new RuntimeException(
+                        "Access Denied: You are authorized for " + profile.getFaculty().getName() + " only.");
+            }
+        }
 
         // Save Evaluation Record
         Evaluation evaluation = Evaluation.builder()
@@ -66,7 +84,8 @@ public class EvaluationService {
                 .actorUsername(username)
                 .actionType(com.iztech.utms.model.ActionType.EVALUATE)
                 .targetApplicationId(app.getId())
-                .details("Evaluation Submitted. Eligible: " + isEligible + ". Note: " + note)
+                .details("Evaluated Application of " + app.getStudent().getUsername() + " for "
+                        + app.getTargetDepartment().getName() + ". Eligible: " + isEligible + ". Note: " + note)
                 .build());
 
     }
@@ -129,6 +148,25 @@ public class EvaluationService {
         Department dept = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
+        // ACCESS CONTROL Check (Similar to ApplicationService)
+        String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        // Skip for ADMIN
+        if (currentUser.getRole() != User.Role.ROLE_ADMIN && currentUser.getRole() != User.Role.ROLE_OIDB) {
+            com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository
+                    .findById(currentUser.getId()).orElse(null);
+            if (profile != null) {
+                if (profile.getDepartment() != null && !profile.getDepartment().getId().equals(departmentId)) {
+                    throw new RuntimeException("Access Denied: You cannot view rankings for other departments.");
+                }
+                if (profile.getFaculty() != null && !dept.getFaculty().getId().equals(profile.getFaculty().getId())) {
+                    throw new RuntimeException("Access Denied: You cannot view rankings for other faculties.");
+                }
+            }
+        }
+
         // 1. Fetch all applications for this department, Sorted by Score (PR-07)
         // Sort Order: Composite Score (Desc) -> YKS Score (Desc) -> GPA (Desc) ->
         // Submission Date (Asc)
@@ -184,14 +222,27 @@ public class EvaluationService {
 
         // Helper to create app
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        createSeededApp("studentA", departmentId, new BigDecimal("100"), new BigDecimal("450"), new BigDecimal("3.50"),
-                now);
-        createSeededApp("studentB", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.80"),
-                now);
-        createSeededApp("studentC", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
-                now);
-        createSeededApp("studentD", departmentId, new BigDecimal("100"), new BigDecimal("440"), new BigDecimal("3.50"),
-                now.plusHours(1));
+        java.util.Random random = new java.util.Random();
+
+        for (int i = 1; i <= 15; i++) {
+            String studentUsername = "student_" + departmentId + "_" + i;
+
+            // Randomize Scores
+            // YKS: 200 - 550
+            double yksVal = 200 + (350 * random.nextDouble());
+            BigDecimal yks = new BigDecimal(yksVal).setScale(2, java.math.RoundingMode.HALF_UP);
+
+            // GPA: 2.00 - 4.00
+            double gpaVal = 2.0 + (2.0 * random.nextDouble());
+            BigDecimal gpa = new BigDecimal(gpaVal).setScale(2, java.math.RoundingMode.HALF_UP);
+
+            // Composite: (YKS * 0.5) + (GPA * 100 * 0.5) approx formula for variation
+            BigDecimal composite = yks.multiply(new BigDecimal("0.5"))
+                    .add(gpa.multiply(new BigDecimal("100")).multiply(new BigDecimal("0.5")))
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+
+            createSeededApp(studentUsername, departmentId, composite, yks, gpa, now.plusMinutes(random.nextInt(120)));
+        }
     }
 
     private void createSeededApp(String username, Integer deptId, BigDecimal score, BigDecimal yks, BigDecimal gpa,

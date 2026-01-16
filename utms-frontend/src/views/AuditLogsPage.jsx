@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AuditLogService from '../services/AuditLogService';
+import AuditLogsTable from '../components/AuditLogsTable';
 
 const AuditLogsPage = ({ onBack }) => {
     const [logs, setLogs] = useState([]);
@@ -23,61 +24,31 @@ const AuditLogsPage = ({ onBack }) => {
         }
     };
 
-    if (loading) return <div className="p-4 text-white">Loading logs...</div>;
-    if (error) return <div className="p-4 text-red-500">{error}</div>;
+    if (loading) return <div className="p-8 text-gray-600">Loading logs...</div>;
+    if (error) return <div className="p-8 text-red-600">{error}</div>;
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-white">System Audit Logs</h1>
-                <button
-                    onClick={onBack}
-                    className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded shadow transition"
-                >
-                    &larr; Back to Dashboard
-                </button>
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">System Audit Logs</h2>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={fetchLogs}
+                        className="text-sm text-blue-600 hover:underline px-3"
+                    >
+                        Refresh
+                    </button>
+                    <button
+                        onClick={onBack}
+                        className="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded shadow transition text-sm"
+                    >
+                        &larr; Back to Dashboard
+                    </button>
+                </div>
             </div>
-            <div className="overflow-x-auto bg-gray-800 rounded-lg shadow">
-                <table className="min-w-full text-left text-sm whitespace-nowrap">
-                    <thead className="uppercase tracking-wider border-b-2 border-gray-700 bg-gray-900 text-gray-300">
-                        <tr>
-                            <th scope="col" className="px-6 py-4">ID</th>
-                            <th scope="col" className="px-6 py-4">Timestamp</th>
-                            <th scope="col" className="px-6 py-4">Actor</th>
-                            <th scope="col" className="px-6 py-4">Action</th>
-                            <th scope="col" className="px-6 py-4">Target App ID</th>
-                            <th scope="col" className="px-6 py-4">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700 text-gray-300">
-                        {logs.map((log) => (
-                            <tr key={log.id} className="hover:bg-gray-700 transition-colors">
-                                <td className="px-6 py-4">{log.id}</td>
-                                <td className="px-6 py-4">{new Date(log.timestamp).toLocaleString()}</td>
-                                <td className="px-6 py-4 font-medium text-blue-400">{log.actorUsername}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${log.actionType === 'SUBMIT' ? 'bg-green-100 text-green-800' :
-                                            log.actionType === 'FORWARD' ? 'bg-blue-100 text-blue-800' :
-                                                log.actionType === 'RETURN' ? 'bg-red-100 text-red-800' :
-                                                    log.actionType === 'APPROVE' ? 'bg-purple-100 text-purple-800' :
-                                                        'bg-gray-100 text-gray-800'}`}>
-                                        {log.actionType}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">{log.targetApplicationId}</td>
-                                <td className="px-6 py-4 max-w-xs truncate" title={log.details}>
-                                    {log.details}
-                                </td>
-                            </tr>
-                        ))}
-                        {logs.length === 0 && (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-4 text-center">No logs found.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+
+            <div className="bg-white rounded-lg shadow min-h-[500px] p-6">
+                <AuditLogsTable logs={logs} />
             </div>
         </div>
     );
