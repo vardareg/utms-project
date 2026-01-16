@@ -109,6 +109,11 @@ export const updateUser = async (id, userData) => {
     });
 };
 
+// Audit Logs
+export const getAuditLogs = async () => {
+    return await apiFetch('/admin/audit-logs');
+};
+
 export const deleteUser = async (id) => {
     return await apiFetch(`/admin/users/${id}`, {
         method: 'DELETE',

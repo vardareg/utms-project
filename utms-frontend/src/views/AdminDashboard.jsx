@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import AdminRulesPage from './AdminRulesPage';
 import AdminAnnouncementPanel from '../components/AdminAnnouncementPanel';
 import UserListTable from '../components/UserListTable';
+import AuditLogsTable from '../components/AuditLogsTable';
 import UserFormModal from '../components/UserFormModal';
-import { Settings, Megaphone, Users, Plus } from 'lucide-react';
-import { getAllUsers, createUser, updateUser, deleteUser } from '../services/api';
+import { Settings, Megaphone, Users, Plus, Activity } from 'lucide-react';
+import { getAllUsers, createUser, updateUser, deleteUser, getAuditLogs } from '../services/api';
 
 export default function AdminDashboard({ user }) {
     const [activeTab, setActiveTab] = useState('rules');
     const [users, setUsers] = useState([]);
+    const [auditLogs, setAuditLogs] = useState([]);
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [notification, setNotification] = useState(null);
 
     // Fetch users when tab changes to 'users'
+    // Fetch data based on active tab
     useEffect(() => {
         if (activeTab === 'users') {
             fetchUsers();
+        } else if (activeTab === 'audit-logs') {
+            fetchAuditLogs();
         }
     }, [activeTab]);
 
@@ -26,6 +31,16 @@ export default function AdminDashboard({ user }) {
             setUsers(data);
         } catch (error) {
             console.error("Failed to fetch users", error);
+        }
+    };
+
+    const fetchAuditLogs = async () => {
+        try {
+            const data = await getAuditLogs();
+            setAuditLogs(data);
+        } catch (error) {
+            console.error("Failed to fetch audit logs", error);
+            showNotification('Failed to fetch audit logs', 'error');
         }
     };
 
@@ -122,6 +137,16 @@ export default function AdminDashboard({ user }) {
                         <Users size={16} className="mr-2" />
                         User Management
                     </button>
+                    <button
+                        onClick={() => setActiveTab('audit-logs')}
+                        className={`px-4 py-2 rounded text-sm font-medium transition flex items-center ${activeTab === 'audit-logs'
+                            ? 'bg-red-900 text-white'
+                            : 'bg-white text-gray-600 border hover:bg-gray-50'
+                            }`}
+                    >
+                        <Activity size={16} className="mr-2" />
+                        Audit Logs
+                    </button>
                 </div>
             </div>
 
@@ -156,6 +181,21 @@ export default function AdminDashboard({ user }) {
                             onEdit={openEditModal}
                             onDelete={handleDeleteUser}
                         />
+                    </div>
+                )}
+
+                {activeTab === 'audit-logs' && (
+                    <div className="animate-fade-in-up">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold text-gray-700">System Audit Logs</h3>
+                            <button
+                                onClick={fetchAuditLogs}
+                                className="text-sm text-blue-600 hover:underline"
+                            >
+                                Refresh
+                            </button>
+                        </div>
+                        <AuditLogsTable logs={auditLogs} />
                     </div>
                 )}
             </div>
