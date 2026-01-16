@@ -13,4 +13,8 @@ public class UserDto {
     private Role role;
     private String userType;
     private boolean enabled;
+    private Integer facultyId;
+    private String facultyName;
+    private Integer departmentId;
+    private String departmentName;
 }

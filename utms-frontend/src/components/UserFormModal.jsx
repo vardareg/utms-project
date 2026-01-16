@@ -12,15 +12,47 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
         enabled: true
     });
 
+    const [faculties, setFaculties] = useState([]);
+    const [departments, setDepartments] = useState([]);
+
     useEffect(() => {
+        // Fetch Structure Data if role requires it
+        const fetchStructure = async () => {
+            // Get token from utms_user object
+            const utmsUser = JSON.parse(localStorage.getItem('utms_user') || '{}');
+            const token = utmsUser.token;
+
+            if (!token) {
+                console.error("No authentication token found");
+                return;
+            }
+
+            const headers = { Authorization: `Bearer ${token}` };
+
+            try {
+                const [facRes, deptRes] = await Promise.all([
+                    fetch('http://localhost:8080/api/structure/faculties', { headers }),
+                    fetch('http://localhost:8080/api/structure/departments', { headers })
+                ]);
+                if (facRes.ok) setFaculties(await facRes.json());
+                if (deptRes.ok) setDepartments(await deptRes.json());
+            } catch (err) {
+                console.error("Failed to fetch structure", err);
+            }
+        };
+
+        if (isOpen) fetchStructure();
+
         if (initialData) {
             setFormData({
                 username: initialData.username || '',
                 email: initialData.email || '',
-                password: '', // Password not editable directly here typically, or handled separately. For CREATE it is required.
+                password: '',
                 role: initialData.role || 'ROLE_STUDENT',
                 userType: initialData.userType || 'Student',
-                enabled: initialData.enabled !== undefined ? initialData.enabled : true
+                enabled: initialData.enabled !== undefined ? initialData.enabled : true,
+                facultyId: initialData.facultyId || '',
+                departmentId: initialData.departmentId || ''
             });
         } else {
             setFormData({
@@ -29,7 +61,9 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                 password: '',
                 role: 'ROLE_STUDENT',
                 userType: 'Student',
-                enabled: true
+                enabled: true,
+                facultyId: '',
+                departmentId: ''
             });
         }
     }, [initialData, isOpen]);
@@ -40,10 +74,29 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+
+        // Auto-assign userType based on role
+        const roleToUserType = {
+            'ROLE_STUDENT': 'Student',
+            'ROLE_OIDB': 'Staff',
+            'ROLE_DEAN_OFFICE_STAFF': 'Staff',
+            'ROLE_YGK': 'Academic',
+            'ROLE_ADMIN': 'Admin'
+        };
+
+        if (name === 'role') {
+            setFormData(prev => ({
+                ...prev,
+                role: value,
+                userType: roleToUserType[value] || 'Staff'
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            }));
+        }
+
         // Clear error for field when typing
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: null }));
@@ -121,37 +174,58 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                         </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
-                            >
-                                <option value="ROLE_STUDENT">Student</option>
-                                <option value="ROLE_OIDB">OIDB</option>
-                                <option value="ROLE_DEAN">Dean</option>
-                                <option value="ROLE_YGK">YGK</option>
-                                <option value="ROLE_ADMIN">Admin</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
-                            <select
-                                name="userType"
-                                value={formData.userType}
-                                onChange={handleChange}
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
-                            >
-                                <option value="Student">Student</option>
-                                <option value="Staff">Staff</option>
-                                <option value="Faculty">Faculty</option>
-                                <option value="Admin">Admin</option>
-                            </select>
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                        >
+                            <option value="ROLE_STUDENT">Student</option>
+                            <option value="ROLE_OIDB">OIDB Staff</option>
+                            <option value="ROLE_DEAN_OFFICE_STAFF">Dean's Office Staff</option>
+                            <option value="ROLE_YGK">YGK Member</option>
+                            <option value="ROLE_ADMIN">Admin</option>
+                        </select>
                     </div>
+
+                    {/* DYNAMIC SCOPE SELECTION */}
+                    {formData.role === 'ROLE_DEAN_OFFICE_STAFF' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Assign Faculty</label>
+                            <select
+                                name="facultyId"
+                                value={formData.facultyId || ''}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                            >
+                                <option value="">Select Faculty...</option>
+                                {faculties.map(f => (
+                                    <option key={f.id} value={f.id}>{f.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {formData.role === 'ROLE_YGK' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Assign Department</label>
+                            <select
+                                name="departmentId"
+                                value={formData.departmentId || ''}
+                                onChange={handleChange}
+                                required
+                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                            >
+                                <option value="">Select Department...</option>
+                                {departments.map(d => (
+                                    <option key={d.id} value={d.id}>{d.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {isEditMode && (
                         <div className="flex items-center">

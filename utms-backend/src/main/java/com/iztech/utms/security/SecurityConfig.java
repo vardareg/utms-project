@@ -66,6 +66,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/audit-logs").hasAnyRole("ADMIN", "DEAN", "OIDB") // Allow Audit
                                                                                                       // Logs for Staff
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/structure/**").authenticated() // Allow auth users to fetch structure
                         .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
                                                                                 // APIs
                         // .requestMatchers("/api/oidb/**").hasRole("OIDB") // Let method security

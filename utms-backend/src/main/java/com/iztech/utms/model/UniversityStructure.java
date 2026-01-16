@@ -6,7 +6,8 @@ import lombok.*;
 import java.util.List;
 
 /**
- * Contains Faculty and Department entities mapping to 'faculties' and 'departments'.
+ * Contains Faculty and Department entities mapping to 'faculties' and
+ * 'departments'.
  * Grouped in one file for organizational clarity.
  */
 public class UniversityStructure {
@@ -37,6 +38,7 @@ public class UniversityStructure {
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "faculty_id", nullable = false)
+        @com.fasterxml.jackson.annotation.JsonIgnore
         private Faculty faculty;
 
         @Column(nullable = false, length = 100)

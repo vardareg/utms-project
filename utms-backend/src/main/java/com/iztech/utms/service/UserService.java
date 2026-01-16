@@ -25,6 +25,9 @@ public class UserService {
     private final StudentProfileRepository studentProfileRepository;
     private final ApplicationRepository applicationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.iztech.utms.repository.AdministrativeProfileRepository administrativeProfileRepository;
+    private final com.iztech.utms.repository.DepartmentRepository departmentRepository;
+    private final com.iztech.utms.repository.FacultyRepository facultyRepository;
 
     public List<UserDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -51,6 +54,41 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
+        // Handle Administrative Profile Creation (Strict Scope Enforcement)
+        if (request.getRole() == User.Role.ROLE_DEAN_OFFICE_STAFF) {
+            if (request.getFacultyId() == null) {
+                throw new RuntimeException("Validation Error: Dean's Office Staff must have a Faculty assigned.");
+            }
+            if (request.getDepartmentId() != null) {
+                throw new RuntimeException(
+                        "Validation Error: Dean's Office Staff cannot be restricted to a Department.");
+            }
+            // Create Profile
+            com.iztech.utms.model.AdministrativeProfile profile = new com.iztech.utms.model.AdministrativeProfile();
+            profile.setUser(savedUser);
+            profile.setFaculty(facultyRepository.findById(request.getFacultyId())
+                    .orElseThrow(() -> new RuntimeException("Faculty not found")));
+            profile.setDepartment(null);
+            administrativeProfileRepository.save(profile);
+
+        } else if (request.getRole() == User.Role.ROLE_YGK) {
+            if (request.getDepartmentId() == null) {
+                throw new RuntimeException("Validation Error: YGK Member must have a Department assigned.");
+            }
+            if (request.getFacultyId() != null) {
+                throw new RuntimeException(
+                        "Validation Error: YGK Member cannot have direct Faculty scope (it is derived).");
+            }
+            // Create Profile
+            com.iztech.utms.model.AdministrativeProfile profile = new com.iztech.utms.model.AdministrativeProfile();
+            profile.setUser(savedUser);
+            profile.setDepartment(departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Department not found")));
+            profile.setFaculty(null);
+            administrativeProfileRepository.save(profile);
+        }
+
         return mapToDto(savedUser);
     }
 
@@ -66,6 +104,8 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
 
+        User.Role newRole = request.getRole() != null ? request.getRole() : user.getRole();
+
         if (request.getRole() != null) {
             user.setRole(request.getRole());
         }
@@ -79,6 +119,51 @@ public class UserService {
         }
 
         User updatedUser = userRepository.save(user);
+
+        // Handle Administrative Profile updates
+        var existingProfile = administrativeProfileRepository.findById(id).orElse(null);
+
+        if (newRole == User.Role.ROLE_DEAN_OFFICE_STAFF) {
+            // Dean's Office Staff must have faculty assignment
+            if (request.getFacultyId() != null) {
+                var faculty = facultyRepository.findById(request.getFacultyId())
+                        .orElseThrow(() -> new RuntimeException("Faculty not found"));
+                if (existingProfile != null) {
+                    existingProfile.setFaculty(faculty);
+                    existingProfile.setDepartment(null);
+                    administrativeProfileRepository.save(existingProfile);
+                } else {
+                    var profile = new com.iztech.utms.model.AdministrativeProfile();
+                    profile.setUser(updatedUser);
+                    profile.setFaculty(faculty);
+                    profile.setDepartment(null);
+                    administrativeProfileRepository.save(profile);
+                }
+            }
+        } else if (newRole == User.Role.ROLE_YGK) {
+            // YGK must have department assignment
+            if (request.getDepartmentId() != null) {
+                var department = departmentRepository.findById(request.getDepartmentId())
+                        .orElseThrow(() -> new RuntimeException("Department not found"));
+                if (existingProfile != null) {
+                    existingProfile.setDepartment(department);
+                    existingProfile.setFaculty(null);
+                    administrativeProfileRepository.save(existingProfile);
+                } else {
+                    var profile = new com.iztech.utms.model.AdministrativeProfile();
+                    profile.setUser(updatedUser);
+                    profile.setDepartment(department);
+                    profile.setFaculty(null);
+                    administrativeProfileRepository.save(profile);
+                }
+            }
+        } else {
+            // For non-administrative roles (ADMIN, STUDENT, OIDB), clear the assignment
+            if (existingProfile != null) {
+                administrativeProfileRepository.delete(existingProfile);
+            }
+        }
+
         return mapToDto(updatedUser);
     }
 
@@ -103,6 +188,24 @@ public class UserService {
     }
 
     private UserDto mapToDto(User user) {
+        Integer facultyId = null;
+        String facultyName = null;
+        Integer departmentId = null;
+        String departmentName = null;
+
+        // Fetch AdministrativeProfile if exists
+        var profile = administrativeProfileRepository.findById(user.getId()).orElse(null);
+        if (profile != null) {
+            if (profile.getFaculty() != null) {
+                facultyId = profile.getFaculty().getId();
+                facultyName = profile.getFaculty().getName();
+            }
+            if (profile.getDepartment() != null) {
+                departmentId = profile.getDepartment().getId();
+                departmentName = profile.getDepartment().getName();
+            }
+        }
+
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -110,6 +213,10 @@ public class UserService {
                 .role(user.getRole())
                 .userType(user.getUserType())
                 .enabled(user.isEnabled())
+                .facultyId(facultyId)
+                .facultyName(facultyName)
+                .departmentId(departmentId)
+                .departmentName(departmentName)
                 .build();
     }
 }

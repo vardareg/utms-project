@@ -27,13 +27,13 @@ public class DocumentController {
             @RequestParam("applicationId") Long applicationId,
             @RequestParam("documentType") String documentType,
             @RequestParam("file") MultipartFile file) {
-        
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
 
             fileStorageService.storeDocument(username, applicationId, documentType, file);
-            
+
             return ResponseEntity.ok("File uploaded successfully: " + file.getOriginalFilename());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -42,7 +42,7 @@ public class DocumentController {
 
     // WP-4 ADDITION: Download/View Logic
     @GetMapping("/download/{id}")
-    @PreAuthorize("hasAnyRole('OIDB', 'DEAN', 'YGK', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('OIDB', 'DEAN_OFFICE_STAFF', 'YGK', 'STUDENT')")
     public ResponseEntity<Resource> downloadDocument(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();

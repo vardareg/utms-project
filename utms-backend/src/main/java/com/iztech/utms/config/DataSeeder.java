@@ -43,7 +43,7 @@ public class DataSeeder {
                 dean.setUsername("dean");
                 dean.setEmail("dean@iztech.edu.tr");
                 dean.setPasswordHash(passwordEncoder.encode("password123"));
-                dean.setRole(User.Role.ROLE_DEAN);
+                dean.setRole(User.Role.ROLE_DEAN_OFFICE_STAFF);
                 dean.setUserType("FACULTY");
                 userRepository.save(dean);
             }

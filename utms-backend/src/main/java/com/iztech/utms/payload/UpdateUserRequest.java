@@ -14,4 +14,8 @@ public class UpdateUserRequest {
     private String userType;
 
     private Boolean enabled;
+
+    private Integer facultyId;
+
+    private Integer departmentId;
 }

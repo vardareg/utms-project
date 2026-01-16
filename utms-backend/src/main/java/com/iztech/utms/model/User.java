@@ -38,7 +38,7 @@ public class User {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 32)
     private Role role;
 
     @Column(name = "user_type", nullable = false, length = 20)
@@ -54,6 +54,6 @@ public class User {
 
     // Enum matching requirements
     public enum Role {
-        ROLE_STUDENT, ROLE_OIDB, ROLE_DEAN, ROLE_YGK, ROLE_ADMIN
+        ROLE_STUDENT, ROLE_OIDB, ROLE_DEAN_OFFICE_STAFF, ROLE_YGK, ROLE_ADMIN
     }
 }

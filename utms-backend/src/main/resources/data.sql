@@ -3,24 +3,17 @@
 -- Pre-populating Faculty and Department data for testing.
 -- ==================================================================================
 
--- Insert Faculties
+-- Insert Faculties (Only those with active Dean's Office)
 INSERT INTO faculties (name) VALUES ('Faculty of Engineering');
-INSERT INTO faculties (name) VALUES ('Faculty of Science');
 INSERT INTO faculties (name) VALUES ('Faculty of Architecture');
 
--- Insert Departments (with Quotas per PR-08)
--- Engineering
+-- Insert Departments (Only those with active YGK)
+-- Engineering (Faculty ID 1)
 INSERT INTO departments (faculty_id, name, quota) VALUES (1, 'Computer Engineering', 5);
 INSERT INTO departments (faculty_id, name, quota) VALUES (1, 'Mechanical Engineering', 3);
-INSERT INTO departments (faculty_id, name, quota) VALUES (1, 'Civil Engineering', 4);
 
--- Science
-INSERT INTO departments (faculty_id, name, quota) VALUES (2, 'Physics', 2);
-INSERT INTO departments (faculty_id, name, quota) VALUES (2, 'Chemistry', 2);
-
--- Architecture
-INSERT INTO departments (faculty_id, name, quota) VALUES (3, 'Architecture', 5);
-INSERT INTO departments (faculty_id, name, quota) VALUES (3, 'City and Regional Planning', 3);
+-- Architecture (Faculty ID 2)
+INSERT INTO departments (faculty_id, name, quota) VALUES (2, 'Architecture', 5);
 
 -- ==================================================================================
 -- USERS (Password for all is 'password123')
@@ -55,47 +48,49 @@ VALUES (
 INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
 VALUES ('oidb', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'oidb@iztech.edu.tr', 'ROLE_OIDB', 'STAFF', true);
 
--- 4. YGK MEMBER (Transfer Commission)
+-- 4. YGK MEMBER - Computer Engineering
 INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('ygk', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
+VALUES ('ygk_cse', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_cse@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
--- 5. DEAN
+-- 5. YGK MEMBER - Mechanical Engineering
 INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('dean', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+VALUES ('ygk_mech', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_mech@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
--- 6. DEAN OF COMPUTER ENGINEERING (Department Scope)
-INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_cse', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_cse@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+-- 6. YGK MEMBER - Architecture
+INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
+VALUES ('ygk_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_arch@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
--- 7. DEAN OF MECHANICAL ENGINEERING (Department Scope)
+-- 7. DEAN OF ENGINEERING FACULTY (Faculty Scope)
 INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_mech', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_mech@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+VALUES ('dean_eng', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_eng@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
 
--- 8. DEAN OF ENGINEERING FACULTY (Faculty Scope)
+-- 8. DEAN OF ARCHITECTURE FACULTY
 INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_eng', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_eng@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
+VALUES ('dean_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_arch@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
 
 -- ADMINISTRATIVE PROFILES
--- Link 'dean_cse' (ID 6) to Dept 1 (Computer Engineering)
-INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
-    (SELECT id FROM users WHERE username = 'dean_cse'), 1, NULL
-);
 
--- Link 'dean_mech' (ID 7) to Dept 2 (Mechanical Engineering)
-INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
-    (SELECT id FROM users WHERE username = 'dean_mech'), 2, NULL
-);
-
--- Link 'dean_eng' (ID 8) to Faculty 1 (Engineering)
+-- Link 'dean_eng' to Faculty 1 (Engineering)
 INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
     (SELECT id FROM users WHERE username = 'dean_eng'), NULL, 1
 );
 
--- 9. DEAN OF ARCHITECTURE FACULTY
-INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_arch@iztech.edu.tr', 'ROLE_DEAN', 'ACADEMIC', true);
-
--- Link 'dean_arch' to Faculty 3 (Architecture)
+-- Link 'dean_arch' to Faculty 2 (Architecture)
 INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
-    (SELECT id FROM users WHERE username = 'dean_arch'), NULL, 3
+    (SELECT id FROM users WHERE username = 'dean_arch'), NULL, 2
+);
+
+-- Link 'ygk_cse' to Department 1 (Computer Engineering)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'ygk_cse'), 1, NULL
+);
+
+-- Link 'ygk_mech' to Department 2 (Mechanical Engineering)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'ygk_mech'), 2, NULL
+);
+
+-- Link 'ygk_arch' to Department 3 (Architecture)
+INSERT INTO administrative_profiles (user_id, department_id, faculty_id) VALUES (
+    (SELECT id FROM users WHERE username = 'ygk_arch'), 3, NULL
 );

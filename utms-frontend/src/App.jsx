@@ -102,7 +102,7 @@ export default function App() {
             case 'ROLE_STUDENT': setCurrentView('student-dashboard'); break;
             case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
             case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
-            case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break;
+            case 'ROLE_DEAN_OFFICE_STAFF': setCurrentView('dean-dashboard'); break;
             case 'ROLE_ADMIN': setCurrentView('admin-dashboard'); break;
             default: setCurrentView('login');
         }
@@ -112,7 +112,7 @@ export default function App() {
         switch (role) {
             case 'ROLE_STUDENT': setCurrentView('student-dashboard'); break;
             case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
-            case 'ROLE_DEAN': setCurrentView('dean-dashboard'); break;
+            case 'ROLE_DEAN_OFFICE_STAFF': setCurrentView('dean-dashboard'); break;
             case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
             case 'ROLE_ADMIN': setCurrentView('admin-dashboard'); break;
             default: setCurrentView('login');
@@ -174,7 +174,7 @@ export default function App() {
                     {user && (
                         <div className="flex items-center space-x-4">
                             <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
-                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN') && (
+                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF') && (
                                 <button
                                     onClick={navigateToAuditLogs}
                                     className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"

@@ -61,7 +61,7 @@ public class EvaluationController {
 
     // UC-YGK-01: Get Ranked List (Draft)
     @GetMapping("/ranking/{deptId}")
-    @PreAuthorize("hasAnyRole('YGK', 'DEAN')")
+    @PreAuthorize("hasAnyRole('YGK', 'DEAN_OFFICE_STAFF')")
     public ResponseEntity<?> getRanking(@PathVariable Integer deptId) {
         try {
             return ResponseEntity.ok(evaluationService.generateRanking(deptId));
@@ -73,7 +73,7 @@ public class EvaluationController {
     // WP-5 Helper: Seed Data for Ranking Test
     // WP-5 Helper: Seed Data for Ranking Test
     @PostMapping("/ranking/seed/{deptId}")
-    @PreAuthorize("hasAnyRole('YGK', 'DEAN', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('YGK', 'DEAN_OFFICE_STAFF', 'ADMIN')")
     public ResponseEntity<?> seedRankingData(@PathVariable Integer deptId) {
         try {
             evaluationService.seedRankingData(deptId);
@@ -85,7 +85,7 @@ public class EvaluationController {
 
     // UC-YGK-01: Export Ranked List (PDF/Excel)
     @GetMapping("/ranking/{deptId}/export")
-    @PreAuthorize("hasAnyRole('YGK', 'DEAN', 'OIDB', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('YGK', 'DEAN_OFFICE_STAFF', 'OIDB', 'ADMIN')")
     public ResponseEntity<?> exportRanking(
             @PathVariable Integer deptId,
             @RequestParam(defaultValue = "pdf") String format) {

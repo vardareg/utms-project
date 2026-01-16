@@ -375,7 +375,7 @@ public class ApplicationService {
 
                 // Audit Log: APPROVE
                 auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
-                                .actorUsername("DEAN") // Simplification
+                                .actorUsername("DEAN_OFFICE_STAFF") // Simplification
                                 .actionType(com.iztech.utms.model.ActionType.APPROVE)
                                 .targetApplicationId(app.getId())
                                 .details("Approved Application of " + app.getStudent().getUsername() + " for "

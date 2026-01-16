@@ -71,7 +71,7 @@ public class ApplicationController {
 
     // WP-4 ADDITION: OIDB View Incoming
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('OIDB', 'DEAN', 'YGK')")
+    @PreAuthorize("hasAnyRole('OIDB', 'DEAN_OFFICE_STAFF', 'YGK')")
     public ResponseEntity<?> getApplicationsByStatus(@PathVariable String status) {
         try {
             ApplicationStatus appStatus = ApplicationStatus.valueOf(status.toUpperCase());
@@ -111,7 +111,7 @@ public class ApplicationController {
 
     // UC-DEAN-01: Assign to YGK
     @PatchMapping("/{id}/assign-ygk")
-    @PreAuthorize("hasRole('DEAN')")
+    @PreAuthorize("hasRole('DEAN_OFFICE_STAFF')")
     public ResponseEntity<?> assignToYgk(@PathVariable Long id) {
         try {
             applicationService.assignToYgk(id);
@@ -123,7 +123,7 @@ public class ApplicationController {
 
     // UC-DEAN-02: Approve Final
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('DEAN')")
+    @PreAuthorize("hasRole('DEAN_OFFICE_STAFF')")
     public ResponseEntity<?> approveApplication(@PathVariable Long id) {
         try {
             applicationService.approveApplication(id);

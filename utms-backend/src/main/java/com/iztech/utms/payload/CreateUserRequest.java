@@ -25,4 +25,8 @@ public class CreateUserRequest {
 
     @NotBlank
     private String userType;
+
+    // Optional: For Administrative Profiles (Dean/YGK)
+    private Integer facultyId;
+    private Integer departmentId;
 }
