@@ -16,6 +16,27 @@ export default function AdminDashboard({ user }) {
     const [editingUser, setEditingUser] = useState(null);
     const [notification, setNotification] = useState(null);
 
+    // Filters
+    const [roleFilter, setRoleFilter] = useState('ALL');
+    const [assignmentFilter, setAssignmentFilter] = useState('ALL');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+
+    // Derived state for filtering
+    const filteredUsers = users.filter(user => {
+        const matchesRole = roleFilter === 'ALL' || user.role === roleFilter;
+
+        const userAssignment = user.facultyName || user.departmentName || 'N/A';
+        const matchesAssignment = assignmentFilter === 'ALL' || userAssignment === assignmentFilter;
+
+        const userStatus = user.enabled ? 'Active' : 'Inactive';
+        const matchesStatus = statusFilter === 'ALL' || userStatus === statusFilter;
+
+        return matchesRole && matchesAssignment && matchesStatus;
+    });
+
+    // Extract unique assignments for the dropdown
+    const uniqueAssignments = Array.from(new Set(users.map(u => u.facultyName || u.departmentName || 'N/A'))).sort();
+
     // Fetch users when tab changes to 'users'
     // Fetch data based on active tab
     useEffect(() => {
@@ -185,18 +206,80 @@ export default function AdminDashboard({ user }) {
 
                 {activeTab === 'users' && (
                     <div className="animate-fade-in-up">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold text-gray-700">Registered Users</h3>
-                            <button
-                                onClick={openCreateModal}
-                                className="px-3 py-2 bg-red-900 text-white rounded text-sm hover:bg-red-800 flex items-center"
-                            >
-                                <Plus size={16} className="mr-1" />
-                                Add User
-                            </button>
+                        <div className="flex flex-col space-y-4 mb-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-xl font-semibold text-gray-700">Registered Users</h3>
+                                <button
+                                    onClick={openCreateModal}
+                                    className="px-3 py-2 bg-red-900 text-white rounded text-sm hover:bg-red-800 flex items-center"
+                                >
+                                    <Plus size={16} className="mr-1" />
+                                    Add User
+                                </button>
+                            </div>
+
+                            {/* Filters */}
+                            <div className="flex flex-wrap gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <div className="flex flex-col space-y-1">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase">Role</label>
+                                    <select
+                                        value={roleFilter}
+                                        onChange={(e) => setRoleFilter(e.target.value)}
+                                        className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-red-900 focus:border-red-900 bg-white"
+                                    >
+                                        <option value="ALL">All Roles</option>
+                                        <option value="ROLE_ADMIN">Admin</option>
+                                        <option value="ROLE_STUDENT">Student</option>
+                                        <option value="ROLE_OIDB">OIDB</option>
+                                        <option value="ROLE_YGK">YGK</option>
+                                        <option value="ROLE_DEAN_OFFICE_STAFF">Dean Office</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex flex-col space-y-1">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase">Assignment</label>
+                                    <select
+                                        value={assignmentFilter}
+                                        onChange={(e) => setAssignmentFilter(e.target.value)}
+                                        className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-red-900 focus:border-red-900 bg-white"
+                                    >
+                                        <option value="ALL">All Assignments</option>
+                                        {uniqueAssignments.map((assignment, index) => (
+                                            <option key={index} value={assignment}>{assignment}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="flex flex-col space-y-1">
+                                    <label className="text-xs font-semibold text-gray-500 uppercase">Status</label>
+                                    <select
+                                        value={statusFilter}
+                                        onChange={(e) => setStatusFilter(e.target.value)}
+                                        className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:ring-red-900 focus:border-red-900 bg-white"
+                                    >
+                                        <option value="ALL">All Statuses</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex items-end">
+                                    <button
+                                        onClick={() => {
+                                            setRoleFilter('ALL');
+                                            setAssignmentFilter('ALL');
+                                            setStatusFilter('ALL');
+                                        }}
+                                        className="text-sm text-red-600 hover:text-red-800 underline pb-2"
+                                    >
+                                        Reset Filters
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
                         <UserListTable
-                            users={users}
+                            users={filteredUsers}
                             onEdit={openEditModal}
                             onDelete={handleDeleteUser}
                         />
