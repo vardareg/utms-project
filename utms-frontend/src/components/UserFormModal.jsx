@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }) {
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -43,11 +44,22 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+        // Clear error for field when typing
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        setErrors({});
+        try {
+            await onSubmit(formData);
+        } catch (error) {
+            if (error.validationErrors) {
+                setErrors(error.validationErrors);
+            }
+        }
     };
 
     return (
@@ -74,8 +86,9 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                                 value={formData.username}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 outline-none ${errors.username ? 'border-red-500 focus:ring-red-200' : 'focus:ring-red-900'}`}
                             />
+                            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                         </div>
                     )}
 
@@ -87,8 +100,9 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                             value={formData.email}
                             onChange={handleChange}
                             required
-                            className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                            className={`w-full px-3 py-2 border rounded focus:ring-2 outline-none ${errors.email ? 'border-red-500 focus:ring-red-200' : 'focus:ring-red-900'}`}
                         />
+                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                     </div>
 
                     {!isEditMode && (
@@ -100,9 +114,10 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                minLength={6}
-                                className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-red-900 outline-none"
+                                minLength={8}
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 outline-none ${errors.password ? 'border-red-500 focus:ring-red-200' : 'focus:ring-red-900'}`}
                             />
+                            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                         </div>
                     )}
 

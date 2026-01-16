@@ -51,6 +51,10 @@ export default function AdminDashboard({ user }) {
             setIsUserModalOpen(false);
             fetchUsers();
         } catch (error) {
+            if (error.validationErrors) {
+                // Return errors to the modal
+                throw error;
+            }
             showNotification(error.message || 'Failed to create user', 'error');
         }
     };
@@ -63,6 +67,10 @@ export default function AdminDashboard({ user }) {
             setEditingUser(null);
             fetchUsers();
         } catch (error) {
+            if (error.validationErrors) {
+                // Return errors to the modal
+                throw error;
+            }
             showNotification(error.message || 'Failed to update user', 'error');
         }
     };

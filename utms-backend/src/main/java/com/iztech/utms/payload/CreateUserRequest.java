@@ -17,7 +17,7 @@ public class CreateUserRequest {
     private String email;
 
     @NotBlank
-    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$", message = "Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=\\S+$).{8,}$", message = "Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.")
     private String password;
 
     @NotNull

@@ -43,8 +43,20 @@ export const apiFetch = async (endpoint, options = {}) => {
         if (response.status === 401) {
             // Could trigger logout here
         }
-        const errorText = await response.text();
-        throw new Error(errorText || `API Error: ${response.status}`);
+
+        let errorData;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            errorData = await response.json();
+            // If it's a validation error map (field -> message)
+            // or a Spring standard error structure, we attach it to the error object.
+            const error = new Error("Validation Failed");
+            error.validationErrors = errorData;
+            throw error;
+        } else {
+            const errorText = await response.text();
+            throw new Error(errorText || `API Error: ${response.status}`);
+        }
     }
 
     // Check if response is JSON

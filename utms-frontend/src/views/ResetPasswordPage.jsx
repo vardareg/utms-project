@@ -30,7 +30,7 @@ export default function ResetPasswordPage({ onSuccess }) {
             return;
         }
 
-        const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
+        const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?=\S+$).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
             setError("Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.");
             return;
