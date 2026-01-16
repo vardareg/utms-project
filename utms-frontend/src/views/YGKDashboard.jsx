@@ -12,12 +12,12 @@ export default function YGKDashboard({ user }) {
     // In a real app, YGK Member would be linked to a Dept ID. We mock Dept ID = 1 (Computer Eng) for demo.
     const DEPARTMENT_ID = 1;
 
-    // Fetch Forwarded Applications
+    // Fetch Applications Assigned for Review
     const fetchApplications = async () => {
         setLoading(true);
         try {
-            // Fetch FORWARDED applications for YGK to review
-            const data = await apiFetch('/applications/status/FORWARDED');
+            // Fetch UNDER_REVIEW applications for YGK to review
+            const data = await apiFetch('/applications/status/UNDER_REVIEW');
             // Filter by Dept in frontend for demo (Backend should handle this filter via Department Repo)
             if (Array.isArray(data)) {
                 setApplications(data.filter(app => app.departmentName === "Computer Engineering"));

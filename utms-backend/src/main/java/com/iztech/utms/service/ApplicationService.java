@@ -39,12 +39,9 @@ public class ApplicationService {
         public ApplicationDTO.Response getMyApplication(String username) {
                 User studentUser = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
-                List<Application> apps = applicationRepository.findByStudentId(studentUser.getId());
-                if (apps.isEmpty()) {
-                        return null;
-                }
-                // Return the most recent application
-                return mapToResponse(apps.get(0));
+                return applicationRepository.findTopByStudentIdOrderBySubmissionDateDesc(studentUser.getId())
+                                .map(this::mapToResponse)
+                                .orElse(null);
         }
 
         @Transactional
@@ -77,9 +74,10 @@ public class ApplicationService {
                 }
 
                 String mismatchWarning = null;
+                com.iztech.utms.dto.YksValidationResponse yksValidation = null;
                 // External Validation: OsymService (Soft Validation)
                 if (request.getYksScore() != null) {
-                        com.iztech.utms.dto.YksValidationResponse yksValidation = osymService
+                        yksValidation = osymService
                                         .validateYksScore(profile.getTckn(), request.getYksScore());
                         if (!yksValidation.isValid()) {
                                 // Capture warning to log after saving application
@@ -145,12 +143,18 @@ public class ApplicationService {
                                 .build());
 
                 // Audit Log: EXTERNAL_VALIDATION
+                String validationResult = "NOT_CHECKED";
+                if (yksValidation != null) {
+                        validationResult = yksValidation.isValid()
+                                        ? "MATCH"
+                                        : "MISMATCH (official: " + yksValidation.getOfficialScore() + ")";
+                }
                 auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
                                 .actorUsername(username)
                                 .actionType(com.iztech.utms.model.ActionType.SUBMIT)
                                 .targetApplicationId(savedApp.getId())
                                 .details("EXTERNAL_VALIDATION: Validated YKS for TCKN " + profile.getTckn()
-                                                + ". Result: MATCH.")
+                                                + ". Result: " + validationResult + ".")
                                 .build());
 
                 // NOTIFICATION: Trigger 1 (Submission)
