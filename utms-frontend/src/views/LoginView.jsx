@@ -67,6 +67,12 @@ export default function LoginView({ onLogin, error, loading, onForgotPassword })
                     >
                         {loading ? 'Authenticating...' : <>Login <ChevronRight className="ml-1 w-4 h-4" /></>}
                     </button>
+
+                    <div className="text-center mt-4">
+                        <a href="/register" className="text-red-900 hover:underline text-sm font-medium">
+                            Don't have an account? Create Student Account
+                        </a>
+                    </div>
                 </form>
             </div>
 

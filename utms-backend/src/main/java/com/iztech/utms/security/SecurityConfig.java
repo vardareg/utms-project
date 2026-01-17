@@ -59,7 +59,9 @@ public class SecurityConfig {
                 .cors(org.springframework.security.config.Customizer.withDefaults()) // Enable CORS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/forgot-password",
+                                "/api/auth/reset-password")
+                        .permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Allow H2 Console
                         .requestMatchers("/error").permitAll()

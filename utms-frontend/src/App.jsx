@@ -14,6 +14,7 @@ import ForgotPasswordPage from './views/ForgotPasswordPage';
 import ResetPasswordPage from './views/ResetPasswordPage';
 import AdminRulesPage from './views/AdminRulesPage';
 import AdminDashboard from './views/AdminDashboard';
+import RegisterPage from './pages/RegisterPage';
 
 // ==========================================
 // MAIN COMPONENT (App)
@@ -25,6 +26,12 @@ export default function App() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        // Check URL for register page
+        if (window.location.pathname === '/register') {
+            setCurrentView('register');
+            return;
+        }
+
         // Check URL for reset password token
         if (window.location.pathname === '/reset-password' || window.location.search.includes('token=')) {
             setCurrentView('reset-password');
@@ -121,6 +128,9 @@ export default function App() {
 
     const renderView = () => {
         // Public pages
+        if (currentView === 'register') {
+            return <RegisterPage onBack={() => setCurrentView('login')} />;
+        }
         if (currentView === 'forgot-password') {
             return <ForgotPasswordPage onBack={() => setCurrentView('login')} />;
         }

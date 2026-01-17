@@ -9,5 +9,6 @@ public enum ActionType {
     VIEW,
     ARCHIVE,
     LOGIN_SUCCESS,
-    LOGIN_FAILED
+    LOGIN_FAILED,
+    USER_CREATE
 }

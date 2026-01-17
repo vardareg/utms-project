@@ -32,6 +32,8 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final com.iztech.utms.service.AuthService authService;
     private final com.iztech.utms.repository.AdministrativeProfileRepository administrativeProfileRepository;
+    private final com.iztech.utms.repository.StudentProfileRepository studentProfileRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -101,6 +103,54 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerStudent(@Valid @RequestBody com.iztech.utms.payload.RegisterRequest request) {
+        // Check username uniqueness
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+
+        // Check email uniqueness
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+
+        // Check TCKN uniqueness
+        if (studentProfileRepository.findByTckn(request.getTckn()).isPresent()) {
+            return ResponseEntity.badRequest().body("TCKN already registered");
+        }
+
+        // Create user with ROLE_STUDENT
+        User user = User.builder()
+                .username(request.getUsername())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(User.Role.ROLE_STUDENT)
+                .userType("Student")
+                .enabled(true)
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        // Create StudentProfile with TCKN only
+        com.iztech.utms.model.StudentProfile profile = new com.iztech.utms.model.StudentProfile();
+        profile.setUser(savedUser);
+        profile.setTckn(request.getTckn());
+        studentProfileRepository.save(profile);
+
+        // Log registration
+        auditLogRepository.save(AuditLog.builder()
+                .actorUsername(savedUser.getUsername())
+                .actionType(ActionType.USER_CREATE)
+                .details("Student self-registered")
+                .targetApplicationId(0L)
+                .build());
+
+        return ResponseEntity.ok("Registration successful. Please login with your credentials.");
     }
 
     // DTOs for Auth

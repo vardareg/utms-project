@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StudentProfileRepository extends JpaRepository<StudentProfile, Long> {
+    java.util.Optional<StudentProfile> findByTckn(String tckn);
 }
