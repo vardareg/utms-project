@@ -174,7 +174,7 @@ export default function App() {
                     {user && (
                         <div className="flex items-center space-x-4">
                             <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
-                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF') && (
+                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF' || user.role === 'ROLE_YGK') && (
                                 <button
                                     onClick={navigateToAuditLogs}
                                     className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"

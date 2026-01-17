@@ -63,8 +63,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Allow H2 Console
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/admin/audit-logs").hasAnyRole("ADMIN", "DEAN", "OIDB") // Allow Audit
-                                                                                                      // Logs for Staff
+                        .requestMatchers("/api/admin/audit-logs")
+                        .hasAnyRole("ADMIN", "DEAN_OFFICE_STAFF", "OIDB", "YGK") // Allow Audit Logs for Staff
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/structure/**").authenticated() // Allow auth users to fetch structure
                         .requestMatchers("/api/evaluations/**").authenticated() // Allow auth users to access evaluation
