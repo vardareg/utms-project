@@ -18,8 +18,9 @@ public class StudentProfileDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Request {
-        // TCKN is set during registration and should not be updated
-        // Kept for backward compatibility but not validated
+        // TCKN is set during registration, but for legacy/admin-created users
+        // we allow setting it once during profile creation.
+        private String tckn;
 
         @NotBlank(message = "Current University is required")
         private String currentUniversity;

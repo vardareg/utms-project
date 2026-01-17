@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { updateMyProfile } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { updateMyProfile, getMyProfile } from '../services/api';
 
 const ProfileEntryForm = ({ onProfileCreated }) => {
     const [formData, setFormData] = useState({
+        tckn: '',
         currentUniversity: '',
         currentProgram: '',
         overallGpa: '',
@@ -10,6 +11,29 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isTcknFixed, setIsTcknFixed] = useState(false); // Track if TCKN came from backend
+
+    useEffect(() => {
+        // Check for existing profile 
+        // (API might return 204 or empty if no profile, but here we expect User to be logged in)
+        // Ideally we check if there's partial profile data. 
+        // Note: getMyProfile endpoint returns profile if exists.
+        getMyProfile().then(profile => {
+            if (profile && profile.tckn) {
+                setFormData(prev => ({
+                    ...prev,
+                    tckn: profile.tckn,
+                    currentUniversity: profile.currentUniversity || '',
+                    currentProgram: profile.currentProgram || '',
+                    overallGpa: profile.overallGpa || '',
+                    hasDisciplinaryRecord: profile.hasDisciplinaryRecord || false
+                }));
+                setIsTcknFixed(true);
+            }
+        }).catch(err => {
+            // Ignore 404/204 - means no profile yet
+        });
+    }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -26,6 +50,10 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
         }
         if (!formData.currentUniversity || !formData.currentProgram) {
             return "All fields are required.";
+        }
+        // TCKN Validation
+        if (!formData.tckn || !/^\d{11}$/.test(formData.tckn)) {
+            return "TCKN must be exactly 11 digits.";
         }
         return null;
     };
@@ -74,6 +102,29 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 gap-5">
+
+                    {/* TCKN Field - Only shown for new profiles (which this form handles) */}
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">TR Identity Number (TCKN)</label>
+                        <input
+                            type="text"
+                            name="tckn"
+                            value={formData.tckn || ''}
+                            onChange={handleChange}
+                            className={`w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 ${isTcknFixed ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                            placeholder="e.g. 12345678901"
+                            maxLength="11"
+                            required
+                            readOnly={isTcknFixed}
+                            disabled={isTcknFixed}
+                        />
+                        {isTcknFixed ? (
+                            <p className="text-xs text-green-600 mt-1">Verified Identity Number</p>
+                        ) : (
+                            <p className="text-xs text-gray-500 mt-1">Required for identity verification. Must be 11 digits.</p>
+                        )}
+                    </div>
+
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Current University</label>
                         <input

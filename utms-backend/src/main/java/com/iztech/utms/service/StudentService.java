@@ -30,12 +30,26 @@ public class StudentService {
                 User user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-                StudentProfile profile = profileRepository.findById(user.getId())
-                                .orElse(StudentProfile.builder()
-                                                .user(user)
-                                                .build());
+                StudentProfile profile = profileRepository.findById(user.getId()).orElse(null);
 
-                // Update fields (TCKN is not updated as it's set during registration)
+                if (profile == null) {
+                        // Creating new profile - TCKN is mandatory
+                        if (request.getTckn() == null || request.getTckn().trim().length() != 11) {
+                                throw new RuntimeException(
+                                                "Validation Error: TCKN is required for initial profile creation and must be 11 digits.");
+                        }
+                        // Unique check for TCKN
+                        if (profileRepository.findByTckn(request.getTckn()).isPresent()) {
+                                throw new RuntimeException("Validation Error: TCKN already registered.");
+                        }
+
+                        profile = StudentProfile.builder()
+                                        .user(user)
+                                        .tckn(request.getTckn())
+                                        .build();
+                }
+
+                // Update fields (TCKN is not updated if profile exists)
                 profile.setCurrentUniversity(request.getCurrentUniversity());
                 profile.setCurrentProgram(request.getCurrentProgram());
                 profile.setOverallGpa(request.getOverallGpa());

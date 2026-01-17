@@ -259,6 +259,24 @@ export default function UserFormModal({ isOpen, onClose, onSubmit, initialData }
                         </div>
                     )}
 
+                    {formData.role === 'ROLE_STUDENT' && !isEditMode && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">TCKN (Turkish ID)</label>
+                            <input
+                                type="text"
+                                name="tckn"
+                                value={formData.tckn || ''}
+                                onChange={handleChange}
+                                required
+                                maxLength="11"
+                                pattern="\d{11}"
+                                placeholder="11 digits"
+                                className={`w-full px-3 py-2 border rounded focus:ring-2 outline-none ${errors.tckn ? 'border-red-500 focus:ring-red-200' : 'focus:ring-red-900'}`}
+                            />
+                            {errors.tckn && <p className="text-red-500 text-xs mt-1">{errors.tckn}</p>}
+                        </div>
+                    )}
+
                     {isEditMode && (
                         <div className="flex items-center">
                             <input

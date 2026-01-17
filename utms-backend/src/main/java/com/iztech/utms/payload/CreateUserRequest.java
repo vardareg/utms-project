@@ -35,4 +35,8 @@ public class CreateUserRequest {
     // Optional: For Administrative Profiles (Dean/YGK)
     private Integer facultyId;
     private Integer departmentId;
+
+    // Optional: For Student Profiles (to be set by Admin)
+    @Pattern(regexp = "\\d{11}", message = "TCKN must be 11 digits")
+    private String tckn;
 }

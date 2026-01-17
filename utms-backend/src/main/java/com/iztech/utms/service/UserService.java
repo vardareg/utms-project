@@ -87,8 +87,21 @@ public class UserService {
             profile.setUser(savedUser);
             profile.setDepartment(departmentRepository.findById(request.getDepartmentId())
                     .orElseThrow(() -> new RuntimeException("Department not found")));
-            profile.setFaculty(null);
             administrativeProfileRepository.save(profile);
+
+        } else if (request.getRole() == User.Role.ROLE_STUDENT) {
+            // Handle TCKN for Students (Optional but recommended for Admin creation)
+            if (request.getTckn() != null && !request.getTckn().isEmpty()) {
+                if (studentProfileRepository.findByTckn(request.getTckn()).isPresent()) {
+                    throw new RuntimeException("Validation Error: TCKN already registered.");
+                }
+
+                // Create Student Profile immediately
+                com.iztech.utms.model.StudentProfile profile = new com.iztech.utms.model.StudentProfile();
+                profile.setUser(savedUser);
+                profile.setTckn(request.getTckn());
+                studentProfileRepository.save(profile);
+            }
         }
 
         return mapToDto(savedUser);
