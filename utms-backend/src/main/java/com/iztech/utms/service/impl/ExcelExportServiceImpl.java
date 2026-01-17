@@ -67,7 +67,7 @@ public class ExcelExportServiceImpl implements ExportService {
         for (RankingDTO dto : list) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(dto.getRank());
-            row.createCell(1).setCellValue(dto.getStudentName());
+            row.createCell(1).setCellValue(dto.getFullName());
             row.createCell(2).setCellValue(dto.getCompositeScore() != null ? dto.getCompositeScore().doubleValue() : 0);
             row.createCell(3).setCellValue(statusLabel);
             row.createCell(4).setCellValue(dto.getYks() != null ? dto.getYks().doubleValue() : 0);

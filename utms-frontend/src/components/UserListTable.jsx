@@ -12,6 +12,7 @@ export default function UserListTable({ users, onEdit, onDelete }) {
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Username</th>
+                        <th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Full Name</th>
                         <th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Email</th>
                         <th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Role</th>
                         <th className="py-2 px-4 border-b text-left text-sm font-semibold text-gray-600">Assignment</th>
@@ -23,6 +24,7 @@ export default function UserListTable({ users, onEdit, onDelete }) {
                     {users.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50 transition">
                             <td className="py-2 px-4 border-b text-sm text-gray-800">{user.username}</td>
+                            <td className="py-2 px-4 border-b text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</td>
                             <td className="py-2 px-4 border-b text-sm text-gray-600">{user.email}</td>
                             <td className="py-2 px-4 border-b text-sm">
                                 <span className={`px-2 py-1 rounded text-xs font-semibold

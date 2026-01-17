@@ -29,6 +29,14 @@ public class User {
     private String username;
 
     @NotBlank
+    @Column(name = "first_name", nullable = false, length = 50)
+    private String firstName;
+
+    @NotBlank
+    @Column(name = "last_name", nullable = false, length = 50)
+    private String lastName;
+
+    @NotBlank
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

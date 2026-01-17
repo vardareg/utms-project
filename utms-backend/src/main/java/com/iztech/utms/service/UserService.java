@@ -46,6 +46,8 @@ public class UserService {
 
         User user = User.builder()
                 .username(request.getUsername())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
@@ -102,6 +104,14 @@ public class UserService {
                 throw new RuntimeException("Email already exists");
             }
             user.setEmail(request.getEmail());
+        }
+
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
+        }
+
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
         }
 
         User.Role newRole = request.getRole() != null ? request.getRole() : user.getRole();
@@ -209,6 +219,8 @@ public class UserService {
         return UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .userType(user.getUserType())

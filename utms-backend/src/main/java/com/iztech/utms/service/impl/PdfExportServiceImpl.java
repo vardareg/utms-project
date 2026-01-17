@@ -82,7 +82,7 @@ public class PdfExportServiceImpl implements ExportService {
             return;
         for (RankingDTO dto : list) {
             table.addCell(new Phrase(String.valueOf(dto.getRank()), font));
-            table.addCell(new Phrase(dto.getStudentName(), font)); // Masking handled in DTO/Service if needed
+            table.addCell(new Phrase(dto.getFullName(), font)); // Masking handled in DTO/Service if needed
             table.addCell(new Phrase(dto.getCompositeScore() != null ? dto.getCompositeScore().toString() : "-", font));
             table.addCell(new Phrase(statusLabel, font));
             // Just putting YKS Score or GPA in extra column for info

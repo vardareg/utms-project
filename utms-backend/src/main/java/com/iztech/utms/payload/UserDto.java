@@ -9,6 +9,8 @@ import lombok.Data;
 public class UserDto {
     private Long id;
     private String username;
+    private String firstName;
+    private String lastName;
     private String email;
     private Role role;
     private String userType;
@@ -17,4 +19,8 @@ public class UserDto {
     private String facultyName;
     private Integer departmentId;
     private String departmentName;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

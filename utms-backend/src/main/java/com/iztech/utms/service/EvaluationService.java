@@ -263,10 +263,12 @@ public class EvaluationService {
     }
 
     private RankingDTO mapToRankingDTO(Application app, int rank) {
+        User student = app.getStudent();
+        String fullName = student.getFirstName() + " " + student.getLastName();
         return new RankingDTO(
                 rank,
                 app.getId(),
-                app.getStudent().getUsername(), // Mask in prod
+                fullName,
                 app.getCompositeScore(),
                 app.getConvertedGpa(),
                 app.getYksScore());
@@ -347,7 +349,7 @@ public class EvaluationService {
     public static class RankingDTO {
         private int rank;
         private Long trackingId;
-        private String studentName;
+        private String fullName;
         private java.math.BigDecimal compositeScore;
         private java.math.BigDecimal gpa;
         private java.math.BigDecimal yks;

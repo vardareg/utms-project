@@ -21,12 +21,12 @@ INSERT INTO departments (faculty_id, name, quota) VALUES (2, 'Architecture', 5);
 -- ==================================================================================
 
 -- 1. ADMIN
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('admin', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'admin@iztech.edu.tr', 'ROLE_ADMIN', 'ADMIN', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('admin', 'System', 'Administrator', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'admin@iztech.edu.tr', 'ROLE_ADMIN', 'ADMIN', true);
 
 -- 2. STUDENT
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('student', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'student@iztech.edu.tr', 'ROLE_STUDENT', 'STUDENT', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('student', 'Test', 'Student', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'student@iztech.edu.tr', 'ROLE_STUDENT', 'STUDENT', true);
 
 -- Student Profile (Linked to User ID 2 - assuming auto-increment starts at 1, so admin=1, student=2)
 -- Note: H2 usually resets IDs on restart in memory, but let's assume sequential insertion.
@@ -45,28 +45,28 @@ VALUES (
 */
 
 -- 3. OIDB OFFICER
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('oidb', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'oidb@iztech.edu.tr', 'ROLE_OIDB', 'STAFF', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('oidb', 'OIDB', 'Officer', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'oidb@iztech.edu.tr', 'ROLE_OIDB', 'STAFF', true);
 
 -- 4. YGK MEMBER - Computer Engineering
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('ygk_cse', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_cse@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('ygk_cse', 'Ali', 'Yılmaz', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_cse@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
 -- 5. YGK MEMBER - Mechanical Engineering
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('ygk_mech', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_mech@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('ygk_mech', 'Mehmet', 'Demir', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_mech@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
 -- 6. YGK MEMBER - Architecture
-INSERT INTO users (username, password_hash, email, role, user_type, enabled) 
-VALUES ('ygk_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_arch@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled) 
+VALUES ('ygk_arch', 'Ayşe', 'Kara', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'ygk_arch@iztech.edu.tr', 'ROLE_YGK', 'ACADEMIC', true);
 
 -- 7. DEAN OF ENGINEERING FACULTY (Faculty Scope)
-INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_eng', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_eng@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled)
+VALUES ('dean_eng', 'Fatma', 'Çelik', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_eng@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
 
 -- 8. DEAN OF ARCHITECTURE FACULTY
-INSERT INTO users (username, password_hash, email, role, user_type, enabled)
-VALUES ('dean_arch', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_arch@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
+INSERT INTO users (username, first_name, last_name, password_hash, email, role, user_type, enabled)
+VALUES ('dean_arch', 'Kemal', 'Öztürk', '$2a$10$3ZBvi9n99wC23zD88oJr6eZxG6M3mkn6cdLgmdWgWWGkRFkaG1yPa', 'dean_arch@iztech.edu.tr', 'ROLE_DEAN_OFFICE_STAFF', 'ACADEMIC', true);
 
 -- ADMINISTRATIVE PROFILES
 
