@@ -3,7 +3,7 @@
 ## 🚀 One-Command Startup
 
 ```bash
-./start-utms.sh
+bash scripts/start-utms.sh
 ```
 
 This will automatically:
@@ -19,20 +19,20 @@ This will automatically:
 
 ```bash
 # 1. Start backend (Docker)
-./start-backend.sh
+bash scripts/start-backend.sh
 
 # 2. Seed database (one-time)
-./seed-database.sh
+bash scripts/seed-database.sh
 
 # 3. Start frontend (separate terminal)
-./start-frontend.sh
+bash scripts/start-frontend.sh
 ```
 
 ### Stop Services
 
 ```bash
 # Stop everything
-./stop-utms.sh
+bash scripts/stop-utms.sh
 
 # Stop and DELETE all data
 docker compose down -v
@@ -56,7 +56,7 @@ If this is your first time running UTMS:
 1. Run the all-in-one script:
 
    ```bash
-   ./start-utms.sh
+   bash scripts/start-utms.sh
    ```
 
 2. Wait for "Frontend ready" message
@@ -106,19 +106,19 @@ docker compose restart
 docker compose down -v
 
 # Start fresh
-./start-utms.sh
+bash scripts/start-utms.sh
 ```
 
 ## 📊 Daily Usage
 
 ```bash
 # Morning: Start UTMS
-./start-utms.sh
+bash scripts/start-utms.sh
 
 # Work on your project...
 
 # Evening: Stop UTMS (data persists)
-./stop-utms.sh
+bash scripts/stop-utms.sh
 ```
 
 ## 🎯 Application URLs
@@ -131,8 +131,9 @@ docker compose down -v
 ## 📚 More Information
 
 - Full documentation: [README.md](README.md)
-- Docker guide: [DOCKER_GUIDE.md](DOCKER_GUIDE.md)
-- API documentation: [manual.md](manual.md)
+- Docker guide: [docs/docker-guide.md](docs/docker-guide.md)
+- API documentation: [docs/user-manual.md](docs/user-manual.md)
+- All login credentials: [docs/test-credentials.txt](docs/test-credentials.txt)
 
 ---
 

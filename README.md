@@ -44,7 +44,7 @@ Ensure you have the following installed:
 ### Step 1: Clone Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/vardareg/utms-project
 cd utms-project
 ```
 
@@ -205,7 +205,7 @@ Applications created in Docker mode will **persist across restarts** unless you 
 
 ## 6. Default Credentials
 
-See `credentials.txt` for a complete list.
+See `docs/test-credentials.txt` for a complete list.
 
 ### Default Accounts (Password: `password123`)
 
@@ -225,7 +225,7 @@ See `credentials.txt` for a complete list.
 50 test students can be generated using the `init_data.py` script:
 
 ```bash
-python3 init_data.py
+python3 tools/init_data.py
 ```
 
 Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
@@ -338,7 +338,7 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 
 ## 10. API Documentation
 
-For detailed API endpoints, request/response formats, and business rules logic, refer to the `manual.md` file included in the project root.
+For detailed API endpoints, request/response formats, and business rules logic, refer to the `docs/user-manual.md` file.
 
 **Quick Reference:**
 
@@ -357,7 +357,7 @@ For detailed API endpoints, request/response formats, and business rules logic, 
 Generate 50 test students with varied data:
 
 ```bash
-python3 init_data.py
+python3 tools/init_data.py
 ```
 
 This creates:
@@ -370,7 +370,7 @@ This creates:
 ### Manual Testing
 
 1. **Restart Backend** to clear database
-2. **Run init_data.py** to populate data
+2. **Run tools/init_data.py** to populate data
 3. **Login** with different roles to test workflows
 4. **Verify** status transitions and calculations
 
@@ -396,6 +396,7 @@ This creates:
 - Check database logs: `docker compose logs db`
 - Verify connection in backend logs for "HikariPool" messages
 - Data persists in Docker volume; use `docker compose down -v` to reset
+- Re-seed database: `bash scripts/seed-database.sh`
 
 ### CORS Issues
 
@@ -426,7 +427,7 @@ This creates:
 
 ```text
 utms-project/
-├── utms-backend/
+├── utms-backend/            # Spring Boot backend
 │   ├── src/main/java/com/iztech/utms/
 │   │   ├── controller/      # REST API endpoints
 │   │   ├── service/         # Business logic
@@ -442,19 +443,37 @@ utms-project/
 │   │   └── data.sql                    # Seed data
 │   ├── Dockerfile           # Backend container image
 │   └── pom.xml              # Maven dependencies
-├── utms-frontend/
+├── utms-frontend/           # React frontend
 │   ├── src/
 │   │   ├── components/      # React components
 │   │   ├── services/        # API calls
 │   │   ├── App.jsx          # Main app component
 │   │   └── index.css        # Global styles
 │   └── package.json
+├── docs/                    # Documentation
+│   ├── docker-guide.md      # Docker deployment guide
+│   ├── git-guide.md         # Git workflow guide
+│   ├── user-manual.md       # API documentation
+│   └── test-credentials.txt # All login credentials
+├── scripts/                 # Shell scripts
+│   ├── start-backend.sh     # Start backend in Docker
+│   ├── start-frontend.sh    # Start React dev server
+│   ├── start-utms.sh        # All-in-one starter
+│   ├── stop-utms.sh         # Stop all services
+│   └── seed-database.sh     # Database seeder
+├── tools/                   # Python utilities
+│   ├── init_data.py         # Test data generator
+│   ├── debug_auth.py        # Authentication debugger
+│   ├── verify_access.py     # Access verification
+│   └── verify_structure.py  # Structure validator
+├── test-files/              # Sample documents
+│   ├── transcript.pdf       # Sample transcript
+│   ├── yks_result.pdf       # Sample YKS result
+│   └── yabanci_dil.pdf      # Sample language proof
 ├── docker-compose.yml       # Production orchestration
 ├── .env                     # Database credentials (not in Git)
-├── init_data.py             # Test data generator
-├── credentials.txt          # All login credentials
-├── manual.md               # API documentation
-└── README.md               # This file
+├── QUICK_START.md           # Quick start guide
+└── README.md                # This file
 ```
 
 ## 14. Development Notes
@@ -478,9 +497,10 @@ utms-project/
 
 For questions or issues:
 
-- Review `manual.md` for API details
-- Check `credentials.txt` for login information
-- Consult SRS and SDD documents for requirements
+- Review `docs/user-manual.md` for API details
+- Check `docs/test-credentials.txt` for login information
+- Review `docs/docker-guide.md` for deployment help
+- Consult `.instructions/` folder for specifications (SRS, SDD, SPMP)
 
 ---
 

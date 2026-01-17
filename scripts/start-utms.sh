@@ -8,7 +8,7 @@ echo ""
 
 # Step 1: Start Backend
 echo "Step 1/3: Starting backend..."
-./start-backend.sh
+$(dirname "$0")/start-backend.sh
 if [ $? -ne 0 ]; then
     echo "❌ Failed to start backend. Exiting."
     exit 1
@@ -20,7 +20,7 @@ echo ""
 
 # Step 2: Seed Database
 echo "Step 2/3: Seeding database..."
-./seed-database.sh
+$(dirname "$0")/seed-database.sh
 if [ $? -ne 0 ]; then
     echo "⚠️  Warning: Database seeding may have failed."
 fi
@@ -45,4 +45,4 @@ elif command -v open > /dev/null; then
 fi
 
 # Start frontend (this will block)
-./start-frontend.sh
+$(dirname "$0")/start-frontend.sh
