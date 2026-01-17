@@ -220,11 +220,23 @@ public class EvaluationService {
                 .findByTargetDepartmentIdOrderByCompositeScoreDescYksScoreDescConvertedGpaDescSubmissionDateAsc(
                         departmentId);
 
-        // 2. Filter only Eligible applications (Status: UNDER_REVIEW or APPROVED)
-        // We exclude REJECTED, RETURNED, NEW, FORWARDED
+        // 2. Filter only Eligible applications
+        // We include FINALIZED/APPROVED (Confirmed Eligible)
+        // For UNDER_REVIEW, we check if there is a Draft Evaluation that says
+        // "Eligible".
         List<Application> eligibleApps = allApps.stream()
-                .filter(a -> a.getStatus() == ApplicationStatus.UNDER_REVIEW
-                        || a.getStatus() == ApplicationStatus.APPROVED)
+                .filter(a -> {
+                    if (a.getStatus() == ApplicationStatus.FINALIZED || a.getStatus() == ApplicationStatus.APPROVED) {
+                        return true;
+                    }
+                    if (a.getStatus() == ApplicationStatus.UNDER_REVIEW) {
+                        // Check Draft Evaluation
+                        return evaluationRepository.findByApplicationId(a.getId())
+                                .map(Evaluation::isEligible)
+                                .orElse(false); // Default to false (Pending = Not yet eligible for ranking)
+                    }
+                    return false;
+                })
                 .collect(Collectors.toList());
 
         List<RankingDTO> primaryList = new ArrayList<>();
