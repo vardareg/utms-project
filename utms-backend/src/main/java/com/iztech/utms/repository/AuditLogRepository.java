@@ -14,4 +14,20 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
     List<AuditLog> findByActionTypeIn(java.util.Collection<com.iztech.utms.model.ActionType> types,
             org.springframework.data.domain.Sort sort);
+
+    @org.springframework.data.jpa.repository.Query("SELECT log FROM AuditLog log, Application app " +
+            "WHERE log.targetApplicationId = app.id " +
+            "AND app.targetDepartment.id = :departmentId " +
+            "AND log.actionType IN :actions")
+    List<AuditLog> findLogsByDepartment(Integer departmentId,
+            java.util.Collection<com.iztech.utms.model.ActionType> actions,
+            org.springframework.data.domain.Sort sort);
+
+    @org.springframework.data.jpa.repository.Query("SELECT log FROM AuditLog log, Application app " +
+            "WHERE log.targetApplicationId = app.id " +
+            "AND app.targetDepartment.faculty.id = :facultyId " +
+            "AND log.actionType IN :actions")
+    List<AuditLog> findLogsByFaculty(Integer facultyId,
+            java.util.Collection<com.iztech.utms.model.ActionType> actions,
+            org.springframework.data.domain.Sort sort);
 }
