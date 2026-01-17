@@ -22,13 +22,6 @@ export default function StudentDashboard({ user }) {
     // Profile State
     const [profile, setProfile] = useState(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
-    const [showProfileModal, setShowProfileModal] = useState(false);
-    const [profileFormData, setProfileFormData] = useState({
-        currentUniversity: '',
-        currentProgram: '',
-        overallGpa: '',
-        hasDisciplinaryRecord: false
-    });
 
     useEffect(() => {
         loadProfile();
@@ -39,17 +32,6 @@ export default function StudentDashboard({ user }) {
             setLoadingProfile(true);
             const data = await getMyProfile();
             setProfile(data); // null if 204 (not found), object if found
-
-            // Check if profile is incomplete (has TCKN but missing other fields)
-            if (data && (!data.currentUniversity || !data.currentProgram || !data.overallGpa)) {
-                setShowProfileModal(true);
-                setProfileFormData({
-                    currentUniversity: data.currentUniversity || '',
-                    currentProgram: data.currentProgram || '',
-                    overallGpa: data.overallGpa || '',
-                    hasDisciplinaryRecord: data.hasDisciplinaryRecord || false
-                });
-            }
 
             if (data) {
                 try {
@@ -203,31 +185,6 @@ export default function StudentDashboard({ user }) {
         }
     };
 
-    const handleProfileSubmit = async (e) => {
-        e.preventDefault();
-        setStatus({ loading: true, success: null, error: null });
-
-        try {
-            await apiFetch('/student/profile', {
-                method: 'PUT',
-                body: JSON.stringify(profileFormData)
-            });
-            setStatus({ loading: false, success: 'Profile completed successfully!', error: null });
-            setShowProfileModal(false);
-            await loadProfile(); // Reload profile
-        } catch (err) {
-            setStatus({ loading: false, success: null, error: err.message });
-        }
-    };
-
-    const handleProfileInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setProfileFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
     // LOADING STATE
     if (loadingProfile) {
         return (
@@ -237,97 +194,10 @@ export default function StudentDashboard({ user }) {
         );
     }
 
-    // MISSING PROFILE STATE -> Show Entry Form
-    if (!profile) {
+    // MISSING OR INCOMPLETE PROFILE STATE -> Show Entry Form
+    if (!profile || !profile.currentUniversity || !profile.currentProgram || !profile.overallGpa) {
         return <ProfileEntryForm onProfileCreated={loadProfile} />;
     }
-
-    // PROFILE COMPLETION MODAL
-    const ProfileCompletionModal = () => (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8">
-                <h2 className="text-2xl font-bold text-red-900 mb-2">Complete Your Profile</h2>
-                <p className="text-gray-600 mb-6">Please fill in the remaining information to access the application form.</p>
-
-                {status.error && (
-                    <div className="mb-4 bg-red-50 text-red-700 p-3 rounded flex items-start">
-                        <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
-                        <span>{status.error}</span>
-                    </div>
-                )}
-
-                <form onSubmit={handleProfileSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Current University *</label>
-                        <input
-                            type="text"
-                            name="currentUniversity"
-                            value={profileFormData.currentUniversity}
-                            onChange={handleProfileInputChange}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-900"
-                            placeholder="e.g. Sabancı University"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Current Program *</label>
-                        <input
-                            type="text"
-                            name="currentProgram"
-                            value={profileFormData.currentProgram}
-                            onChange={handleProfileInputChange}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-900"
-                            placeholder="e.g. Computer Science"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Overall GPA (0.00-4.00) *</label>
-                        <input
-                            type="number"
-                            name="overallGpa"
-                            step="0.01"
-                            min="0"
-                            max="4"
-                            value={profileFormData.overallGpa}
-                            onChange={handleProfileInputChange}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-900"
-                            placeholder="e.g. 3.50"
-                        />
-                    </div>
-
-                    <div className="flex items-center">
-                        <input
-                            type="checkbox"
-                            name="hasDisciplinaryRecord"
-                            checked={profileFormData.hasDisciplinaryRecord}
-                            onChange={handleProfileInputChange}
-                            className="w-4 h-4 text-red-900 border-gray-300 rounded focus:ring-red-900"
-                        />
-                        <label className="ml-2 text-sm text-gray-700">I have a disciplinary record</label>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={status.loading}
-                        className="w-full bg-red-900 text-white py-2 px-4 rounded-md hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200 flex items-center justify-center"
-                    >
-                        {status.loading ? (
-                            <>
-                                <Loader className="animate-spin w-5 h-5 mr-2" />
-                                Saving...
-                            </>
-                        ) : (
-                            'Complete Profile'
-                        )}
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
 
     // SUCCESS or RESUBMISSION REQUIRED STATE
     if (existingApp && !isResubmitting) {
@@ -653,9 +523,6 @@ export default function StudentDashboard({ user }) {
                     </form>
                 </div>
             </div>
-
-            {/* Profile Completion Modal */}
-            {showProfileModal && <ProfileCompletionModal />}
         </div>
     );
 }
