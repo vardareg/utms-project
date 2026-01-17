@@ -41,3 +41,28 @@ utms-frontend/coverage/
 
 # Logs
 *.log
+
+# Docker
+docker-compose.override.yml
+*.env.docker
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+pgdata/
+
+# Spring Boot
+application-local.properties
+application-dev.properties
+HELP.md
+
+# Testing
+*.orig
+.attach_pid*
+
+# Temporary files
+*.tmp
+*.bak
+*~
