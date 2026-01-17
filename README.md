@@ -10,7 +10,7 @@ The **Undergraduate Transfer Management System (UTMS)** is a web-based platform 
 
 ### Key Capabilities
 
-- **Students**: Submit applications, upload documents, track status in real-time.
+- **Students**: Register accounts, complete profiles, submit applications, upload documents, track status in real-time.
 - **ÖİDB**: Validate documents, forward to faculties, return incomplete applications.
 - **YGK (Transfer Commission)**: Evaluate academic eligibility, view auto-generated rankings based on Composite Scores.
 - **Dean's Office Staff**: Assign applications to YGK, make final approval/rejection decisions.
@@ -149,11 +149,12 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 
 ### 1. Student Flow
 
-1. **Login**: Use `student` or any test student account
-2. **Create Profile**: Fill in TCKN, current university, program, and GPA
-3. **Submit Application**: Select target department, enter YKS score
-4. **Upload Documents**: Attach required PDFs (max 5MB each)
-5. **Track Status**: Monitor application progress in real-time
+1. **Registration**: Click "Create Student Account", enter TCKN, email, username, and password.
+2. **Login**: Use credentials created during registration.
+3. **Complete Profile**: Redirected to profile form to enter University, Program, and GPA.
+4. **Submit Application**: Select target department, enter YKS score.
+5. **Upload Documents**: Attach required PDFs (max 5MB each).
+6. **Track Status**: Monitor application progress in real-time.
 
 ### 2. ÖİDB Officer Flow
 
@@ -204,8 +205,10 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 
 ### Application Features
 
-- ✅ Composite score calculation (PR-07)
-- ✅ YKS score validation with OSYM service
+- **Student Self-Registration**: Secure account creation with TCKN validation.
+- **Profile Completion Flow**: Mandatory profile completion before application access.
+- **Composite score calculation (PR-07)**: (Converted GPA × 0.5) + (YKS × 0.5).
+- **YKS score validation**: Integrated with OSYM service.
 - ✅ GPA threshold enforcement (minimum 2.50)
 - ✅ Disciplinary record checking
 - ✅ Duplicate application prevention

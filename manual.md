@@ -22,7 +22,14 @@ Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
 - `POST /login`
   - **Implements:** UC-SYS-01 (User Login)
   - **Security:** SEC-03 (BCrypt Password Validation)
-  - **Returns:** JWT Token + User Role + User Details.
+  - **Returns:** JWT Token + User Role + User Details (Name, Email).
+
+- `POST /register`
+  - **Role:** PUBLIC
+  - **Implements:** Student Self-Registration
+  - **Payload:** Username, Email, Password (SEC-09), TCKN, First Name, Last Name
+  - **Validations:** Unique Index checks (Username, Email, TCKN)
+  - **Logic:** Creates `ROLE_STUDENT` user and initial `StudentProfile` (only TCKN).
 
 ### ApplicationController
 
@@ -73,7 +80,8 @@ Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
 
 - `POST /`
   - **Role:** STUDENT
-  - **Creates/Updates:** Student profile (TCKN, university, program, GPA)
+  - **Creates/Updates:** Student profile (University, Program, GPA)
+  - **Flow:** Used during mandatory "Profile Completion" phase after first login.
   - **Validations:** TCKN format, GPA range (0.00-4.00)
 
 ### DocumentController
