@@ -376,13 +376,21 @@ export default function StudentDashboard({ user }) {
                                 </p>
                             </div>
                         )}
-                        {/* Personal Info (Read-Only from Profile now ideally, but keeping user info for now) */}
+                        {/* Personal Info */}
                         <div className="bg-gray-50 p-4 rounded border border-gray-200">
                             <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Applicant Information</h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs text-gray-400">Username</label>
                                     <p className="font-medium">{user.username}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-400">Full Name</label>
+                                    <p className="font-medium">{user.firstName} {user.lastName}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-gray-400">Email</label>
+                                    <p className="font-medium">{user.email}</p>
                                 </div>
                                 <div>
                                     <label className="block text-xs text-gray-400">Date</label>

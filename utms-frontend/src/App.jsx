@@ -66,6 +66,9 @@ export default function App() {
 
             const userData = {
                 username: data.username,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
                 role: data.role,
                 token: data.token,
                 departmentId: data.departmentId,
