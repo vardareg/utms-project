@@ -5,15 +5,11 @@
 echo "⚛️  Starting UTMS Frontend..."
 echo "======================================"
 
-# Check if node_modules exists
-if [ ! -d "utms-frontend/node_modules" ]; then
-    echo "📦 Installing dependencies..."
-    cd utms-frontend
-    npm install
-    cd ..
-fi
+# Ensure dependencies are installed
+echo "📦 Ensuring dependencies are up-to-date..."
+cd utms-frontend
+npm install
 
 # Start frontend
-echo "Starting React development server..."
-cd utms-frontend
+echo "🚀 Starting React development server..."
 npm run dev

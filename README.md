@@ -48,6 +48,8 @@ git clone https://github.com/vardareg/utms-project
 cd utms-project
 ```
 
+> **Important**: After cloning the repository, you need to install frontend dependencies since `node_modules/` is not tracked by Git. Navigate to the frontend directory and run `npm install` to download all required packages.
+
 ### Step 2: Backend Configuration
 
 The backend supports **two deployment profiles**:

@@ -53,6 +53,8 @@ All default users have password: `Password123!`
 
 If this is your first time running UTMS:
 
+> **Note**: Anyone who clones the repo will need to run `npm install` in the frontend directory to get their own copy of dependencies.
+
 1. Run the all-in-one script:
 
    ```bash

@@ -64,7 +64,11 @@ docker compose logs -f backend
 - **Backend API**: <http://localhost:8080>
 - **Frontend**: Run separately in `utms-frontend/`:
 
+  > **Note**: If you just cloned the repository, run `npm install` first to download frontend dependencies (since `node_modules/` is not tracked by Git).
+
   ```bash
+  cd utms-frontend
+  npm install  # Only needed after cloning or if dependencies change
   npm run dev
   ```
 
