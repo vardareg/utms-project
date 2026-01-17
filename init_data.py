@@ -80,6 +80,8 @@ def generate_students(count=50):
         
         student = {
             "username": f"student{i+1:02d}_{dept}_{status}",
+            "first_name": "Test",
+            "last_name": f"Student{i+1}",
             "dept": dept,
             "status": status,
             "gpa": round(base_gpa, 2),
@@ -108,12 +110,14 @@ def login(username, password):
         raise Exception(f"Login failed for {username}: {response.text}")
 
 
-def create_student_user(admin_token, username, email):
+def create_student_user(admin_token, username, email, first_name, last_name):
     """Create a student user via admin API."""
     headers = {"Authorization": f"Bearer {admin_token}"}
     user_request = {
         "username": username,
         "email": email,
+        "firstName": first_name,
+        "lastName": last_name,
         "password": STUDENT_PASSWORD,
         "role": "ROLE_STUDENT",
         "userType": "STUDENT"
@@ -239,7 +243,7 @@ def main():
     created_count = 0
     for student in STUDENTS:
         email = f"{student['username']}@external.edu.tr"
-        if create_student_user(admin_token, student['username'], email):
+        if create_student_user(admin_token, student['username'], email, student['first_name'], student['last_name']):
             created_count += 1
             if created_count % 10 == 0:
                 print(f"  ✓ Created {created_count}/{len(STUDENTS)} users...")
