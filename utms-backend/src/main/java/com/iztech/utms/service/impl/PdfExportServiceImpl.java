@@ -52,7 +52,7 @@ public class PdfExportServiceImpl implements ExportService {
             table.setWidths(new int[] { 1, 3, 2, 2, 2, 2 });
 
             // Headers
-            String[] headers = { "Rank", "Candidate Name", "TC No", "Composite Score", "Status", "YKS Score" };
+            String[] headers = { "Rank", "Candidate Name", "TC No", "GPA", "Status", "Total Score" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(Color.GRAY);
