@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
-const RegisterPage = () => {
-    const navigate = useNavigate();
+const RegisterPage = ({ onBack }) => {
     const [formData, setFormData] = useState({
         username: '',
         firstName: '',
@@ -63,8 +61,9 @@ const RegisterPage = () => {
                 tckn: formData.tckn
             });
 
-            // Success - redirect to login with success message
-            navigate('/login', { state: { message: response.data } });
+            // Success - redirect to login
+            alert("Registration successful. Please login with your credentials.");
+            onBack();
         } catch (err) {
             setError(err.response?.data || 'Registration failed. Please try again.');
         } finally {
@@ -188,9 +187,13 @@ const RegisterPage = () => {
                     </button>
 
                     <div className="text-center mt-4">
-                        <Link to="/login" className="text-red-900 hover:underline text-sm">
+                        <button
+                            type="button"
+                            onClick={onBack}
+                            className="text-red-900 hover:underline text-sm font-medium bg-transparent border-none cursor-pointer"
+                        >
                             Already have an account? Login here
-                        </Link>
+                        </button>
                     </div>
                 </form>
             </div>
