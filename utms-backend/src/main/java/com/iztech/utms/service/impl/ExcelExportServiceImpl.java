@@ -28,7 +28,7 @@ public class ExcelExportServiceImpl implements ExportService {
 
             // Header Row
             Row headerRow = sheet.createRow(0);
-            String[] headers = { "Rank", "Candidate Name", "Composite Score", "Status", "YKS Score", "GPA" };
+            String[] headers = { "Rank", "Candidate Name", "TC No", "Composite Score", "Status", "YKS Score", "GPA" };
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
@@ -68,10 +68,11 @@ public class ExcelExportServiceImpl implements ExportService {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(dto.getRank());
             row.createCell(1).setCellValue(dto.getFullName());
-            row.createCell(2).setCellValue(dto.getCompositeScore() != null ? dto.getCompositeScore().doubleValue() : 0);
-            row.createCell(3).setCellValue(statusLabel);
-            row.createCell(4).setCellValue(dto.getYks() != null ? dto.getYks().doubleValue() : 0);
-            row.createCell(5).setCellValue(dto.getGpa() != null ? dto.getGpa().doubleValue() : 0);
+            row.createCell(2).setCellValue(dto.getTckn() != null ? dto.getTckn() : "-");
+            row.createCell(3).setCellValue(dto.getCompositeScore() != null ? dto.getCompositeScore().doubleValue() : 0);
+            row.createCell(4).setCellValue(statusLabel);
+            row.createCell(5).setCellValue(dto.getYks() != null ? dto.getYks().doubleValue() : 0);
+            row.createCell(6).setCellValue(dto.getGpa() != null ? dto.getGpa().doubleValue() : 0);
         }
         return rowIdx;
     }

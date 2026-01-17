@@ -47,12 +47,12 @@ public class PdfExportServiceImpl implements ExportService {
             document.add(subtitle);
 
             // Table
-            PdfPTable table = new PdfPTable(5); // Rank, Name, Score, Status, YKS
+            PdfPTable table = new PdfPTable(6); // Rank, Name, TCKN, Score, Status, YKS
             table.setWidthPercentage(100);
-            table.setWidths(new int[] { 1, 3, 2, 2, 2 });
+            table.setWidths(new int[] { 1, 3, 2, 2, 2, 2 });
 
             // Headers
-            String[] headers = { "Rank", "Candidate Name", "Composite Score", "Status", "Waitlist" };
+            String[] headers = { "Rank", "Candidate Name", "TC No", "Composite Score", "Status", "Waitlist" };
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBackgroundColor(Color.GRAY);
@@ -83,6 +83,7 @@ public class PdfExportServiceImpl implements ExportService {
         for (RankingDTO dto : list) {
             table.addCell(new Phrase(String.valueOf(dto.getRank()), font));
             table.addCell(new Phrase(dto.getFullName(), font)); // Masking handled in DTO/Service if needed
+            table.addCell(new Phrase(dto.getTckn() != null ? dto.getTckn() : "-", font));
             table.addCell(new Phrase(dto.getCompositeScore() != null ? dto.getCompositeScore().toString() : "-", font));
             table.addCell(new Phrase(statusLabel, font));
             // Just putting YKS Score or GPA in extra column for info

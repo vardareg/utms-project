@@ -265,10 +265,17 @@ public class EvaluationService {
     private RankingDTO mapToRankingDTO(Application app, int rank) {
         User student = app.getStudent();
         String fullName = student.getFirstName() + " " + student.getLastName();
+
+        // Fetch TCKN from student profile
+        String tckn = studentProfileRepository.findById(student.getId())
+                .map(com.iztech.utms.model.StudentProfile::getTckn)
+                .orElse("-");
+
         return new RankingDTO(
                 rank,
                 app.getId(),
                 fullName,
+                tckn,
                 app.getCompositeScore(),
                 app.getConvertedGpa(),
                 app.getYksScore());
@@ -350,6 +357,7 @@ public class EvaluationService {
         private int rank;
         private Long trackingId;
         private String fullName;
+        private String tckn;
         private java.math.BigDecimal compositeScore;
         private java.math.BigDecimal gpa;
         private java.math.BigDecimal yks;
