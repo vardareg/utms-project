@@ -48,6 +48,9 @@ public class AuthController {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
 
+            // Fetch full User entity to get extra details
+            com.iztech.utms.model.User user = userRepository.findByUsername(userDetails.getUsername()).get();
+
             // Log Successful Login
             auditLogRepository.save(AuditLog.builder()
                     .actorUsername(userDetails.getUsername())
@@ -57,8 +60,8 @@ public class AuthController {
                     .build());
 
             // Fetch Admin Profile if exists
-            com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository.findById(
-                    userRepository.findByUsername(userDetails.getUsername()).get().getId()).orElse(null);
+            com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository.findById(user.getId())
+                    .orElse(null);
 
             Integer deptId = (profile != null && profile.getDepartment() != null) ? profile.getDepartment().getId()
                     : null;
@@ -74,7 +77,8 @@ public class AuthController {
             }
 
             return ResponseEntity
-                    .ok(new JwtResponse(jwt, userDetails.getUsername(), role, deptId, facultyId, scopeName));
+                    .ok(new JwtResponse(jwt, userDetails.getUsername(), user.getFirstName(), user.getLastName(),
+                            user.getEmail(), role, deptId, facultyId, scopeName));
 
         } catch (org.springframework.security.core.AuthenticationException e) {
             // Log Failed Login
@@ -181,6 +185,9 @@ public class AuthController {
     public static class JwtResponse {
         private String token;
         private String username;
+        private String firstName;
+        private String lastName;
+        private String email;
         private String role;
         private Integer departmentId;
         private Integer facultyId;
