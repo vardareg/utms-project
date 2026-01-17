@@ -17,6 +17,7 @@ This guide explains the core concepts of Git and the commands we used to update 
 9. [GitHub-Specific Features](#9-github-specific-features)
 10. [Emergency Commands](#10-emergency-commands)
 11. [Summary Cheat Sheet](#11-summary-cheat-sheet)
+12. [Practice Exercises](#12-practice-exercises)
 
 ---
 
@@ -24,18 +25,20 @@ This guide explains the core concepts of Git and the commands we used to update 
 
 ### 📚 What is Git?
 
-Git is a **Version Control System**. Think of it as a time machine for your code. It tracks every change you make, allowing you to:
+Git is a **Version Control System** — a time machine for your code. It tracks every change you make, allowing you to:
 
-- Revert to previous versions if something breaks.
-- See who changed what and why.
-- Work on new features without breaking the working code.
+- Revert to previous versions if something breaks
+- See who changed what and why
+- Work on new features without breaking working code
 
 ### ☁️ What is GitHub?
 
-GitHub is a **Remote Hosting Service** for Git repositories.
+GitHub is a **remote hosting service** for Git repositories.
 
-- **Git** is the tool on your computer (Local).
-- **GitHub** is the website where you store your code online (Remote).
+- **Git** runs on your computer (local)
+- **GitHub** stores your code online (remote)
+
+Think of Git as your local save system and GitHub as your cloud backup that also enables team collaboration.
 
 ---
 
@@ -43,14 +46,19 @@ GitHub is a **Remote Hosting Service** for Git repositories.
 
 Every change follows this 4-step journey:
 
-1. **Working Directory** 📝 (Where you edit files)
-    - *You save a file in VS Code.*
-2. **Staging Area** 📦 (Preparing the shipment)
-    - *You choose which files you want to include in the next snapshot.*
-3. **Local Repository** 📸 (The snapshot)
-    - *You permanently record the snapshot locally.*
-4. **Remote Repository** 🚀 (GitHub)
-    - *You upload your snapshots to the cloud.*
+1. **Working Directory** 📝 — Where you edit files
+   - *You save a file in VS Code*
+
+2. **Staging Area** 📦 — Preparing the shipment
+   - *You choose which files to include in the next snapshot*
+
+3. **Local Repository** 📸 — The snapshot
+   - *You permanently record the snapshot locally*
+
+4. **Remote Repository** 🚀 — GitHub
+   - *You upload your snapshots to the cloud*
+
+💡 **Tip:** This workflow ensures you have full control over what gets saved and shared with your team.
 
 ---
 
@@ -70,10 +78,10 @@ Every change follows this 4-step journey:
        ├────────────────────────>│                    │                 │
        │                         │                    │                 │
        │                         │  git commit -m     │                 │
-       │                         ├───────────────────>│                 │
+       │                         ├──────────────────>│                 │
        │                         │                    │                 │
        │                         │                    │  git push       │
-       │                         │                    ├────────────────>│
+       │                         │                    ├───────────────>│
        │                         │                    │                 │
        │                         │                    │  git pull       │
        │<────────────────────────┴────────────────────┴─────────────────┤
@@ -85,7 +93,7 @@ Every change follows this 4-step journey:
 
 ## 4. Basic Commands
 
-Here is a breakdown of the specific commands we used to update your project:
+Here are the essential commands with clear explanations of what they do and when to use them.
 
 ### 🔍 Check Status
 
@@ -93,10 +101,14 @@ Here is a breakdown of the specific commands we used to update your project:
 git status
 ```
 
-**What it does:** Shows you which files have changed.
+**What it does:** Shows which files have changed.
 
-- **Red:** Changed but not staged (modified).
-- **Green:** Staged and ready to commit.
+- **Red text:** Changed but not staged (modified)
+- **Green text:** Staged and ready to commit
+
+📝 **Note:** Run this frequently to understand the current state of your repository.
+
+---
 
 ### ➕ Stage Changes
 
@@ -106,9 +118,15 @@ git add -A
 
 **What it does:** Moves changes from "Working Directory" to "Staging Area".
 
-- `-A` (All): Adds all new, modified, and deleted files.
-- `git add filename`: Adds only a specific file.
-- `git add .`: Adds all files in current directory.
+**Options:**
+
+- `git add -A` — Adds all new, modified, and deleted files
+- `git add filename` — Adds only a specific file
+- `git add .` — Adds all files in the current directory
+
+💡 **Tip:** Use `git add -A` when you want to stage everything. Use specific filenames when you want more control.
+
+---
 
 ### 📸 Create Commit
 
@@ -116,10 +134,19 @@ git add -A
 git commit -m "feat: add user management"
 ```
 
-**What it does:** Takes a snapshot of the files in the Staging Area and saves it to your Local Repository.
+**What it does:** Takes a snapshot of staged files and saves it to your local repository.
 
-- `-m`: Allows you to write the message inline.
-- **Best Practice:** Use clear messages like `feat:` (new feature), `fix:` (bug fix), or `docs:` (documentation).
+- `-m` — Lets you write the message inline
+
+**Best practices for commit messages:**
+
+- `feat:` — New feature
+- `fix:` — Bug fix
+- `docs:` — Documentation changes
+- `refactor:` — Code improvements
+- `test:` — Adding or updating tests
+
+---
 
 ### 🚀 Push to GitHub
 
@@ -129,8 +156,12 @@ git push origin main
 
 **What it does:** Uploads your local commits to GitHub.
 
-- `origin`: The nickname for your remote repository URL.
-- `main`: The branch you are working on (usually the default branch).
+- `origin` — The nickname for your remote repository URL
+- `main` — The branch you're working on (default branch)
+
+⚠️ **Warning:** Always pull before pushing to avoid conflicts.
+
+---
 
 ### 📥 Get Updates (Pull)
 
@@ -138,7 +169,15 @@ git push origin main
 git pull origin main
 ```
 
-**What it does:** Downloads changes from GitHub and merges them into your local code. Run this if you changed code on another computer.
+**What it does:** Downloads changes from GitHub and merges them into your local code.
+
+**When to use:**
+
+- At the start of each work session
+- Before pushing your changes
+- When teammates notify you of updates
+
+---
 
 ### 📜 View History
 
@@ -148,10 +187,19 @@ git log --oneline
 
 **What it does:** Shows a concise list of past commits.
 
-- You'll see the **Commit Hash** (e.g., `a1b2c3d`) and the message.
-- Use `git log --graph --oneline --all` for a visual branch history.
+You'll see the **commit hash** (e.g., `a1b2c3d`) and the message.
 
-### 🐑 Clone (Download)
+**Enhanced view:**
+
+```bash
+git log --graph --oneline --all
+```
+
+This shows a visual branch history.
+
+---
+
+### 📦 Clone (Download)
 
 ```bash
 git clone https://github.com/username/repo-name.git
@@ -159,17 +207,21 @@ git clone https://github.com/username/repo-name.git
 
 **What it does:** Downloads an entire repository from GitHub to your computer for the first time.
 
+📝 **Note:** You only need to clone once. After that, use `git pull` to get updates.
+
 ---
 
 ## 5. Branching Strategy
 
-Branches allow you to work on features without affecting the main codebase.
+Branches let you work on features without affecting the main codebase.
 
 ### 🌿 Why Use Branches?
 
-- **Isolation:** Work on new features without breaking working code.
-- **Collaboration:** Multiple team members can work simultaneously.
-- **Safety:** The `main` branch stays stable.
+- **Isolation:** Work on new features without breaking working code
+- **Collaboration:** Multiple team members can work simultaneously
+- **Safety:** The `main` branch stays stable
+
+---
 
 ### Creating a New Branch
 
@@ -181,19 +233,27 @@ git checkout -b feature/user-authentication
 git switch -c feature/admin-panel
 ```
 
-**Naming Convention:**
-- `feature/description` - New features (e.g., `feature/login-page`)
-- `fix/description` - Bug fixes (e.g., `fix/validation-error`)
-- `docs/description` - Documentation updates
+**Naming conventions:**
+
+- `feature/description` — New features (e.g., `feature/login-page`)
+- `fix/description` — Bug fixes (e.g., `fix/validation-error`)
+- `docs/description` — Documentation updates
+
+💡 **Tip:** Use descriptive names that clearly indicate what the branch is for.
+
+---
 
 ### Switching Between Branches
 
 ```bash
 # Switch to existing branch
 git checkout main
-# Or
+
+# Or using newer syntax
 git switch main
 ```
+
+---
 
 ### Viewing All Branches
 
@@ -205,6 +265,10 @@ git branch
 git branch -a
 ```
 
+The current branch is marked with an asterisk (*).
+
+---
+
 ### Merging a Branch
 
 ```bash
@@ -215,6 +279,10 @@ git checkout main
 git merge feature/user-authentication
 ```
 
+📝 **Note:** Always ensure `main` is up to date before merging: `git pull origin main`
+
+---
+
 ### Deleting a Branch
 
 ```bash
@@ -224,6 +292,10 @@ git branch -d feature/user-authentication
 # Force delete (if not merged)
 git branch -D feature/old-experiment
 ```
+
+⚠️ **Warning:** Only force delete (`-D`) if you're certain you don't need those changes.
+
+---
 
 ### Typical Workflow with Branches
 
@@ -244,7 +316,7 @@ git push origin feature/new-dashboard
 
 # 5. Create Pull Request on GitHub (see section 9)
 
-# 6. After approval, merge and delete
+# 6. After approval, merge and clean up
 git checkout main
 git pull origin main
 git branch -d feature/new-dashboard
@@ -260,11 +332,13 @@ git branch -d feature/new-dashboard
 # Fix the last commit message
 git commit --amend -m "fix: correct typo in validation logic"
 
-# If already pushed, you'll need to force push (use carefully!)
+# If already pushed, you'll need to force push
 git push origin main --force
 ```
 
 ⚠️ **Warning:** Only use `--force` if you're sure no one else has pulled your changes!
+
+---
 
 ### 🔧 Scenario 2: "I want to undo changes before committing"
 
@@ -275,6 +349,10 @@ git restore UserController.java
 # Undo all changes in working directory
 git restore .
 ```
+
+💡 **Tip:** This only works for uncommitted changes. Once committed, use `git reset` or `git revert`.
+
+---
 
 ### 🔧 Scenario 3: "I accidentally committed to main instead of a feature branch"
 
@@ -293,35 +371,43 @@ git add -A
 git commit -m "feat: add feature properly"
 ```
 
+---
+
 ### 🔧 Scenario 4: "Merge Conflicts - What to do?"
 
-When two people edit the same file, Git can't automatically merge:
+When two people edit the same file, Git can't automatically merge. You'll see:
 
 ```bash
-# After git pull or git merge, you see:
-# CONFLICT (content): Merge conflict in UserService.java
+CONFLICT (content): Merge conflict in UserService.java
 ```
 
 **How to resolve:**
 
 1. Open the conflicted file in VS Code
 2. Look for conflict markers:
-```java
-<<<<<<< HEAD
-// Your changes
-String name = "John";
-=======
-// Their changes
-String name = "Jane";
->>>>>>> feature/other-branch
-```
+
+   ```java
+   <<<<<<< HEAD
+   // Your changes
+   String name = "John";
+   =======
+   // Their changes
+   String name = "Jane";
+   >>>>>>> feature/other-branch
+   ```
+
 3. Edit the file to keep what you want
 4. Remove the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
 5. Stage and commit:
-```bash
-git add UserService.java
-git commit -m "fix: resolve merge conflict in UserService"
-```
+
+   ```bash
+   git add UserService.java
+   git commit -m "fix: resolve merge conflict in UserService"
+   ```
+
+💡 **Tip:** VS Code has built-in merge conflict tools. Look for "Accept Current Change" and "Accept Incoming Change" buttons.
+
+---
 
 ### 🔧 Scenario 5: "I need to switch branches but have uncommitted changes"
 
@@ -337,6 +423,8 @@ git checkout original-branch
 git stash pop
 ```
 
+---
+
 ### 🔧 Scenario 6: "I want to see what changed in a specific commit"
 
 ```bash
@@ -351,19 +439,30 @@ git show HEAD
 
 ## 7. Understanding .gitignore
 
-### 📛 What is .gitignore?
+### 🚫 What is .gitignore?
 
 A `.gitignore` file tells Git which files or folders to **ignore** and never commit.
+
+---
 
 ### Why Use It?
 
 **Never commit:**
+
 - ❌ Dependencies (`node_modules/`, `target/`)
 - ❌ Build outputs (`dist/`, `build/`, `*.class`)
 - ❌ Sensitive data (`.env`, `application-secrets.properties`)
 - ❌ IDE files (`.idea/`, `.vscode/`, `*.iml`)
 - ❌ OS files (`.DS_Store`, `Thumbs.db`)
 - ❌ Log files (`*.log`)
+
+**Why?** These files are either:
+
+- Generated automatically (can be rebuilt)
+- Contain sensitive information (security risk)
+- Specific to your machine (cause conflicts for teammates)
+
+---
 
 ### Example .gitignore for UTMS
 
@@ -401,14 +500,24 @@ Thumbs.db
 *.sqlite
 ```
 
+---
+
 ### How to Use
 
 1. Create a file named `.gitignore` in your project root
 2. Add patterns (one per line)
 3. Commit the `.gitignore` file itself:
+
+   ```bash
+   git add .gitignore
+   git commit -m "chore: add gitignore"
+   ```
+
+📝 **Note:** Files already committed won't be ignored. You need to remove them first:
+
 ```bash
-git add .gitignore
-git commit -m "chore: add gitignore"
+git rm --cached filename
+git commit -m "chore: remove file from tracking"
 ```
 
 ---
@@ -417,7 +526,7 @@ git commit -m "chore: add gitignore"
 
 ### 🤝 Team Guidelines for UTMS Project
 
-#### 1. **Always Pull Before Starting Work**
+#### 1. Always Pull Before Starting Work
 
 ```bash
 # Start of every work session
@@ -427,67 +536,93 @@ git pull origin main
 
 This prevents conflicts and ensures you have the latest code.
 
-#### 2. **Write Meaningful Commit Messages**
+---
 
-**Good Examples:**
+#### 2. Write Meaningful Commit Messages
+
+**Good examples:**
+
 - ✅ `feat: add student application form validation`
 - ✅ `fix: resolve null pointer in ApplicationService`
 - ✅ `docs: update API documentation for evaluation endpoints`
 
-**Bad Examples:**
+**Bad examples:**
+
 - ❌ `update`
 - ❌ `fix stuff`
 - ❌ `asdfasdf`
 
-**Commit Message Format:**
+**Commit message format:**
+
 ```
 <type>: <short description>
 
-[optional body explaining WHY]
+[optional body explaining WHY, if needed]
 ```
 
 **Types:**
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation
-- `style:` - Formatting, missing semicolons
-- `refactor:` - Code restructuring
-- `test:` - Adding tests
-- `chore:` - Maintenance tasks
 
-#### 3. **Never Commit Sensitive Data**
+- `feat:` — New feature
+- `fix:` — Bug fix
+- `docs:` — Documentation
+- `style:` — Formatting, missing semicolons (no logic change)
+- `refactor:` — Code restructuring (no feature change)
+- `test:` — Adding or updating tests
+- `chore:` — Maintenance tasks (dependencies, config)
+
+---
+
+#### 3. Never Commit Sensitive Data
 
 ❌ **Never commit:**
+
 - Passwords
 - API keys
 - Database credentials
 - JWT secrets
 
 ✅ **Instead:**
+
 - Use environment variables
 - Add sensitive files to `.gitignore`
 - Use `application-secrets.properties` (gitignored)
 
-#### 4. **Keep Commits Focused**
+⚠️ **Warning:** If you accidentally commit a secret, changing it in a new commit is NOT enough. The secret is still in Git history. You must rotate the credential immediately.
 
-- One commit = One logical change
-- Don't mix unrelated changes
-- Makes code review easier
+---
 
-#### 5. **Pull Before Push**
+#### 4. Keep Commits Focused
+
+- One commit = one logical change
+- Don't mix unrelated changes (e.g., don't combine a bug fix with a new feature)
+- Makes code review easier and debugging faster
+
+💡 **Tip:** If your commit message needs "and" more than once, consider splitting it into multiple commits.
+
+---
+
+#### 5. Pull Before Push
 
 ```bash
 # Before pushing
 git pull origin main
-# Resolve any conflicts
+
+# Resolve any conflicts if they appear
+
+# Then push
 git push origin main
 ```
 
-#### 6. **Communicate with Your Team**
+This prevents the "Your branch is behind" error.
+
+---
+
+#### 6. Communicate with Your Team
 
 - Announce when working on a major feature
 - Use GitHub Issues to track tasks
 - Review each other's Pull Requests
+- Ask questions when unsure
 
 ---
 
@@ -495,81 +630,115 @@ git push origin main
 
 ### 🔀 Pull Requests (PRs)
 
-A Pull Request is a way to propose changes and get them reviewed before merging.
+A Pull Request is how you propose changes and get them reviewed before merging into `main`.
+
+---
 
 **Workflow:**
 
-1. **Create a feature branch and push it:**
+**1. Create a feature branch and push it:**
+
 ```bash
 git checkout -b feature/admin-dashboard
-# Make changes
+# Make your changes
 git add -A
 git commit -m "feat: add admin dashboard"
 git push origin feature/admin-dashboard
 ```
 
-2. **On GitHub:**
-   - Go to your repository
-   - Click "Pull Requests" → "New Pull Request"
-   - Select your branch (`feature/admin-dashboard`)
-   - Add description of changes
-   - Click "Create Pull Request"
+**2. On GitHub:**
 
-3. **Code Review:**
-   - Team members review your code
-   - They can comment and request changes
-   - You can push more commits to address feedback
+- Go to your repository
+- Click "Pull Requests" → "New Pull Request"
+- Select your branch (`feature/admin-dashboard`)
+- Add a description of your changes
+- Click "Create Pull Request"
 
-4. **Merge:**
-   - Once approved, click "Merge Pull Request"
-   - Delete the branch on GitHub
-   - Pull the updated main locally:
-   ```bash
-   git checkout main
-   git pull origin main
-   git branch -d feature/admin-dashboard
-   ```
+**3. Code Review:**
+
+- Team members review your code
+- They can comment and request changes
+- You can push more commits to address feedback
+
+**4. Merge:**
+
+- Once approved, click "Merge Pull Request"
+- Delete the branch on GitHub
+- Pull the updated main locally:
+
+  ```bash
+  git checkout main
+  git pull origin main
+  git branch -d feature/admin-dashboard
+  ```
+
+💡 **Tip:** Write clear PR descriptions. Explain what you changed and why. Include screenshots for UI changes.
+
+---
 
 ### 📋 GitHub Issues
 
-Track bugs, features, and tasks.
+Track bugs, features, and tasks in a centralized location.
 
 **Creating an Issue:**
+
 1. Go to "Issues" tab
 2. Click "New Issue"
 3. Add title and description
-4. Assign to team member
-5. Add labels (bug, enhancement, documentation)
+4. Assign to team member (optional)
+5. Add labels (`bug`, `enhancement`, `documentation`)
 
-**Linking Commits to Issues:**
+**Linking commits to issues:**
+
 ```bash
 git commit -m "fix: resolve login timeout issue (#42)"
 ```
-This automatically links to Issue #42.
+
+This automatically links to Issue #42 and adds a reference in the issue thread.
+
+---
 
 ### 🔍 Code Review on GitHub
 
 **Reviewing a PR:**
+
 1. Go to "Pull Requests"
-2. Click on the PR
-3. Go to "Files changed"
-4. Click line numbers to add comments
+2. Click on the PR you want to review
+3. Go to "Files changed" tab
+4. Click on line numbers to add inline comments
 5. Click "Review changes" → "Approve" or "Request changes"
+
+**Best practices:**
+
+- Be constructive and specific
+- Explain why, not just what
+- Praise good code too
+- Ask questions instead of making demands
+
+---
 
 ### ⚡ GitHub Actions (CI/CD Basics)
 
-GitHub Actions can automatically:
-- Run tests when you push code
+GitHub Actions can automatically run tasks when you push code:
+
+- Run tests
 - Build your application
 - Deploy to servers
+- Check code quality
 
-**Example:** Auto-run tests on every push to `main`.
+**Example:** Automatically run tests on every push to `main`.
+
+📝 **Note:** Setting up GitHub Actions is beyond this guide's scope, but it's a powerful feature worth exploring as you advance.
 
 ---
 
 ## 10. Emergency Commands
 
-### 🚨 Use These Carefully!
+### 🚨 Use These Carefully
+
+These commands are powerful and can cause data loss if misused. Read carefully before using.
+
+---
 
 #### git stash - Temporarily Save Changes
 
@@ -592,6 +761,8 @@ git stash drop stash@{0}
 
 **Use case:** You need to switch branches but aren't ready to commit.
 
+---
+
 #### git reset - Undo Commits
 
 ```bash
@@ -605,9 +776,11 @@ git reset HEAD~1
 git reset --hard HEAD~1
 ```
 
-⚠️ **Warning:** `--hard` permanently deletes changes!
+⚠️ **Warning:** `--hard` permanently deletes changes. There's no undo!
 
 **Use case:** You committed too early or to the wrong branch.
+
+---
 
 #### git revert - Safely Undo a Commit
 
@@ -617,15 +790,18 @@ git revert a1b2c3d
 ```
 
 **Difference from reset:**
-- `reset`: Rewrites history (dangerous if pushed)
-- `revert`: Creates new commit (safe for shared branches)
+
+- `reset` — Rewrites history (dangerous if already pushed)
+- `revert` — Creates new commit (safe for shared branches)
 
 **Use case:** Undo a commit that's already pushed to GitHub.
+
+---
 
 #### git clean - Remove Untracked Files
 
 ```bash
-# See what would be deleted
+# See what would be deleted (dry run)
 git clean -n
 
 # Delete untracked files
@@ -635,7 +811,9 @@ git clean -f
 git clean -fd
 ```
 
-⚠️ **Warning:** This permanently deletes files!
+⚠️ **Warning:** This permanently deletes files not tracked by Git!
+
+---
 
 #### git reflog - Recover "Lost" Commits
 
@@ -647,7 +825,9 @@ git reflog
 git checkout a1b2c3d
 ```
 
-**Use case:** You accidentally deleted commits and need them back.
+**Use case:** You accidentally deleted commits with `git reset --hard` and need them back.
+
+💡 **Tip:** `git reflog` is your safety net. Git keeps deleted commits for about 30 days.
 
 ---
 
@@ -655,46 +835,110 @@ git checkout a1b2c3d
 
 ### Basic Operations
 
-| I want to... | Command |
-| :--- | :--- |
-| **Check** what changed | `git status` |
-| **Stage** all files | `git add -A` |
-| **Stage** specific file | `git add filename` |
-| **Save** a snapshot | `git commit -m "message"` |
-| **Upload** to GitHub | `git push origin main` |
-| **Download** updates | `git pull origin main` |
-| **See** history | `git log --oneline` |
-| **Clone** repository | `git clone <url>` |
+| I want to...              | Command                     |
+|:--------------------------|:----------------------------|
+| **Check** what changed    | `git status`                |
+| **Stage** all files       | `git add -A`                |
+| **Stage** specific file   | `git add filename`          |
+| **Save** a snapshot       | `git commit -m "message"`   |
+| **Upload** to GitHub      | `git push origin main`      |
+| **Download** updates      | `git pull origin main`      |
+| **See** history           | `git log --oneline`         |
+| **Clone** repository      | `git clone <url>`           |
+
+---
 
 ### Branching
 
-| I want to... | Command |
-| :--- | :--- |
-| **Create** new branch | `git checkout -b feature/name` |
-| **Switch** to branch | `git checkout branch-name` |
-| **List** all branches | `git branch -a` |
-| **Merge** branch | `git merge feature/name` |
-| **Delete** branch | `git branch -d feature/name` |
+| I want to...              | Command                          |
+|:--------------------------|:---------------------------------|
+| **Create** new branch     | `git checkout -b feature/name`   |
+| **Switch** to branch      | `git checkout branch-name`       |
+| **List** all branches     | `git branch -a`                  |
+| **Merge** branch          | `git merge feature/name`         |
+| **Delete** branch         | `git branch -d feature/name`     |
+
+---
 
 ### Fixing Mistakes
 
-| I want to... | Command |
-| :--- | :--- |
-| **Undo** file changes | `git restore filename` |
-| **Fix** last commit message | `git commit --amend -m "new message"` |
-| **Undo** last commit (keep changes) | `git reset HEAD~1` |
-| **Temporarily** save changes | `git stash` |
-| **Restore** stashed changes | `git stash pop` |
-| **Safely undo** a pushed commit | `git revert <commit-hash>` |
+| I want to...                       | Command                              |
+|:-----------------------------------|:-------------------------------------|
+| **Undo** file changes              | `git restore filename`               |
+| **Fix** last commit message        | `git commit --amend -m "new msg"`    |
+| **Undo** last commit (keep changes)| `git reset HEAD~1`                   |
+| **Temporarily** save changes       | `git stash`                          |
+| **Restore** stashed changes        | `git stash pop`                      |
+| **Safely undo** a pushed commit    | `git revert <commit-hash>`           |
+
+---
 
 ### Collaboration
 
-| I want to... | Command |
-| :--- | :--- |
-| **See** who changed what | `git blame filename` |
-| **View** specific commit | `git show <commit-hash>` |
-| **Compare** branches | `git diff main..feature/name` |
-| **Fetch** without merging | `git fetch origin` |
+| I want to...              | Command                          |
+|:--------------------------|:---------------------------------|
+| **See** who changed what  | `git blame filename`             |
+| **View** specific commit  | `git show <commit-hash>`         |
+| **Compare** branches      | `git diff main..feature/name`    |
+| **Fetch** without merging | `git fetch origin`               |
+
+---
+
+## 12. Practice Exercises
+
+Ready to solidify your Git skills? Try these hands-on exercises.
+
+### Exercise 1: Basic Workflow
+
+1. Create a new file called `test.txt` in your project
+2. Stage and commit it with a meaningful message
+3. Make a change to the file
+4. Stage and commit the change
+5. View your commit history with `git log --oneline`
+
+---
+
+### Exercise 2: Branching
+
+1. Create a new branch called `feature/practice`
+2. Make some changes and commit them
+3. Switch back to `main`
+4. Merge your feature branch
+5. Delete the feature branch
+
+---
+
+### Exercise 3: Handling Conflicts
+
+1. Create a branch called `conflict-test`
+2. Edit line 1 of `test.txt` and commit
+3. Switch to `main`
+4. Edit the same line differently and commit
+5. Try to merge `conflict-test` into `main`
+6. Resolve the conflict manually
+7. Complete the merge
+
+---
+
+### Exercise 4: Using Stash
+
+1. Make some changes but don't commit
+2. Stash your changes
+3. Make different changes and commit them
+4. Pop your stash and resolve any conflicts
+5. Commit the restored changes
+
+---
+
+### Next Steps
+
+Once you're comfortable with these basics:
+
+- Learn about **rebasing** for cleaner history
+- Explore **Git hooks** for automation
+- Study **GitHub Actions** for CI/CD
+- Practice **cherry-picking** specific commits
+- Master **interactive rebase** for commit organization
 
 ---
 
@@ -702,8 +946,9 @@ git checkout a1b2c3d
 
 - [Official Git Documentation](https://git-scm.com/doc)
 - [GitHub Guides](https://guides.github.com/)
-- [Interactive Git Tutorial](https://learngitbranching.js.org/)
+- [Interactive Git Tutorial](https://learngitbranching.js.org/) — Highly recommended!
 - [Git Cheat Sheet (PDF)](https://education.github.com/git-cheat-sheet-education.pdf)
+- [Oh Shit, Git!?!](https://ohshitgit.com/) — Real solutions to common problems
 
 ---
 
@@ -711,16 +956,25 @@ git checkout a1b2c3d
 
 **Common Issues:**
 
-1. **"Permission denied (publickey)"** → Check SSH keys setup
-2. **"Merge conflict"** → See [Section 6, Scenario 4](#-scenario-4-merge-conflicts---what-to-do)
-3. **"Detached HEAD state"** → Run `git checkout main`
-4. **"Your branch is behind"** → Run `git pull origin main`
+| Issue | Solution |
+|:------|:---------|
+| "Permission denied (publickey)" | Check SSH keys setup in GitHub settings |
+| "Merge conflict" | See [Section 6, Scenario 4](#-scenario-4-merge-conflicts---what-to-do) |
+| "Detached HEAD state" | Run `git checkout main` |
+| "Your branch is behind" | Run `git pull origin main` |
+| "Cannot push" | Pull first: `git pull origin main` |
 
 **Ask Your Team:**
+
 - Use GitHub Issues for project-specific questions
-- Check with team lead for workflow questions
+- Check with your team lead for workflow questions
+- Don't hesitate to ask — everyone was a beginner once!
 
 ---
 
 *Created for UTMS Project Learning - Team 3 - 2026*  
 *Last Updated: January 2026*
+
+---
+
+**Remember:** Git is a skill that improves with practice. Don't be afraid to experiment in a test repository. The more you use it, the more natural it becomes!
