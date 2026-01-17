@@ -12,6 +12,8 @@ public class AnnouncementDto {
     private boolean active;
     private String attachmentName;
     private String downloadUrl;
+    private boolean isResultAnnouncement;
+    private Integer relatedDepartmentId;
 
     public AnnouncementDto() {
     }
@@ -99,5 +101,21 @@ public class AnnouncementDto {
 
     public void setDownloadUrl(String downloadUrl) {
         this.downloadUrl = downloadUrl;
+    }
+
+    public boolean isResultAnnouncement() {
+        return isResultAnnouncement;
+    }
+
+    public void setResultAnnouncement(boolean resultAnnouncement) {
+        isResultAnnouncement = resultAnnouncement;
+    }
+
+    public Integer getRelatedDepartmentId() {
+        return relatedDepartmentId;
+    }
+
+    public void setRelatedDepartmentId(Integer relatedDepartmentId) {
+        this.relatedDepartmentId = relatedDepartmentId;
     }
 }

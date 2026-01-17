@@ -1,6 +1,5 @@
 package com.iztech.utms.service;
 
-import com.iztech.utms.dto.ApplicationDTO;
 import com.iztech.utms.model.Application;
 import com.iztech.utms.model.Application.ApplicationStatus;
 import com.iztech.utms.model.Evaluation;
@@ -60,34 +59,81 @@ public class EvaluationService {
             }
         }
 
-        // Save Evaluation Record
-        Evaluation evaluation = Evaluation.builder()
-                .application(app)
-                .ygkMember(ygkMember)
-                .isEligible(isEligible)
-                .decisionNote(note)
-                .build();
+        if (app.getStatus() != ApplicationStatus.UNDER_REVIEW) {
+            throw new RuntimeException(
+                    "Action Restricted: Application must be assigned by Dean (UNDER_REVIEW) before evaluation.");
+        }
+
+        // Save or Update Evaluation Record (Draft Mode)
+        Evaluation evaluation = evaluationRepository.findByApplicationId(applicationId)
+                .orElse(Evaluation.builder()
+                        .application(app)
+                        .ygkMember(ygkMember)
+                        .build());
+
+        evaluation.setEligible(isEligible);
+        evaluation.setDecisionNote(note);
 
         evaluationRepository.save(evaluation);
 
-        // Update Application Status
-        if (!isEligible) {
-            app.setStatus(ApplicationStatus.REJECTED);
-        } else {
-            // Eligible students move to UNDER_REVIEW until the final ranking is generated
-            app.setStatus(ApplicationStatus.UNDER_REVIEW);
-        }
-        applicationRepository.save(app);
+        // DO NOT Change Application Status here. It remains UNDER_REVIEW.
+        // The decision is stored in the Evaluation record and exposed via DTO as
+        // 'ygkDecision'.
+        // Finalization happens in finalizeEvaluations().
 
-        // Audit Log: EVALUATE
+        // Audit Log: EVALUATE (Draft)
         auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
                 .actorUsername(username)
                 .actionType(com.iztech.utms.model.ActionType.EVALUATE)
                 .targetApplicationId(app.getId())
-                .details("Evaluated Application of " + app.getStudent().getUsername() + " for "
-                        + app.getTargetDepartment().getName() + ". Eligible: " + isEligible + ". Note: " + note)
+                .details("Draft Evaluation for " + app.getStudent().getUsername() + ": "
+                        + (isEligible ? "ELIGIBLE" : "NOT_ELIGIBLE"))
                 .build());
 
+    }
+
+    // UC-YGK-0X: Finalize Evaluations (Transition to FINALIZED for Dean Approval)
+    @Transactional
+    public void finalizeEvaluations(Integer departmentId) {
+        List<Application> pendingApps = applicationRepository.findByTargetDepartmentIdAndStatus(departmentId,
+                ApplicationStatus.UNDER_REVIEW);
+
+        if (pendingApps.isEmpty()) {
+            throw new RuntimeException("No pending evaluations to finalize for this department.");
+        }
+
+        int finalizedCount = 0;
+        int rejectedCount = 0;
+
+        for (Application app : pendingApps) {
+            // Fetch Draft Decision
+            java.util.Optional<Evaluation> evalOpt = evaluationRepository.findByApplicationId(app.getId());
+
+            if (evalOpt.isPresent()) {
+                Evaluation eval = evalOpt.get();
+                if (eval.isEligible()) {
+                    app.setStatus(ApplicationStatus.FINALIZED);
+                    finalizedCount++;
+                } else {
+                    app.setStatus(ApplicationStatus.REJECTED);
+                    rejectedCount++;
+                }
+                applicationRepository.save(app);
+            }
+            // If no evaluation exists, keep UNDER_REVIEW (Pending)
+        }
+
+        // Log
+        String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                .actorUsername(currentUsername)
+                .actionType(com.iztech.utms.model.ActionType.APPROVE)
+                .targetApplicationId(0L)
+                .details("YGK Finalized Department " + departmentId + ". Finalized: " + finalizedCount + ", Rejected: "
+                        + rejectedCount)
+                .build());
     }
 
     // Verify Student Data with UBYS

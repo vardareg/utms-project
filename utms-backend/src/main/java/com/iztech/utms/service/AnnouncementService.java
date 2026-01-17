@@ -63,6 +63,9 @@ public class AnnouncementService {
                 announcement.getPriority(),
                 announcement.isActive());
 
+        dto.setResultAnnouncement(announcement.isResultAnnouncement());
+        dto.setRelatedDepartmentId(announcement.getRelatedDepartmentId());
+
         dto.setAttachmentName(announcement.getAttachmentName());
         if (announcement.getAttachmentPath() != null) {
             dto.setDownloadUrl("/public/announcements/" + announcement.getId() + "/attachment");

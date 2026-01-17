@@ -34,6 +34,12 @@ public class Announcement {
     @Column
     private String attachmentName;
 
+    @Column
+    private Integer relatedDepartmentId;
+
+    @Column
+    private boolean isResultAnnouncement = false;
+
     public Announcement() {
         this.publishDate = LocalDateTime.now();
         this.active = true;
@@ -109,5 +115,21 @@ public class Announcement {
 
     public void setAttachmentName(String attachmentName) {
         this.attachmentName = attachmentName;
+    }
+
+    public Integer getRelatedDepartmentId() {
+        return relatedDepartmentId;
+    }
+
+    public void setRelatedDepartmentId(Integer relatedDepartmentId) {
+        this.relatedDepartmentId = relatedDepartmentId;
+    }
+
+    public boolean isResultAnnouncement() {
+        return isResultAnnouncement;
+    }
+
+    public void setResultAnnouncement(boolean resultAnnouncement) {
+        isResultAnnouncement = resultAnnouncement;
     }
 }

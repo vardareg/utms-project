@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
     List<Announcement> findByActiveTrueOrderByPublishDateDesc();
+
+    List<Announcement> findByRelatedDepartmentIdAndIsResultAnnouncementTrue(Integer relatedDepartmentId);
 }

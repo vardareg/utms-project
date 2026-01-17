@@ -16,8 +16,8 @@ export default function YGKDashboard({ user }) {
     const fetchApplications = async () => {
         setLoading(true);
         try {
-            // Fetch FORWARDED applications for YGK to review
-            const data = await apiFetch('/applications/status/FORWARDED');
+            // Fetch UNDER_REVIEW applications (Assigned by Dean) for YGK to review
+            const data = await apiFetch('/applications/status/UNDER_REVIEW');
             // Filter by Dept in frontend for demo (Backend should handle this filter via Department Repo)
             if (Array.isArray(data)) {
                 setApplications(data);
@@ -103,6 +103,21 @@ export default function YGKDashboard({ user }) {
             a.remove();
         } catch (error) {
             alert("Error: " + error.message);
+        }
+    };
+
+    const handleFinalize = async () => {
+        if (!window.confirm("CONFIRM FINALIZATION?\n\nThis will send the current ranking list to the Dean's Office for approval.\nYou cannot make changes after this step.")) {
+            return;
+        }
+        try {
+            await apiFetch(`/evaluations/finalize/${DEPARTMENT_ID}`, { method: 'POST' });
+            alert("Ranking Finalized and Sent to Dean.");
+            setViewMode('list'); // Reset or reload
+            fetchApplications();
+            fetchRanking();
+        } catch (err) {
+            alert("Finalize failed: " + err.message);
         }
     };
 
@@ -226,7 +241,7 @@ export default function YGKDashboard({ user }) {
                                             <th className="px-6 py-3">ID</th>
                                             <th className="px-6 py-3">Student</th>
                                             <th className="px-6 py-3">Score</th>
-                                            <th className="px-6 py-3">Status</th>
+                                            <th className="px-6 py-3">Draft Status</th>
                                             <th className="px-6 py-3">Action</th>
                                         </tr>
                                     </thead>
@@ -236,9 +251,21 @@ export default function YGKDashboard({ user }) {
                                                 <td className="px-6 py-4 font-mono text-sm">#{app.trackingId}</td>
                                                 <td className="px-6 py-4">{app.studentName}</td>
                                                 <td className="px-6 py-4 font-bold">{app.compositeScore}</td>
-                                                <td className="px-6 py-4"><span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">{app.status}</span></td>
                                                 <td className="px-6 py-4">
-                                                    <button onClick={() => setSelectedApp(app)} className="text-blue-600 hover:underline font-medium">Evaluate</button>
+                                                    <span className={`px-2 py-1 rounded text-xs ${app.ygkDecision === 'ELIGIBLE' ? 'bg-green-100 text-green-800' :
+                                                            app.ygkDecision === 'NOT_ELIGIBLE' ? 'bg-red-100 text-red-800' :
+                                                                'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {app.ygkDecision || 'PENDING'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <button
+                                                        onClick={() => setSelectedApp(app)}
+                                                        className="text-blue-600 hover:underline font-medium"
+                                                    >
+                                                        {app.ygkDecision && app.ygkDecision !== 'PENDING' ? 'Edit Decision' : 'Evaluate'}
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -255,6 +282,15 @@ export default function YGKDashboard({ user }) {
 
 
                     {/* PRIMARY LIST */}
+                    <div className="bg-blue-50 border border-blue-200 p-4 rounded flex justify-between items-center mb-6">
+                        <div>
+                            <h3 className="font-bold text-blue-900">Review & Finalize</h3>
+                            <p className="text-sm text-blue-800">When satisfied, click "Submit to Dean".</p>
+                        </div>
+                        <button onClick={handleFinalize} className="bg-blue-900 text-white px-6 py-3 rounded shadow hover:bg-blue-800 font-bold flex items-center">
+                            <CheckCircle className="w-5 h-5 mr-2" /> SUBMIT TO DEAN
+                        </button>
+                    </div>
                     <div className="bg-white rounded-lg shadow overflow-hidden border-l-4 border-green-500">
                         <div className="bg-green-50 px-6 py-4 border-b border-green-100 flex justify-between">
                             <h3 className="font-bold text-green-900">ASIL LISTE (Primary Candidates)</h3>

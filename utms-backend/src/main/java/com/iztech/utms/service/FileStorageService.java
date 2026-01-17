@@ -139,6 +139,24 @@ public class FileStorageService {
         }
     }
 
+    public String storeGenericFile(String originalFilename, java.io.InputStream inputStream, String prefix) {
+        try {
+            if (!Files.exists(rootLocation)) {
+                Files.createDirectories(rootLocation);
+            }
+
+            String cleanFilename = StringUtils.cleanPath(originalFilename);
+            String storageFileName = prefix + System.currentTimeMillis() + "_" + cleanFilename;
+
+            Path destinationFile = this.rootLocation.resolve(Paths.get(storageFileName)).normalize().toAbsolutePath();
+            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+
+            return destinationFile.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store file stream.", e);
+        }
+    }
+
     // WP-4 ADDITION: Load file for viewing
     public Resource loadFileAsResource(Long documentId, String username) {
         try {

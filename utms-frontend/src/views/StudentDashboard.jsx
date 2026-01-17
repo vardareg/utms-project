@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, Send, Loader } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Send, Loader, Download } from 'lucide-react';
 import { apiFetch, API_URL, getAuthHeader, getMyProfile } from '../services/api';
 
 import NewsFeed from '../components/NewsFeed';
@@ -68,6 +68,36 @@ export default function StudentDashboard({ user }) {
             }
         } catch (err) {
             setStatus({ loading: false, success: null, error: "Failed to retrieve YKS Score: " + err.message });
+        }
+    };
+
+    const handleDownloadResult = async () => {
+        try {
+            // Find the result announcement for my department
+            const announcements = await apiFetch('/public/announcements');
+            // Assuming targetDepartmentId is available in existingApp
+            // We need to match department ID. The API returns announcements with relatedDepartmentId.
+            // existingApp.targetDepartmentId or existingApp.targetDepartment.id
+            const myDeptId = existingApp.targetDepartment?.id || existingApp.targetDepartmentId;
+
+            const resultAnn = announcements.find(a =>
+                a.resultAnnouncement === true &&
+                a.relatedDepartmentId === myDeptId
+            );
+
+            if (resultAnn && resultAnn.downloadUrl) {
+                // Use the download helper directly
+                const userStr = localStorage.getItem('utms_user');
+                const token = userStr ? JSON.parse(userStr).token : '';
+                const downloadUrl = `${API_URL}${resultAnn.downloadUrl}`;
+
+                // Trigger download
+                window.open(downloadUrl, '_blank');
+            } else {
+                alert("The official result document is not available for download yet. Please check the Announcements section.");
+            }
+        } catch (err) {
+            alert("Failed to find result document: " + err.message);
         }
     };
 
@@ -209,6 +239,12 @@ export default function StudentDashboard({ user }) {
                 statusMessage = "You have been accepted for transfer. Please proceed to Student Affairs for registration.";
                 icon = <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />;
                 break;
+            case "WAITLIST":
+                statusColor = "orange";
+                statusTitle = "Waitlisted";
+                statusMessage = "You are on the waiting list. We will notify you if a spot becomes available.";
+                icon = <AlertCircle className="w-16 h-16 text-orange-600 mx-auto mb-4" />;
+                break;
             case "REJECTED":
                 statusColor = "red";
                 statusTitle = "Application Rejected";
@@ -249,6 +285,18 @@ export default function StudentDashboard({ user }) {
                             <p><strong>Submission Date:</strong> {existingApp.submissionDate}</p>
                         </div>
                     </div>
+
+                    {(existingApp.status === 'APPROVED' || existingApp.status === 'WAITLIST' || existingApp.status === 'REJECTED') && (
+                        <div className="mt-6">
+                            <button
+                                onClick={handleDownloadResult}
+                                className={`bg-${statusColor}-600 text-white px-6 py-3 rounded-full font-bold shadow hover:bg-${statusColor}-700 transition flex items-center mx-auto`}
+                            >
+                                <Download className="w-5 h-5 mr-2" />
+                                Download Result Document
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Announcements Section */}

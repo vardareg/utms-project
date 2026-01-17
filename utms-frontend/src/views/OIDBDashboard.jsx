@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, CheckCircle, XCircle, ArrowRight, Download, FileText, X, Bell } from 'lucide-react';
 import { apiFetch, API_URL } from '../services/api';
 import AdminAnnouncementPanel from '../components/AdminAnnouncementPanel';
+import PublishResultsPanel from '../components/PublishResultsPanel';
 
 export default function OIDBDashboard({ user }) {
     const [applications, setApplications] = useState([]);
@@ -263,11 +264,19 @@ export default function OIDBDashboard({ user }) {
                     >
                         <Bell className="w-4 h-4 mr-1" /> Announcements
                     </button>
+                    <button
+                        onClick={() => setViewMode('PUBLISH')}
+                        className={`px-4 py-2 rounded text-sm font-medium transition flex items-center ${viewMode === 'PUBLISH' ? 'bg-red-800 text-white' : 'bg-white text-gray-600 border'}`}
+                    >
+                        <FileText className="w-4 h-4 mr-1" /> Publish Results
+                    </button>
                 </div>
             </div>
 
             {viewMode === 'ANNOUNCEMENTS' ? (
                 <AdminAnnouncementPanel />
+            ) : viewMode === 'PUBLISH' ? (
+                <PublishResultsPanel />
             ) : (
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="p-0">

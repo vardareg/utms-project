@@ -35,6 +35,7 @@ public class ApplicationService {
         private final NotificationService notificationService;
         private final com.iztech.utms.service.OsymService osymService;
         private final com.iztech.utms.repository.AdministrativeProfileRepository administrativeProfileRepository;
+        private final com.iztech.utms.repository.EvaluationRepository evaluationRepository;
 
         @Transactional(readOnly = true)
         public ApplicationDTO.Response getMyApplication(String username) {
@@ -265,10 +266,10 @@ public class ApplicationService {
                                                         + docTypes + "])");
                 }
 
-                app.setStatus(ApplicationStatus.FORWARDED);
+                app.setStatus(ApplicationStatus.UNDER_REVIEW);
                 applicationRepository.save(app);
 
-                // Audit Log: FORWARD
+                // Audit Log: FORWARD -> UNDER_REVIEW (Automated Assignment)
                 // Ideally we should know WHO triggered this. For now assuming "internal-system"
                 // or we need to pass username.
                 // Since the method signature doesn't have username, we'll placeholder it or if
@@ -280,23 +281,15 @@ public class ApplicationService {
                 // not available,
                 // BUT actually valid point: 'forwardApplication' is likely called by OIDB user.
                 // I'll leave 'actorUsername' as 'OIDB' for now or 'SYSTEM' if not passed.
-                // Wait, best practice is to update signature or use SecurityContext.
-                // Given constraints, I will add 'String username' to method signature in a
-                // separate step or just use 'OIDB'.
-                // Let's stick to the requested change precisely. The prompt triggered
-                // 'forwardApplication: Log FORWARD'.
-                // I'll assume the controller calls this. I should probably update the
-                // controller too to pass username?
-                // Let's check Controller later. For now, I'll log as "OIDB".
 
                 auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
-                                .actorUsername("OIDB") // Simplification as per lack of Security Context knowledge here
+                                .actorUsername("OIDB") // Simplification
                                 .actionType(com.iztech.utms.model.ActionType.FORWARD)
                                 .targetApplicationId(app.getId())
                                 .details("Forwarded Application of " + app.getStudent().getUsername() + " for "
                                                 + app.getTargetDepartment().getName() + " to Faculty. Status: OLD("
                                                 + ApplicationStatus.NEW
-                                                + ") -> NEW(FORWARDED)")
+                                                + ") -> NEW(UNDER_REVIEW)")
                                 .build());
 
                 // NOTIFICATION: Trigger 3 (Forward) - Optional
@@ -337,23 +330,6 @@ public class ApplicationService {
                                                 + ". Please correct and resubmit.");
         }
 
-        // UC-DEAN-01: Dean Assigns to YGK
-        @Transactional
-        public void assignToYgk(Long applicationId) {
-                Application app = applicationRepository.findById(applicationId)
-                                .orElseThrow(() -> new RuntimeException("Application not found"));
-
-                // DEAN ACCESS CHECK
-                checkDeanAccess(app);
-
-                if (app.getStatus() != ApplicationStatus.FORWARDED) {
-                        throw new RuntimeException("Invalid Status: Can only assign FORWARDED applications.");
-                }
-
-                app.setStatus(ApplicationStatus.UNDER_REVIEW);
-                applicationRepository.save(app);
-        }
-
         // UC-DEAN-02: Dean Approves Application (Final Step)
         @Transactional
         public void approveApplication(Long applicationId) {
@@ -364,10 +340,11 @@ public class ApplicationService {
                 checkDeanAccess(app);
 
                 // Approving either from UNDER_REVIEW (Direct) or FINALIZED (Ranked)
-                if (app.getStatus() != ApplicationStatus.UNDER_REVIEW
-                                && app.getStatus() != ApplicationStatus.FINALIZED) {
+                // STRICT MODE: Dean can ONLY approve FINALIZED applications (after YGK
+                // finalized).
+                if (app.getStatus() != ApplicationStatus.FINALIZED) {
                         throw new RuntimeException(
-                                        "Invalid Status: Can only approve UNDER_REVIEW or FINALIZED applications.");
+                                        "Invalid Status: Can only approve applications FINALIZED by YGK.");
                 }
 
                 app.setStatus(ApplicationStatus.APPROVED);
@@ -388,6 +365,14 @@ public class ApplicationService {
                                 "Application Result Announced",
                                 "Your application has been approved. Please check the portal for details.");
         }
+
+        // Helper methods
+        // Note: Constructor injection is handled by @RequiredArgsConstructor, so we
+        // just declare it.
+        // Wait, I need to make sure I add it to the class fields at the top.
+        // For this tool call, I will add the logic in mapToResponse and I'll add the
+        // field in a separate call or same if I can target top.
+        // I will target mapToResponse method first.
 
         private ApplicationDTO.Response mapToResponse(Application app) {
                 ApplicationDTO.Response response = new ApplicationDTO.Response();
@@ -419,6 +404,11 @@ public class ApplicationService {
                                         .collect(java.util.stream.Collectors.toList());
                         response.setDocuments(docs);
                 }
+
+                // Map YGK Draft Decision
+                evaluationRepository.findByApplicationId(app.getId()).ifPresentOrElse(
+                                eval -> response.setYgkDecision(eval.isEligible() ? "ELIGIBLE" : "NOT_ELIGIBLE"),
+                                () -> response.setYgkDecision("PENDING"));
 
                 return response;
         }

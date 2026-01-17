@@ -33,6 +33,7 @@ public class ApplicationDTO {
         private String dataVerificationStatus; // Added field
         private List<DocumentResponse> documents; // WP-4: Critical for validation
         private String returnReason; // Added for Resubmission UI
+        private String ygkDecision; // "ELIGIBLE", "NOT_ELIGIBLE", "PENDING"
     }
 
     @Data

@@ -59,9 +59,21 @@ public class EvaluationController {
         }
     }
 
+    // New: YGK Finalize
+    @PostMapping("/finalize/{deptId}")
+    @PreAuthorize("hasRole('YGK')")
+    public ResponseEntity<?> finalizeEvaluations(@PathVariable Integer deptId) {
+        try {
+            evaluationService.finalizeEvaluations(deptId);
+            return ResponseEntity.ok("Evaluations finalized. Sent to Dean for Approval.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // UC-YGK-01: Get Ranked List (Draft)
     @GetMapping("/ranking/{deptId}")
-    @PreAuthorize("hasAnyRole('YGK', 'DEAN_OFFICE_STAFF')")
+    @PreAuthorize("hasAnyRole('YGK', 'DEAN_OFFICE_STAFF', 'OIDB', 'ADMIN')")
     public ResponseEntity<?> getRanking(@PathVariable Integer deptId) {
         try {
             return ResponseEntity.ok(evaluationService.generateRanking(deptId));

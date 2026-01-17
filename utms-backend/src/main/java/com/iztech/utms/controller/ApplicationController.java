@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -104,18 +103,6 @@ public class ApplicationController {
             }
             applicationService.returnApplication(id, reason);
             return ResponseEntity.ok("Application returned to Student.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    // UC-DEAN-01: Assign to YGK
-    @PatchMapping("/{id}/assign-ygk")
-    @PreAuthorize("hasRole('DEAN_OFFICE_STAFF')")
-    public ResponseEntity<?> assignToYgk(@PathVariable Long id) {
-        try {
-            applicationService.assignToYgk(id);
-            return ResponseEntity.ok("Application assigned to YGK (Under Review).");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
