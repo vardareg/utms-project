@@ -22,8 +22,11 @@ The system follows a 3-Layer Monolithic Architecture as defined in the Software 
 
 - **Frontend**: React.js (Single Page Application) with Vite and Vanilla CSS.
 - **Backend**: Spring Boot 3.2 (Java 17) with RESTful APIs.
-- **Database**: H2 In-Memory (Development) / PostgreSQL (Production).
+- **Database**: Profile-based configuration
+  - **Development**: H2 In-Memory (ephemeral, auto-seeded)
+  - **Production**: PostgreSQL 15 (persistent, containerized)
 - **Security**: JWT (JSON Web Tokens) for Stateless Authentication + RBAC.
+- **Deployment**: Docker Compose orchestration (production)
 
 ## 3. Prerequisites
 
@@ -33,6 +36,7 @@ Ensure you have the following installed:
 - **Node.js** (v18+) and npm
 - **Maven** (v3.8+)
 - **Python 3** (for test data generation scripts)
+- **Docker** and **Docker Compose** (for production deployment)
 - Bash Terminal (Linux/Mac) or Git Bash (Windows)
 
 ## 4. Installation & Setup
@@ -46,13 +50,36 @@ cd utms-project
 
 ### Step 2: Backend Configuration
 
-The system uses an **H2 In-Memory Database** by default for ease of development. Configuration is found in `utms-backend/src/main/resources/application.properties`.
+The backend supports **two deployment profiles**:
 
-**Default Configuration:**
+#### Development Mode (Default)
 
+Uses **H2 In-Memory Database** for rapid development:
+
+- Configured in `utms-backend/src/main/resources/application-dev.properties`
 - Database resets on each restart
 - Pre-seeded with default users and university structure
 - No external database setup required
+- **Active by default** when running with Maven
+
+#### Production Mode
+
+Uses **PostgreSQL** for data persistence:
+
+- Configured in `utms-backend/src/main/resources/application-prod.properties`
+- Requires PostgreSQL database (see Docker deployment below)
+- Data persists across restarts
+- Activated via environment variable: `SPRING_PROFILES_ACTIVE=prod`
+
+To switch profiles manually:
+
+```bash
+# Development (H2)
+mvn spring-boot:run
+
+# Production (PostgreSQL) - requires running PostgreSQL
+SPRING_PROFILES_ACTIVE=prod mvn spring-boot:run
+```
 
 ### Step 3: Frontend Configuration
 
@@ -101,6 +128,80 @@ The frontend is a **Vite + React** app styled with Vanilla CSS.
    ```
 
    Client will start on `http://localhost:5173`.
+
+### Docker Deployment (Production)
+
+For production deployment with **PostgreSQL persistence**:
+
+1. **Prerequisites**: Ensure Docker and Docker Compose are installed
+
+   ```bash
+   docker --version
+   docker compose version
+   ```
+
+2. **Configure Environment Variables** (Optional):
+
+   Edit `.env` file in project root to customize database credentials:
+
+   ```bash
+   DB_USERNAME=utms_user
+   DB_PASSWORD=your_secure_password_here
+   ```
+
+3. **Build and Start Services**:
+
+   ```bash
+   # Build and start PostgreSQL + Backend
+   docker compose up --build -d
+   ```
+
+   This command:
+   - Builds the Spring Boot application in a Docker container
+   - Starts PostgreSQL 15 database
+   - Configures persistent storage via Docker volumes
+   - Runs backend with `prod` profile
+
+4. **Verify Deployment**:
+
+   ```bash
+   # Check container status
+   docker compose ps
+   
+   # View backend logs
+   docker compose logs backend
+   
+   # View database logs
+   docker compose logs db
+   ```
+
+5. **Access Application**:
+   - Backend API: `http://localhost:8080`
+   - Frontend: Run separately with `npm run dev` in `utms-frontend/`
+
+6. **Stop Services**:
+
+   ```bash
+   # Stop containers (data persists)
+   docker compose down
+   
+   # Stop and remove volumes (deletes all data)
+   docker compose down -v
+   ```
+
+#### Data Persistence
+
+PostgreSQL data is stored in a Docker volume named `postgres_data`:
+
+```bash
+# List volumes
+docker volume ls | grep postgres_data
+
+# Inspect volume
+docker volume inspect utms-project_postgres_data
+```
+
+Applications created in Docker mode will **persist across restarts** unless you explicitly remove the volume.
 
 ## 6. Default Credentials
 
@@ -283,9 +384,18 @@ This creates:
 
 ### Database Errors
 
+#### Development (H2)
+
 - The H2 database resets on backend restart
 - All changes are lost unless using PostgreSQL
 - Re-run `init_data.py` after restart to restore test data
+
+#### Production (PostgreSQL)
+
+- Ensure PostgreSQL container is running: `docker compose ps`
+- Check database logs: `docker compose logs db`
+- Verify connection in backend logs for "HikariPool" messages
+- Data persists in Docker volume; use `docker compose down -v` to reset
 
 ### CORS Issues
 
@@ -325,9 +435,13 @@ utms-project/
 │   │   ├── security/        # JWT & authentication
 │   │   ├── dto/             # Data transfer objects
 │   │   └── payload/         # Request/response classes
-│   └── src/main/resources/
-│       ├── application.properties
-│       └── data.sql         # Seed data
+│   ├── src/main/resources/
+│   │   ├── application.properties      # Profile selector
+│   │   ├── application-dev.properties  # H2 configuration
+│   │   ├── application-prod.properties # PostgreSQL configuration
+│   │   └── data.sql                    # Seed data
+│   ├── Dockerfile           # Backend container image
+│   └── pom.xml              # Maven dependencies
 ├── utms-frontend/
 │   ├── src/
 │   │   ├── components/      # React components
@@ -335,6 +449,8 @@ utms-project/
 │   │   ├── App.jsx          # Main app component
 │   │   └── index.css        # Global styles
 │   └── package.json
+├── docker-compose.yml       # Production orchestration
+├── .env                     # Database credentials (not in Git)
 ├── init_data.py             # Test data generator
 ├── credentials.txt          # All login credentials
 ├── manual.md               # API documentation
@@ -343,12 +459,18 @@ utms-project/
 
 ## 14. Development Notes
 
-- **Database**: H2 in-memory resets on restart; use PostgreSQL for persistence
+- **Profiles**: Two Spring profiles available:
+  - `dev` (default): H2 in-memory, resets on restart
+  - `prod`: PostgreSQL, persistent storage
+- **Database Schema**: Auto-generated by Hibernate based on `@Entity` classes
+  - Development: `ddl-auto=create-drop` (resets schema)
+  - Production: `ddl-auto=update` (preserves schema and data)
 - **Passwords**: BCrypt hashed with strength factor 10
-- **JWT**: Signed with HS256 algorithm
+- **JWT**: Signed with HS256 algorithm (30-minute expiration)
 - **Sessions**: Completely stateless (no server-side sessions)
 - **File Storage**: Local filesystem in `uploads/` directory
-- **Seed Data**: Automatically loaded from `data.sql` on startup
+- **Seed Data**: Automatically loaded from `data.sql` on startup (development)
+- **Containerization**: Docker Compose manages PostgreSQL + Backend (production)
 
 ---
 

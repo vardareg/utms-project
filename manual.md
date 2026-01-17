@@ -249,7 +249,10 @@ Contains the transactional logic and business rules.
 
 ## 4. Package: com.iztech.utms.model (Domain Entities)
 
-Mappings to H2/PostgreSQL Database Schema (SDD 6.1).
+Mappings to Database Schema (SDD 6.1). The system supports dual database configurations:
+
+- **Development**: H2 in-memory database (ephemeral)
+- **Production**: PostgreSQL 15 (persistent, containerized)
 
 - **User**: Base entity for RBAC. Contains `passwordHash` (SEC-03), `role`, `userType`.
   - Roles: `ROLE_ADMIN`, `ROLE_STUDENT`, `ROLE_OIDB`, `ROLE_YGK`, `ROLE_DEAN_OFFICE_STAFF`
@@ -300,10 +303,57 @@ Mappings to H2/PostgreSQL Database Schema (SDD 6.1).
 | **ROLE_YGK** | Department-scoped | Evaluate applications, generate rankings |
 | **ROLE_DEAN_OFFICE_STAFF** | Faculty/Department-scoped | Assign to YGK, approve/reject applications |
 
-## 7. Data Seeding
+## 7. Database Configuration
+
+### Development Mode (H2)
+
+**Configuration File:** `application-dev.properties`  
+**Database Type:** H2 In-Memory  
+**Persistence:** Ephemeral (resets on restart)  
+**Schema Management:** `ddl-auto=create-drop`  
+**Data Seeding:** Automatic via `data.sql`
+
+**Usage:**
+
+```bash
+# Default mode
+mvn spring-boot:run
+```
+
+### Production Mode (PostgreSQL)
+
+**Configuration File:** `application-prod.properties`  
+**Database Type:** PostgreSQL 15  
+**Persistence:** Persistent via Docker volumes  
+**Schema Management:** `ddl-auto=update` (preserves data)  
+**Connection:** JDBC URL with environment-based credentials
+
+**Docker Deployment:**
+
+```bash
+# Start PostgreSQL + Backend
+docker compose up --build -d
+
+# View logs
+docker compose logs backend
+
+# Stop (preserves data)
+docker compose down
+```
+
+**Environment Variables:**
+
+- `SPRING_PROFILES_ACTIVE=prod` (activates production profile)
+- `DB_USERNAME` (PostgreSQL username)
+- `DB_PASSWORD` (PostgreSQL password)
+
+**Data Persistence:**
+PostgreSQL data is stored in a Docker volume named `postgres_data`, ensuring applications persist across container restarts.
+
+## 8. Data Seeding
 
 **File:** `data.sql`  
-**Purpose:** Pre-populate database with faculties, departments, and default users.
+**Purpose:** Pre-populate database with faculties, departments, and default users (development mode only).
 
 **Seeded Users:**
 
@@ -318,7 +368,7 @@ Mappings to H2/PostgreSQL Database Schema (SDD 6.1).
 
 **Password:** `password123` for all seeded users
 
-## 8. Testing Utilities
+## 9. Testing Utilities
 
 ### init_data.py
 
