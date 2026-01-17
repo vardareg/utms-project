@@ -74,12 +74,16 @@ Uses **PostgreSQL** for data persistence:
 To switch profiles manually:
 
 ```bash
-# Development (H2)
+# Development (H2 - No external database needed)
+cd utms-backend
 mvn spring-boot:run
 
-# Production (PostgreSQL) - requires running PostgreSQL
-SPRING_PROFILES_ACTIVE=prod mvn spring-boot:run
+# Production (PostgreSQL - Requires Docker)
+# Don't run this directly! Use the Docker script instead:
+bash scripts/start-backend.sh
 ```
+
+> **Note**: The `prod` profile is designed for Docker deployment. To use it, run `bash scripts/start-backend.sh` which starts both PostgreSQL and the backend in Docker containers.
 
 ### Step 3: Frontend Configuration
 

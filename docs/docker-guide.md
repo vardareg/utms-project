@@ -141,7 +141,7 @@ docker volume rm utms-project_postgres_data
 
    ```bash
    # Option 1: Use init_data.py
-   python3 init_data.py
+   python3 tools/init_data.py
    
    # Option 2: Login via frontend and create data manually
    ```
@@ -277,6 +277,5 @@ For actual production (not local testing):
 
 For detailed technical documentation, see:
 
-- [README.md](file:///home/egehan/Documents/Projects/IYTE/utms-project/README.md) - User guide
-- [manual.md](file:///home/egehan/Documents/Projects/IYTE/utms-project/manual.md) - API documentation
-- [walkthrough.md](file:///home/egehan/.gemini/antigravity/brain/595eb2fe-d1b6-4618-b2ad-97194a16663d/walkthrough.md) - Implementation details
+- [README.md](../README.md) - User guide
+- [docs/user-manual.md](user-manual.md) - API documentation

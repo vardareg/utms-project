@@ -385,7 +385,7 @@ PostgreSQL data is stored in a Docker volume named `postgres_data`, ensuring app
 **Usage:**
 
 ```bash
-python3 init_data.py
+python3 tools/init_data.py
 ```
 
 **Test Student Password:** `Student123!`
