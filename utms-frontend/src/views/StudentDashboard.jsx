@@ -317,18 +317,7 @@ export default function StudentDashboard({ user }) {
                 <NewsFeed />
             </section>
 
-            {/* Profile Summary Card */}
-            <section className="bg-blue-50 rounded-lg shadow p-4 border border-blue-100 flex justify-between items-center">
-                <div>
-                    <h3 className="font-bold text-blue-900">Student Profile Active</h3>
-                    <p className="text-sm text-blue-800">
-                        {profile.currentUniversity} - {profile.currentProgram} (GPA: {profile.overallGpa})
-                    </p>
-                </div>
-                <div className="text-sm text-blue-600">
-                    TCKN: {profile.tckn}
-                </div>
-            </section>
+            {/* Profile Summary Card Removed - Moved inside form */}
 
             {profile.hasDisciplinaryRecord && (
                 <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow">
@@ -377,24 +366,42 @@ export default function StudentDashboard({ user }) {
                             </div>
                         )}
                         {/* Personal Info */}
+                        {/* Applicant Information Section */}
                         <div className="bg-gray-50 p-4 rounded border border-gray-200">
                             <h3 className="text-sm font-bold text-gray-500 uppercase mb-2">Applicant Information</h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs text-gray-400">Username</label>
-                                    <p className="font-medium">{user.username}</p>
+                                    <p className="font-medium text-gray-800">{user.username}</p>
                                 </div>
                                 <div>
                                     <label className="block text-xs text-gray-400">Full Name</label>
-                                    <p className="font-medium">{user.firstName} {user.lastName}</p>
+                                    <p className="font-medium text-gray-800">{user.firstName} {user.lastName}</p>
                                 </div>
                                 <div>
                                     <label className="block text-xs text-gray-400">Email</label>
-                                    <p className="font-medium">{user.email}</p>
+                                    <p className="font-medium text-gray-800">{user.email}</p>
                                 </div>
                                 <div>
                                     <label className="block text-xs text-gray-400">Date</label>
-                                    <p className="font-medium">{new Date().toLocaleDateString()}</p>
+                                    <p className="font-medium text-gray-800">{new Date().toLocaleDateString()}</p>
+                                </div>
+                                <div className="col-span-2 border-t border-gray-200 my-2"></div>
+                                <div>
+                                    <label className="block text-xs text-blue-600 font-bold mb-1">Current University</label>
+                                    <p className="font-medium text-blue-900">{profile.currentUniversity}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-blue-600 font-bold mb-1">Current Program</label>
+                                    <p className="font-medium text-blue-900">{profile.currentProgram}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-blue-600 font-bold mb-1">Overall GPA</label>
+                                    <p className="font-medium text-blue-900">{profile.overallGpa}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-xs text-blue-600 font-bold mb-1">TCKN</label>
+                                    <p className="font-medium text-blue-900">{profile.tckn}</p>
                                 </div>
                             </div>
                         </div>
