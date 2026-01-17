@@ -136,12 +136,12 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 
 ### Active Faculties and Departments
 
-**Faculty of Engineering (ID: 1)**
+### Faculty of Engineering (ID: 1)
 
 - Computer Engineering (ID: 1, Quota: 5)
 - Mechanical Engineering (ID: 2, Quota: 3)
 
-**Faculty of Architecture (ID: 2)**
+### Faculty of Architecture (ID: 2)
 
 - Architecture (ID: 3, Quota: 5)
 
@@ -171,8 +171,9 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 2. **View Forwarded Applications**: See applications within faculty scope
 3. **Monitor Progress**: View applications currently under YGK review (Read-Only)
 4. **Final Decision** (after YGK finalizes):
-   - **Approve**: Grant transfer → Status: `APPROVED`
-   - Only `FINALIZED` applications can be approved.
+    - **Approve**: Grant transfer → Status: `APPROVED`.
+    - **Return to YGK**: Reject the ranking list and request revision → Status: `UNDER_REVIEW`.
+    - Only `FINALIZED` applications can be approved or returned to YGK.
 
 ### 4. YGK Member Flow
 
@@ -181,7 +182,8 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 3. **Evaluate**: Mark as eligible/ineligible (Draft Mode) → Status remains `UNDER_REVIEW`
 4. **Generate Ranking**: View auto-calculated rankings for eligible candidates
 5. **Finalize**: Submit all evaluations to Dean → Status: `FINALIZED` or `REJECTED`
-6. **Export**: Download ranking list as PDF or Excel
+6. **Revision Handling**: Receive notifications if the Dean returns applications for revision. Re-evaluate and re-finalize as needed.
+7. **Export**: Download ranking list as PDF or Excel
 
 ### 5. Admin Flow
 
@@ -312,7 +314,7 @@ This creates:
 
 ## 13. Project Structure
 
-```
+```text
 utms-project/
 ├── utms-backend/
 │   ├── src/main/java/com/iztech/utms/

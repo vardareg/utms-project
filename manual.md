@@ -65,7 +65,13 @@ Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
 - `PATCH /{id}/approve`
   - **Role:** DEAN_OFFICE_STAFF
   - **Logic:** Final approval after YGK evaluation
-  - **Transitions:** `EVALUATED` → `APPROVED`
+  - **Transitions:** `FINALIZED` → `APPROVED`
+
+- `PATCH /return-to-ygk/{departmentId}`
+  - **Role:** DEAN_OFFICE_STAFF
+  - **Logic:** Return a finalized ranking list to YGK for revision.
+  - **Transitions:** `FINALIZED` → `UNDER_REVIEW` (Bulk)
+  - **Requires:** Revision reason in request body
 
 ### StudentController
 
@@ -189,6 +195,10 @@ Contains the transactional logic and business rules.
 
 - `approveApplication(id)`
   - **Dean Action:** Final approval after YGK evaluation
+
+- `returnToYgk(departmentId, reason)`
+  - **Dean Action:** Returns all `FINALIZED` applications of a department to `UNDER_REVIEW`.
+  - **Logic:** Prefixes `returnReason` with `[DEAN RETURN]` for YGK visibility and logs audit events for each application.
 
 ### UserService
 

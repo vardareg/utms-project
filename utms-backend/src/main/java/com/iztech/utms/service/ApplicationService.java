@@ -330,6 +330,72 @@ public class ApplicationService {
                                                 + ". Please correct and resubmit.");
         }
 
+        // WP-4 ADDITION: Dean Returns Ranking to YGK
+        @Transactional
+        public void returnToYgk(Integer departmentId, String reason) {
+                // 1. Get Current User & Validate Dean Access
+                String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                                .getAuthentication().getName();
+                User currentUser = userRepository.findByUsername(currentUsername)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
+
+                // Access Control
+                if (currentUser.getRole() != User.Role.ROLE_ADMIN) {
+                        com.iztech.utms.model.AdministrativeProfile profile = administrativeProfileRepository
+                                        .findById(currentUser.getId()).orElse(null);
+
+                        if (profile == null)
+                                throw new RuntimeException("Access Denied: No administrative profile found.");
+
+                        if (profile.getDepartment() != null
+                                        && !profile.getDepartment().getId().equals(departmentId)) {
+                                throw new RuntimeException(
+                                                "Access Denied: You are not authorized for this department.");
+                        }
+                        // Faculty check: Need to fetch department to check faculty
+                        Department dept = departmentRepository.findById(departmentId)
+                                        .orElseThrow(() -> new RuntimeException("Department not found"));
+
+                        if (profile.getFaculty() != null && !profile.getFaculty().getId()
+                                        .equals(dept.getFaculty().getId())) {
+                                throw new RuntimeException("Access Denied: You are not authorized for this faculty.");
+                        }
+                }
+
+                // 2. Fetch FINALIZED Applications for Department
+                List<Application> finalizedApps = applicationRepository
+                                .findByTargetDepartmentIdAndStatus(departmentId, ApplicationStatus.FINALIZED);
+
+                if (finalizedApps.isEmpty()) {
+                        throw new RuntimeException("No finalized applications found to return.");
+                }
+
+                // 3. Update Status to UNDER_REVIEW
+                for (Application app : finalizedApps) {
+                        app.setStatus(ApplicationStatus.UNDER_REVIEW);
+                        app.setReturnReason("[DEAN RETURN] " + reason);
+
+                        // Per-application Audit Log for visibility in application history
+                        auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                                        .actorUsername(currentUsername)
+                                        .actionType(com.iztech.utms.model.ActionType.RETURN)
+                                        .targetApplicationId(app.getId())
+                                        .details("Returned to YGK by Dean. Reason: " + reason)
+                                        .build());
+                }
+                applicationRepository.saveAll(finalizedApps);
+
+                // 4. Audit Log (Batch Summary) - Start of batch
+                auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                                .actorUsername(currentUsername)
+                                .actionType(com.iztech.utms.model.ActionType.RETURN)
+                                .targetApplicationId(0L) // Batch action marker
+                                .details("Returned " + finalizedApps.size() + " applications to YGK for Dept "
+                                                + departmentId
+                                                + ". Reason: " + reason)
+                                .build());
+        }
+
         // UC-DEAN-02: Dean Approves Application (Final Step)
         @Transactional
         public void approveApplication(Long applicationId) {

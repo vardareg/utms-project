@@ -119,6 +119,19 @@ public class EvaluationService {
                     rejectedCount++;
                 }
                 applicationRepository.save(app);
+
+                // Per-Application Audit Log
+                String currentUsername = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                        .getAuthentication().getName();
+
+                auditLogRepository.save(com.iztech.utms.model.AuditLog.builder()
+                        .actorUsername(currentUsername)
+                        .actionType(com.iztech.utms.model.ActionType.APPROVE) // Using APPROVE to signify "YGK
+                                                                              // Approved/Finalized"
+                        .targetApplicationId(app.getId())
+                        .details("YGK Finalized Application. Decision: "
+                                + (eval.isEligible() ? "ELIGIBLE" : "NOT_ELIGIBLE"))
+                        .build());
             }
             // If no evaluation exists, keep UNDER_REVIEW (Pending)
         }

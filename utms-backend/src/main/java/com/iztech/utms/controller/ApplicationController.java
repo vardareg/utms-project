@@ -108,6 +108,22 @@ public class ApplicationController {
         }
     }
 
+    // WP-4 ADDITION: Dean Return to YGK
+    @PatchMapping("/return-to-ygk/{departmentId}")
+    @PreAuthorize("hasRole('DEAN_OFFICE_STAFF')")
+    public ResponseEntity<?> returnToYgk(@PathVariable Integer departmentId, @RequestBody Map<String, String> payload) {
+        try {
+            String reason = payload.get("reason");
+            if (reason == null || reason.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Reason is required.");
+            }
+            applicationService.returnToYgk(departmentId, reason);
+            return ResponseEntity.ok("Applications returned to YGK for revision.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     // UC-DEAN-02: Approve Final
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('DEAN_OFFICE_STAFF')")

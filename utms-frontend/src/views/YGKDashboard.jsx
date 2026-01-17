@@ -195,6 +195,26 @@ export default function YGKDashboard({ user }) {
         );
     };
 
+    // Check for Dean's Return Note
+    // If any application in the list has 'returnReason' starting with "[DEAN RETURN]", show it.
+    // Ideally we would have a better way (e.g. separate notification), but checking apps works for now.
+    const [returnNotification, setReturnNotification] = useState(null);
+
+    useEffect(() => {
+        if (applications.length > 0) {
+            // Find first app with Dean Return Note
+            // Backend prefixes with "[DEAN RETURN]"
+            const returnedApp = applications.find(app => app.returnReason && app.returnReason.startsWith("[DEAN RETURN]"));
+            if (returnedApp) {
+                // Remove prefix for display
+                const msg = returnedApp.returnReason.replace("[DEAN RETURN] ", "");
+                setReturnNotification(msg);
+            } else {
+                setReturnNotification(null);
+            }
+        }
+    }, [applications]);
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -227,6 +247,20 @@ export default function YGKDashboard({ user }) {
                     )}
                 </div>
             </div>
+
+            {/* NOTIFICATION BANNER: Returned from Dean */}
+            {returnNotification && (
+                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm flex items-start">
+                    <div className="flex-shrink-0">
+                        <X className="h-5 w-5 text-red-500" />
+                    </div>
+                    <div className="ml-3">
+                        <p className="font-bold">Revision Requested by Dean Office</p>
+                        <p className="text-sm mt-1">{returnNotification}</p>
+                        <p className="text-xs mt-2 text-red-600">Please review the evaluations and re-submit the ranking list.</p>
+                    </div>
+                </div>
+            )}
 
             {/* MODE: EVALUATION LIST */}
             {viewMode === 'list' && (

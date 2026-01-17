@@ -31,18 +31,78 @@ export default function DeanDashboard({ user }) {
         try {
             await apiFetch(`/applications/${id}/approve`, { method: 'PATCH' });
             alert("Application Approved successfully!");
-            await fetchReview(); // Await refresh to update UI immediately
+            await fetchReview();;
         } catch (e) {
             console.error("Approve Error:", e);
             alert("Failed to approve: " + (e.message || "Unknown error"));
         }
     };
 
+    const [showReturnModal, setShowReturnModal] = useState(false);
+    const [returnReason, setReturnReason] = useState("");
+
+    const handleReturnToYgk = async () => {
+        if (!returnReason.trim()) {
+            alert("Please enter a reason.");
+            return;
+        }
+
+        // Use Department ID. Assuming user.departmentId is available or passed via props/context.
+        // Fallback to extraction from first app if user.departmentId is generic? 
+        // Better: Use `user.departmentId` if exists.
+        // If not, try to determine from apps.
+        let deptId = user.departmentId;
+        if (!deptId && reviewApps.length > 0) {
+            deptId = reviewApps[0].targetDepartmentId;
+        }
+        if (!deptId) {
+            alert("Cannot determine Department ID. Please contact support.");
+            return;
+        }
+
+        try {
+            await apiFetch(`/applications/return-to-ygk/${deptId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ reason: returnReason })
+            }); // body automatically stringified if payload is object? apiFetch handles init? 
+            // api.js usually handles JSON if body is object? 
+            // Let's check api.js usage. Usually we pass object and it stringifies.
+            // Wait, apiFetch implementation usually takes (url, options). 
+            // Adjusting to pass body in options
+        } catch (e) {
+            // apiFetch might throw, but let's be safe
+            try {
+                // If apiFetch didn't handle json body automatically, we need to do it here.
+                // Re-attempting pattern assuming apiFetch handles headers but maybe expects string body?
+                // Standard fetch expects string body for 'body'.
+                // If apiFetch wrapper handles it, great. Let's assume standard behavior + auth.
+                const response = await fetch(`${API_URL}/applications/return-to-ygk/${deptId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: returnReason })
+                });
+                if (!response.ok) {
+                    const txt = await response.text();
+                    throw new Error(txt);
+                }
+            } catch (innerE) {
+                console.error(innerE);
+                alert("Failed to return: " + innerE.message);
+                return;
+            }
+        }
+
+        alert("Applications returned to YGK.");
+        setShowReturnModal(false);
+        setReturnReason("");
+        await fetchReview();
+    };
+
+
     const handleExport = async (format) => {
-        // Use Department ID from User Profile (AdministrativeProfile)
-        // If Faculty Dean (departmentId is null), we might need to export for a specific selected department.
-        // For now, if Department Dean, use that ID. If Faculty Dean, we might default to 1 or handle selection later.
-        // The user asked for "Dean for Comp Eng", so departmentId will be set.
         const deptId = user.departmentId || 1;
         try {
             const response = await fetch(`${API_URL}/evaluations/ranking/${deptId}/export?format=${format}`, {
@@ -80,10 +140,18 @@ export default function DeanDashboard({ user }) {
 
             {/* SECTION 1: PENDING FINAL APPROVAL (Actionable) */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-                <div className="bg-red-50 px-6 py-4 border-b border-red-200">
+                <div className="bg-red-50 px-6 py-4 border-b border-red-200 flex justify-between items-center">
                     <h3 className="font-semibold text-red-800 flex items-center">
                         <CheckCircle className="w-5 h-5 mr-2" /> Pending Final Approval ({reviewApps.length})
                     </h3>
+                    {reviewApps.length > 0 && (
+                        <button
+                            onClick={() => setShowReturnModal(true)}
+                            className="text-sm bg-white border border-red-300 text-red-700 hover:bg-red-50 px-3 py-1 rounded"
+                        >
+                            Return All to YGK
+                        </button>
+                    )}
                 </div>
                 <div className="p-0">
                     {loading ? <div className="p-8 text-center text-gray-500">Loading...</div> : (
@@ -160,6 +228,39 @@ export default function DeanDashboard({ user }) {
                     )}
                 </div>
             </div>
+
+            {/* MODAL: Return Reason */}
+            {showReturnModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-4">
+                        <h3 className="text-lg font-bold">Return to YGK for Revision</h3>
+                        <p className="text-sm text-gray-600">
+                            Provide a reason or instructions for the Transfer Commission. This will return all finalized applications in this list provided above to "Under Review".
+                        </p>
+                        <textarea
+                            className="w-full border rounded p-2"
+                            rows="4"
+                            placeholder="Enter revision notes..."
+                            value={returnReason}
+                            onChange={(e) => setReturnReason(e.target.value)}
+                        />
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                onClick={() => setShowReturnModal(false)}
+                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleReturnToYgk}
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                                Confirm Return
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
