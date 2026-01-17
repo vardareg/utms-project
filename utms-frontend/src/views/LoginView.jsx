@@ -50,7 +50,10 @@ export default function LoginView({ onLogin, error, loading, onForgotPassword })
                         />
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex justify-between items-center">
+                        <a href="/register" className="text-sm text-red-900 hover:text-red-700 font-medium">
+                            Create Student Account
+                        </a>
                         <button
                             type="button"
                             onClick={onForgotPassword}
@@ -67,12 +70,6 @@ export default function LoginView({ onLogin, error, loading, onForgotPassword })
                     >
                         {loading ? 'Authenticating...' : <>Login <ChevronRight className="ml-1 w-4 h-4" /></>}
                     </button>
-
-                    <div className="text-center mt-4">
-                        <a href="/register" className="text-red-900 hover:underline text-sm font-medium">
-                            Don't have an account? Create Student Account
-                        </a>
-                    </div>
                 </form>
             </div>
 
