@@ -198,7 +198,9 @@ export default function YGKDashboard({ user }) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">Transfer Commission (YGK)</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                    {user.scopeName ? `Transfer Commission of ${user.scopeName}` : "Transfer Commission (YGK)"}
+                </h2>
                 <div className="flex space-x-2 bg-white rounded shadow p-1">
                     <button
                         onClick={() => setViewMode('list')}
@@ -253,8 +255,8 @@ export default function YGKDashboard({ user }) {
                                                 <td className="px-6 py-4 font-bold">{app.compositeScore}</td>
                                                 <td className="px-6 py-4">
                                                     <span className={`px-2 py-1 rounded text-xs ${app.ygkDecision === 'ELIGIBLE' ? 'bg-green-100 text-green-800' :
-                                                            app.ygkDecision === 'NOT_ELIGIBLE' ? 'bg-red-100 text-red-800' :
-                                                                'bg-gray-100 text-gray-800'
+                                                        app.ygkDecision === 'NOT_ELIGIBLE' ? 'bg-red-100 text-red-800' :
+                                                            'bg-gray-100 text-gray-800'
                                                         }`}>
                                                         {app.ygkDecision || 'PENDING'}
                                                     </span>
