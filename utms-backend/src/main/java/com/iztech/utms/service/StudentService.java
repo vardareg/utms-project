@@ -35,8 +35,7 @@ public class StudentService {
                                                 .user(user)
                                                 .build());
 
-                // Update fields
-                profile.setTckn(request.getTckn());
+                // Update fields (TCKN is not updated as it's set during registration)
                 profile.setCurrentUniversity(request.getCurrentUniversity());
                 profile.setCurrentProgram(request.getCurrentProgram());
                 profile.setOverallGpa(request.getOverallGpa());

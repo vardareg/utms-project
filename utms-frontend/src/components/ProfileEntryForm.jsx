@@ -3,7 +3,6 @@ import { updateMyProfile } from '../services/api';
 
 const ProfileEntryForm = ({ onProfileCreated }) => {
     const [formData, setFormData] = useState({
-        tckn: '',
         currentUniversity: '',
         currentProgram: '',
         overallGpa: '',
@@ -21,9 +20,6 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
     };
 
     const validate = () => {
-        if (!formData.tckn || formData.tckn.length !== 11 || !/^\d+$/.test(formData.tckn)) {
-            return "TCKN must be exactly 11 digits.";
-        }
         const gpa = parseFloat(formData.overallGpa);
         if (isNaN(gpa) || gpa < 0 || gpa > 4) {
             return "GPA must be between 0.00 and 4.00.";
@@ -78,21 +74,6 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="grid grid-cols-1 gap-5">
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">TCKN (Turkish Identity Number)</label>
-                        <input
-                            type="text"
-                            name="tckn"
-                            value={formData.tckn}
-                            onChange={handleChange}
-                            className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="12345678901"
-                            maxLength={11}
-                            required
-                        />
-                        <p className="text-xs text-gray-500 mt-1">Must be exactly 11 digits.</p>
-                    </div>
-
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Current University</label>
                         <input

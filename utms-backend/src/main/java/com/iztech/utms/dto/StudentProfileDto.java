@@ -4,8 +4,6 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,10 +18,8 @@ public class StudentProfileDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Request {
-        @NotBlank(message = "TCKN is required")
-        @Size(min = 11, max = 11, message = "TCKN must be exactly 11 characters")
-        @Pattern(regexp = "^[0-9]+$", message = "TCKN must contain only numbers")
-        private String tckn;
+        // TCKN is set during registration and should not be updated
+        // Kept for backward compatibility but not validated
 
         @NotBlank(message = "Current University is required")
         private String currentUniversity;
