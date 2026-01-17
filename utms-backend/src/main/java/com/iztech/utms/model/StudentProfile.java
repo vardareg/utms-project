@@ -32,12 +32,10 @@ public class StudentProfile {
     @Column(nullable = false, unique = true, length = 11)
     private String tckn;
 
-    @NotBlank
-    @Column(name = "current_university", nullable = false, length = 100)
+    @Column(name = "current_university", length = 100)
     private String currentUniversity;
 
-    @NotBlank
-    @Column(name = "current_program", nullable = false, length = 100)
+    @Column(name = "current_program", length = 100)
     private String currentProgram;
 
     @Builder.Default
@@ -47,6 +45,6 @@ public class StudentProfile {
     // PR-01: Minimum GPA Rule foundation
     @DecimalMin("0.00")
     @DecimalMax("4.00")
-    @Column(name = "overall_gpa", nullable = false, precision = 3, scale = 2)
+    @Column(name = "overall_gpa", precision = 3, scale = 2)
     private BigDecimal overallGpa;
 }
