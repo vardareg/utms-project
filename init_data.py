@@ -232,7 +232,7 @@ def main():
     # Step 1: Login as admin
     print("\n[1/7] Logging in as admin...")
     try:
-        admin_token = login("admin", "password123")
+        admin_token = login("admin", "Password123!")
         print("✓ Admin authenticated")
     except Exception as e:
         print(f"✗ Admin login failed: {e}")
@@ -281,7 +281,7 @@ def main():
     # Step 4: OIDB forwards applications
     print("\n[4/7] OIDB forwarding applications...")
     try:
-        oidb_token = login(OIDB, "password123")
+        oidb_token = login(OIDB, "Password123!")
         forward_count = 0
         for student in STUDENTS:
             # All apps not in 'new' state must have been forwarded
@@ -308,7 +308,7 @@ def main():
     
     for dept_key, dept_info in DEPT_MAP.items():
         try:
-            ygk_token = login(dept_info['ygk'], "password123")
+            ygk_token = login(dept_info['ygk'], "Password123!")
             dept_students = [s for s in STUDENTS if s['dept'] == dept_key]
             
             # 6a. Submit Draft Evaluations
@@ -347,7 +347,7 @@ def main():
     
     for dept_key, dept_info in DEPT_MAP.items():
         try:
-            dean_token = login(dept_info['dean'], "password123")
+            dean_token = login(dept_info['dean'], "Password123!")
             dept_students = [s for s in STUDENTS if s['dept'] == dept_key]
             
             for student in dept_students:
@@ -379,7 +379,7 @@ def main():
     
     print(f"\n🔑 Login credentials:")
     print(f"   • All students: {STUDENT_PASSWORD}")
-    print(f"   • All staff/admins: password123")
+    print(f"   • All staff/admins: Password123!")
     
     print(f"\n✨ Test different workflows by logging in as:")
     print(f"   • OIDB: {OIDB}")
