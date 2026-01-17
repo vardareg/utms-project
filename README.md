@@ -161,25 +161,26 @@ Test students follow the naming pattern: `student[01-50]_[dept]_[status]`
 2. **View Applications**: See all incoming applications with status `NEW`
 3. **Validate Documents**: Download and verify uploaded files
 4. **Actions**:
-   - **Forward**: Send to appropriate faculty → Status: `FORWARDED`
+   - **Forward**: Send to appropriate faculty → Status: `UNDER_REVIEW` (Automatically assigned to YGK)
    - **Return**: Send back to student for corrections → Status: `RETURNED`
 
 ### 3. Dean's Office Staff Flow
 
 1. **Login**: Use `dean_eng` or `dean_arch`
 2. **View Forwarded Applications**: See applications within faculty scope
-3. **Assign to YGK**: Send application for academic evaluation → Status: `UNDER_REVIEW`
-4. **Final Decision** (after YGK evaluation):
+3. **Monitor Progress**: View applications currently under YGK review (Read-Only)
+4. **Final Decision** (after YGK finalizes):
    - **Approve**: Grant transfer → Status: `APPROVED`
-   - Rejection is handled by not approving
+   - Only `FINALIZED` applications can be approved.
 
 ### 4. YGK Member Flow
 
 1. **Login**: Use `ygk_cse`, `ygk_mech`, or `ygk_arch`
 2. **View Assigned Applications**: See department-specific applications
-3. **Evaluate**: Mark as eligible/ineligible with notes → Status: `EVALUATED`
-4. **Generate Ranking**: View auto-calculated rankings based on composite scores
-5. **Export**: Download ranking list as PDF or Excel
+3. **Evaluate**: Mark as eligible/ineligible (Draft Mode) → Status remains `UNDER_REVIEW`
+4. **Generate Ranking**: View auto-calculated rankings for eligible candidates
+5. **Finalize**: Submit all evaluations to Dean → Status: `FINALIZED` or `REJECTED`
+6. **Export**: Download ranking list as PDF or Excel
 
 ### 5. Admin Flow
 

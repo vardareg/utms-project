@@ -47,17 +47,13 @@ Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
 
 - `PATCH /{id}/forward`
   - **Role:** OIDB
-  - **Logic:** Transitions status `NEW` → `FORWARDED`.
+  - **Logic:** Transitions status `NEW` → `UNDER_REVIEW`.
+  - **Automation:** Automatically assigns application to YGK for evaluation (Bypasses manual Dean assignment).
 
 - `PATCH /{id}/return`
   - **Role:** OIDB
   - **Logic:** Transitions status `NEW` → `RETURNED`.
   - **Requires:** Return reason in request body
-
-- `PATCH /{id}/assign-ygk`
-  - **Role:** DEAN_OFFICE_STAFF
-  - **Logic:** Assigns application to YGK for evaluation
-  - **Transitions:** `FORWARDED` → `UNDER_REVIEW`
 
 - `PATCH /{id}/approve`
   - **Role:** DEAN_OFFICE_STAFF
@@ -107,6 +103,12 @@ Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
   - **Role:** YGK
   - **Implements:** UC-YGK-01 (Evaluate Candidate)
   - **Payload:** `isEligible` (boolean), `note` (string)
+  - **Logic:** Saves "Draft" evaluation decision. Does **NOT** change application status.
+
+- `POST /finalize/{deptId}`
+  - **Role:** YGK
+  - **Logic:** Finalizes all draft evaluations for the department.
+  - **Transitions:** `UNDER_REVIEW` → `FINALIZED` (Eligible) or `REJECTED` (Ineligible).
 
 - `GET /ranking/{deptId}`
   - **Role:** YGK, DEAN_OFFICE_STAFF
@@ -175,9 +177,7 @@ Contains the transactional logic and business rules.
 
 - `forwardApplication(id)`
   - **OIDB Action:** Forwards application to faculty/department
-
-- `assignToYgk(id)`
-  - **Dean Action:** Assigns application to YGK for evaluation
+  - **Automated:** Sets status to `UNDER_REVIEW`.
 
 - `approveApplication(id)`
   - **Dean Action:** Final approval after YGK evaluation
@@ -219,8 +219,11 @@ Contains the transactional logic and business rules.
 **Key Methods:**
 
 - `submitEvaluation(username, appId, isEligible, note)`
-  - **Logic:** Records YGK member's decision. If ineligible, auto-rejects application.
+  - **Logic:** Records YGK member's draft decision. Does not change application status.
   - **Scope Validation:** Ensures YGK member can only evaluate their department's applications
+
+- `finalizeEvaluations(deptId)`
+  - **Logic:** Applies draft decisions to applications. Transitions eligible applications to `FINALIZED`.
 
 - `generateRanking(deptId)`
   - **PR-10:** Fetches all evaluated apps, sorts by Composite Score (Descending).
