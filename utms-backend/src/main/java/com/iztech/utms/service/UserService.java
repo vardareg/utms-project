@@ -57,6 +57,10 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
+        System.err.println("DEBUG: createUser saved user " + savedUser.getUsername() + " with ID " + savedUser.getId());
+        System.err.println("DEBUG: Request Role: " + request.getRole());
+        System.err.println("DEBUG: Request TCKN: " + request.getTckn());
+
         // Handle Administrative Profile Creation (Strict Scope Enforcement)
         if (request.getRole() == User.Role.ROLE_DEAN_OFFICE_STAFF) {
             if (request.getFacultyId() == null) {
@@ -96,10 +100,12 @@ public class UserService {
                     throw new RuntimeException("Validation Error: TCKN already registered.");
                 }
 
-                // Create Student Profile immediately
+                // Create Student Profile
                 com.iztech.utms.model.StudentProfile profile = new com.iztech.utms.model.StudentProfile();
                 profile.setUser(savedUser);
                 profile.setTckn(request.getTckn());
+
+                // Save the profile directly (StudentProfile owns the relationship via @MapsId)
                 studentProfileRepository.save(profile);
             }
         }

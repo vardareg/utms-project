@@ -60,6 +60,9 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private StudentProfile studentProfile;
+
     // Enum matching requirements
     public enum Role {
         ROLE_STUDENT, ROLE_OIDB, ROLE_DEAN_OFFICE_STAFF, ROLE_YGK, ROLE_ADMIN
