@@ -39,6 +39,10 @@ utms-frontend/node_modules/
 utms-frontend/dist/
 utms-frontend/coverage/
 
+# Distribution artifacts
+*.tar.gz
+utms-project-*/
+
 # Logs
 *.log
 
