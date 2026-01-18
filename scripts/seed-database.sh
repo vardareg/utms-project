@@ -45,7 +45,7 @@ BEGIN
           '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
           'ROLE_OIDB', 'STAFF', 'OIDB', 'Officer', true);
 
-        -- Create YGK User (password: Password123!)
+        -- Create YGK Users (password: Password123!)
         INSERT INTO users (username, email, password_hash, role, user_type, first_name, last_name, enabled) 
         VALUES ('ygk_cse', 'ygk.cse@iztech.edu.tr',
           '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
@@ -54,7 +54,23 @@ BEGIN
         INSERT INTO administrative_profiles (user_id, department_id) 
         VALUES ((SELECT id FROM users WHERE username = 'ygk_cse'), 1);
 
-        -- Create Dean User (password: Password123!)
+        INSERT INTO users (username, email, password_hash, role, user_type, first_name, last_name, enabled) 
+        VALUES ('ygk_mech', 'ygk.mech@iztech.edu.tr',
+          '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
+          'ROLE_YGK', 'FACULTY', 'YGK', 'Mechanical', true);
+
+        INSERT INTO administrative_profiles (user_id, department_id) 
+        VALUES ((SELECT id FROM users WHERE username = 'ygk_mech'), 2);
+
+        INSERT INTO users (username, email, password_hash, role, user_type, first_name, last_name, enabled) 
+        VALUES ('ygk_arch', 'ygk.arch@iztech.edu.tr',
+          '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
+          'ROLE_YGK', 'FACULTY', 'YGK', 'Architecture', true);
+
+        INSERT INTO administrative_profiles (user_id, department_id) 
+        VALUES ((SELECT id FROM users WHERE username = 'ygk_arch'), 3);
+
+        -- Create Dean Users (password: Password123!)
         INSERT INTO users (username, email, password_hash, role, user_type, first_name, last_name, enabled) 
         VALUES ('dean_eng', 'dean.eng@iztech.edu.tr',
           '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
@@ -62,6 +78,14 @@ BEGIN
 
         INSERT INTO administrative_profiles (user_id, faculty_id) 
         VALUES ((SELECT id FROM users WHERE username = 'dean_eng'), 1);
+
+        INSERT INTO users (username, email, password_hash, role, user_type, first_name, last_name, enabled) 
+        VALUES ('dean_arch', 'dean.arch@iztech.edu.tr',
+          '$2a$10$GYahuALPg96iRTIujctHsunmIAgAb83uV/x5BHqoDNJSqryt9.Kb.',
+          'ROLE_DEAN_OFFICE_STAFF', 'FACULTY', 'Dean', 'Architecture', true);
+
+        INSERT INTO administrative_profiles (user_id, faculty_id) 
+        VALUES ((SELECT id FROM users WHERE username = 'dean_arch'), 2);
 
         RAISE NOTICE '✅ Database seeded successfully!';
     END IF;
@@ -75,7 +99,10 @@ echo ""
 echo "✅ Database seed complete!"
 echo ""
 echo "Default user accounts (password: Password123!):"
-echo "  👤 admin    - System Administrator"
-echo "  👤 oidb     - Student Affairs Officer"
-echo "  👤 ygk_cse  - Transfer Commission (Computer Engineering)"
-echo "  👤 dean_eng - Dean of Engineering"
+echo "  👤 admin     - System Administrator"
+echo "  👤 oidb      - Student Affairs Officer"
+echo "  👤 ygk_cse   - Transfer Commission (Computer Engineering)"
+echo "  👤 ygk_mech  - Transfer Commission (Mechanical Engineering)"
+echo "  👤 ygk_arch  - Transfer Commission (Architecture)"
+echo "  👤 dean_eng  - Dean of Engineering"
+echo "  👤 dean_arch - Dean of Architecture"
