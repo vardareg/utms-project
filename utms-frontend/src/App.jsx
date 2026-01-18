@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { apiFetch, API_URL, MOCK_AUTH } from './services/api';
 
-// Views
+// Components
+import ProtectedRoute from './components/ProtectedRoute';
+
 // Views
 import LoginView from './views/LoginView';
 import StudentDashboard from './views/StudentDashboard';
@@ -12,37 +15,92 @@ import DeanDashboard from './views/DeanDashboard';
 import AuditLogsPage from './views/AuditLogsPage';
 import ForgotPasswordPage from './views/ForgotPasswordPage';
 import ResetPasswordPage from './views/ResetPasswordPage';
-import AdminRulesPage from './views/AdminRulesPage';
 import AdminDashboard from './views/AdminDashboard';
 import RegisterPage from './pages/RegisterPage';
 
 // ==========================================
-// MAIN COMPONENT (App)
+// LAYOUT WRAPPER (with header/footer)
 // ==========================================
-export default function App() {
-    const [user, setUser] = useState(null);
-    const [currentView, setCurrentView] = useState('login');
+function AppLayout({ children }) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const user = JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    const handleLogout = () => {
+        localStorage.removeItem('utms_user');
+        navigate('/login');
+    };
+
+    const navigateToAuditLogs = () => {
+        navigate('/audit-logs');
+    };
+
+    // Don't show header/footer on public pages
+    const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password'];
+    const isPublicPage = publicPaths.includes(location.pathname);
+
+    return (
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
+            {!isPublicPage && (
+                <header className="bg-red-900 text-white shadow-md">
+                    <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                                <span className="text-red-900 font-bold text-xs">IZ</span>
+                            </div>
+                            <div>
+                                <h1 className="text-lg font-bold leading-none">IZTECH</h1>
+                                <p className="text-xs text-red-200">Undergraduate Transfer Management System</p>
+                            </div>
+                        </div>
+                        {user && (
+                            <div className="flex items-center space-x-4">
+                                <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
+                                {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF' || user.role === 'ROLE_YGK') && (
+                                    <button
+                                        onClick={navigateToAuditLogs}
+                                        className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"
+                                    >
+                                        Audit Logs
+                                    </button>
+                                )}
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center space-x-1 bg-red-800 hover:bg-red-700 px-3 py-1 rounded text-sm transition"
+                                >
+                                    <LogOut size={16} /><span>Logout</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </header>
+            )}
+            <main className={isPublicPage ? "" : "container mx-auto px-4 py-8"}>{children}</main>
+            {!isPublicPage && (
+                <footer className="bg-gray-200 text-center py-4 text-xs text-gray-500 mt-auto">
+                    &copy; 2026 IZTECH Computer Engineering - Team 3. All Rights Reserved.
+                </footer>
+            )}
+        </div>
+    );
+}
+
+// ==========================================
+// LOGIN PAGE WITH REDIRECT LOGIC
+// ==========================================
+function LoginPage() {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Check if already logged in
     useEffect(() => {
-        // Check URL for register page
-        if (window.location.pathname === '/register') {
-            setCurrentView('register');
-            return;
-        }
-
-        // Check URL for reset password token
-        if (window.location.pathname === '/reset-password' || window.location.search.includes('token=')) {
-            setCurrentView('reset-password');
-            return;
-        }
-
         const savedUser = localStorage.getItem('utms_user');
         if (savedUser) {
-            const parsedUser = JSON.parse(savedUser);
-            setUser(parsedUser);
-            routeUser(parsedUser.role);
+            const user = JSON.parse(savedUser);
+            routeUserToDashboard(user.role);
         }
     }, []);
 
@@ -76,8 +134,10 @@ export default function App() {
                 scopeName: data.scopeName
             };
             localStorage.setItem('utms_user', JSON.stringify(userData));
-            setUser(userData);
-            routeUser(userData.role);
+
+            // Redirect to intended page or dashboard
+            const from = location.state?.from || routeUserToDashboard(userData.role);
+            navigate(from);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -85,131 +145,135 @@ export default function App() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('utms_user');
-        setUser(null);
-        setCurrentView('login');
-        // Clear URL if on reset page
-        if (window.location.pathname === '/reset-password') {
-            window.history.pushState({}, '', '/');
-        }
-    };
-
-    const navigateToAuditLogs = () => {
-        setCurrentView('audit-logs');
-    };
-
-    const navigateToAdminRules = () => {
-        setCurrentView('admin-rules');
-    };
-
-    const navigateToDashboard = () => {
-        if (!user) {
-            setCurrentView('login');
-            return;
-        }
-        switch (user.role) {
-            case 'ROLE_STUDENT': setCurrentView('student-dashboard'); break;
-            case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
-            case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
-            case 'ROLE_DEAN_OFFICE_STAFF': setCurrentView('dean-dashboard'); break;
-            case 'ROLE_ADMIN': setCurrentView('admin-dashboard'); break;
-            default: setCurrentView('login');
-        }
-    };
-
-    const routeUser = (role) => {
+    const routeUserToDashboard = (role) => {
         switch (role) {
-            case 'ROLE_STUDENT': setCurrentView('student-dashboard'); break;
-            case 'ROLE_OIDB': setCurrentView('oidb-dashboard'); break;
-            case 'ROLE_DEAN_OFFICE_STAFF': setCurrentView('dean-dashboard'); break;
-            case 'ROLE_YGK': setCurrentView('ygk-dashboard'); break;
-            case 'ROLE_ADMIN': setCurrentView('admin-dashboard'); break;
-            default: setCurrentView('login');
-        }
-    };
-
-    const renderView = () => {
-        // Public pages
-        if (currentView === 'register') {
-            return <RegisterPage onBack={() => setCurrentView('login')} />;
-        }
-        if (currentView === 'forgot-password') {
-            return <ForgotPasswordPage onBack={() => setCurrentView('login')} />;
-        }
-        if (currentView === 'reset-password') {
-            return <ResetPasswordPage onSuccess={() => {
-                setCurrentView('login');
-                window.history.pushState({}, '', '/');
-            }} />;
-        }
-
-        // If not logged in, force login view
-        if (!user) return <LoginView
-            onLogin={handleLogin}
-            error={error}
-            loading={loading}
-            onForgotPassword={() => setCurrentView('forgot-password')}
-        />;
-
-        switch (currentView) {
-            case 'login': return <LoginView
-                onLogin={handleLogin}
-                error={error}
-                loading={loading}
-                onForgotPassword={() => setCurrentView('forgot-password')}
-            />;
-            case 'student-dashboard': return <StudentDashboard user={user} />;
-            case 'oidb-dashboard': return <OIDBDashboard user={user} />;
-            case 'ygk-dashboard': return <YGKDashboard user={user} />;
-            case 'dean-dashboard': return <DeanDashboard user={user} />;
-            case 'admin-dashboard': return <AdminDashboard user={user} onLogout={handleLogout} />;
-            // case 'admin-rules': Removed in favor of unified dashboard
-
-            case 'audit-logs': return <AuditLogsPage onBack={navigateToDashboard} />;
-            default: return <LoginView onLogin={handleLogin} error={error} loading={loading} onForgotPassword={() => setCurrentView('forgot-password')} />;
+            case 'ROLE_STUDENT': return '/student';
+            case 'ROLE_OIDB': return '/oidb';
+            case 'ROLE_DEAN_OFFICE_STAFF': return '/dean';
+            case 'ROLE_YGK': return '/ygk';
+            case 'ROLE_ADMIN': return '/admin';
+            default: return '/login';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-            <header className="bg-red-900 text-white shadow-md">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                            <span className="text-red-900 font-bold text-xs">IZ</span>
-                        </div>
-                        <div>
-                            <h1 className="text-lg font-bold leading-none">IZTECH</h1>
-                            <p className="text-xs text-red-200">Undergraduate Transfer Management System</p>
-                        </div>
-                    </div>
-                    {user && (
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
-                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF' || user.role === 'ROLE_YGK') && (
-                                <button
-                                    onClick={navigateToAuditLogs}
-                                    className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"
-                                >
-                                    Audit Logs
-                                </button>
-                            )}
+        <LoginView
+            onLogin={handleLogin}
+            error={error}
+            loading={loading}
+            onForgotPassword={() => navigate('/forgot-password')}
+        />
+    );
+}
 
-                            <button
-                                onClick={handleLogout}
-                                className="flex items-center space-x-1 bg-red-800 hover:bg-red-700 px-3 py-1 rounded text-sm transition"
-                            >
-                                <LogOut size={16} /><span>Logout</span>
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </header>
-            <main className="container mx-auto px-4 py-8">{renderView()}</main>
-            <footer className="bg-gray-200 text-center py-4 text-xs text-gray-500 mt-auto">
-                &copy; 2026 IZTECH Computer Engineering - Team 3. All Rights Reserved.
-            </footer>
-        </div>
+// ==========================================
+// ROOT REDIRECT COMPONENT
+// ==========================================
+function RootRedirect() {
+    const user = JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Route to appropriate dashboard based on role
+    switch (user.role) {
+        case 'ROLE_STUDENT': return <Navigate to="/student" replace />;
+        case 'ROLE_OIDB': return <Navigate to="/oidb" replace />;
+        case 'ROLE_DEAN_OFFICE_STAFF': return <Navigate to="/dean" replace />;
+        case 'ROLE_YGK': return <Navigate to="/ygk" replace />;
+        case 'ROLE_ADMIN': return <Navigate to="/admin" replace />;
+        default: return <Navigate to="/login" replace />;
+    }
+}
+
+// ==========================================
+// MAIN COMPONENT (App)
+// ==========================================
+export default function App() {
+    return (
+        <BrowserRouter>
+            <AppLayout>
+                <Routes>
+                    {/* Root redirect */}
+                    <Route path="/" element={<RootRedirect />} />
+
+                    {/* Public routes */}
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage onBack={() => window.location.href = '/login'} />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage onBack={() => window.location.href = '/login'} />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage onSuccess={() => window.location.href = '/login'} />} />
+
+                    {/* Protected routes - Student */}
+                    <Route
+                        path="/student"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_STUDENT']}>
+                                <StudentDashboard user={JSON.parse(localStorage.getItem('utms_user'))} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes - OIDB */}
+                    <Route
+                        path="/oidb"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_OIDB']}>
+                                <OIDBDashboard user={JSON.parse(localStorage.getItem('utms_user'))} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes - YGK */}
+                    <Route
+                        path="/ygk"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_YGK']}>
+                                <YGKDashboard user={JSON.parse(localStorage.getItem('utms_user'))} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes - Dean */}
+                    <Route
+                        path="/dean"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_DEAN_OFFICE_STAFF']}>
+                                <DeanDashboard user={JSON.parse(localStorage.getItem('utms_user'))} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes - Admin */}
+                    <Route
+                        path="/admin"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_ADMIN']}>
+                                <AdminDashboard
+                                    user={JSON.parse(localStorage.getItem('utms_user'))}
+                                    onLogout={() => {
+                                        localStorage.removeItem('utms_user');
+                                        window.location.href = '/login';
+                                    }}
+                                />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes - Audit Logs (multiple roles) */}
+                    <Route
+                        path="/audit-logs"
+                        element={
+                            <ProtectedRoute allowedRoles={['ROLE_OIDB', 'ROLE_YGK', 'ROLE_DEAN_OFFICE_STAFF']}>
+                                <AuditLogsPage onBack={() => window.history.back()} />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Catch-all redirect to root */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+            </AppLayout>
+        </BrowserRouter>
     );
 }

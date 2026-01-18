@@ -8,7 +8,48 @@
 
 The Undergraduate Transfer Management System (UTMS) is a monolithic Spring Boot application designed to automate the transfer workflow. This document details the implementation of the Business Logic Layer and REST API endpoints, mapping them to the Software Requirements Specification (SRS).
 
-## 2. Package: com.iztech.utms.controller (Presentation Layer)
+## 2. Frontend Architecture
+
+**Framework:** React 18 with Vite  
+**Routing:** React Router v6  
+**State Management:** Local Storage + Component State
+
+### URL Structure
+
+The frontend implements URL-based routing with role-based protection:
+
+**Public Routes:**
+
+- `/` → Root redirect (to login or dashboard)
+- `/login` → Authentication page
+- `/register` → Student registration
+- `/forgot-password` → Password reset request
+- `/reset-password` → Password reset form (with token parameter)
+
+**Protected Routes:**
+
+- `/student` → Student Dashboard (`ROLE_STUDENT`)
+- `/oidb` → OIDB Dashboard (`ROLE_OIDB`)
+- `/ygk` → YGK Dashboard (`ROLE_YGK`)
+- `/dean` → Dean Dashboard (`ROLE_DEAN_OFFICE_STAFF`)
+- `/admin` → Admin Dashboard (`ROLE_ADMIN`)
+- `/audit-logs` → Audit Logs (`ROLE_OIDB`, `ROLE_YGK`, `ROLE_DEAN_OFFICE_STAFF`)
+
+**Route Protection:**
+
+- Unauthenticated users are redirected to `/login`
+- Users with incorrect roles see "Unauthorized Access" message
+- Authentication state is managed via `localStorage` (`utms_user` key)
+- JWT tokens are included in API requests via Authorization header
+
+**Navigation Features:**
+
+- Browser back/forward buttons work correctly
+- Page refreshes maintain current location
+- Deep linking supported (bookmarkable URLs)
+- Automatic role-based dashboard routing after login
+
+## 3. Package: com.iztech.utms.controller (Presentation Layer)
 
 Handles HTTP requests, JSON serialization, and Role-Based Access Control (RBAC).
 

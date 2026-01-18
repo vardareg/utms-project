@@ -89,11 +89,14 @@ bash scripts/start-backend.sh
 
 ### Step 3: Frontend Configuration
 
-The frontend is a **Vite + React** app styled with Vanilla CSS.
+The frontend is a **Vite + React** app styled with Vanilla CSS with **React Router** for URL-based navigation.
 
 - Dynamic faculty and department dropdowns
 - Color-coded role badges
 - Real-time status tracking
+- URL-based routing with role protection
+- Browser navigation support (back/forward buttons)
+- Deep linking to specific pages
 
 ## 5. Running the Application
 
@@ -134,6 +137,35 @@ The frontend is a **Vite + React** app styled with Vanilla CSS.
    ```
 
    Client will start on `http://localhost:5173`.
+
+### Frontend Navigation
+
+The application uses **React Router** for URL-based navigation. Each page has a unique URL:
+
+**Public Routes:**
+
+- `http://localhost:5173/` → Auto-redirects to login or dashboard (based on authentication)
+- `http://localhost:5173/login` → Student application (PDF file uploads)
+- `http://localhost:5173/register` → Student registration
+- `http://localhost:5173/forgot-password` → Password reset request
+- `http://localhost:5173/reset-password?token=xxx` → Password reset form
+
+**Protected Routes (require authentication):**
+
+- `http://localhost:5173/student` → Student Dashboard (ROLE_STUDENT only)
+- `http://localhost:5173/oidb` → OIDB Dashboard (ROLE_OIDB only)
+- `http://localhost:5173/ygk` → YGK Dashboard (ROLE_YGK only)
+- `http://localhost:5173/dean` → Dean Dashboard (ROLE_DEAN_OFFICE_STAFF only)
+- `http://localhost:5173/admin` → Admin Dashboard (ROLE_ADMIN only)
+- `http://localhost:5173/audit-logs` → Audit Logs (OIDB, YGK, DEAN_OFFICE_STAFF)
+
+**Features:**
+
+- ✅ **Browser Navigation**: Back/Forward buttons work correctly
+- ✅ **Deep Linking**: Bookmark or share direct links to pages
+- ✅ **Refresh Resilience**: Page refreshes maintain current location
+- ✅ **Role Protection**: Unauthorized access redirects to login or shows error
+- ✅ **Auto-Routing**: Login automatically redirects to role-appropriate dashboard
 
 ### Docker Deployment (Production)
 
