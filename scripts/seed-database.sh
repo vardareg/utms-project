@@ -14,6 +14,23 @@ fi
 
 echo "Creating faculties, departments, and default users..."
 
+# Wait for schema to be created by backend
+max_attempts=30
+attempt=1
+while [ $attempt -le $max_attempts ]; do
+    if docker exec -i utms-postgres psql -U utms_user -d utmsdb -tAc "SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='users';" | grep -q 1; then
+        break
+    fi
+    echo "⏳ Waiting for database schema (users table)... ($attempt/$max_attempts)"
+    sleep 2
+    attempt=$((attempt + 1))
+done
+
+if [ $attempt -gt $max_attempts ]; then
+    echo "❌ Error: Database schema not ready. Ensure backend has finished migrations."
+    exit 1
+fi
+
 # Execute SQL commands
 docker exec -i utms-postgres psql -U utms_user -d utmsdb << 'EOF'
 -- Check if data already exists
