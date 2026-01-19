@@ -4,7 +4,15 @@ import { apiFetch, API_URL } from '../services/api';
 import AdminAnnouncementPanel from '../components/AdminAnnouncementPanel';
 import PublishResultsPanel from '../components/PublishResultsPanel';
 
-export default function OIDBDashboard({ user }) {
+export default function OIDBDashboard({ user: userProp }) {
+    // Safety: user prop can be null after re-renders, so read from localStorage as fallback
+    const user = userProp || JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        window.location.href = '/login';
+        return null;
+    }
+
     const [applications, setApplications] = useState([]);
     const [selectedApp, setSelectedApp] = useState(null);
     const [loading, setLoading] = useState(false);

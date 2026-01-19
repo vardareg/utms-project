@@ -8,7 +8,15 @@ import SystemHealthPanel from './SystemHealthPanel';
 import { Settings, Megaphone, Users, Plus, Activity, Server } from 'lucide-react';
 import { getAllUsers, createUser, updateUser, deleteUser, getAuditLogs } from '../services/api';
 
-export default function AdminDashboard({ user }) {
+export default function AdminDashboard({ user: userProp }) {
+    // Safety: user prop can be null after re-renders, so read from localStorage as fallback
+    const user = userProp || JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        window.location.href = '/login';
+        return null;
+    }
+
     const [activeTab, setActiveTab] = useState('rules');
     const [users, setUsers] = useState([]);
     const [auditLogs, setAuditLogs] = useState([]);

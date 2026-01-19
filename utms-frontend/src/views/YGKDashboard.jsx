@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ClipboardCheck, ListOrdered, FileText, Download, CheckCircle, X } from 'lucide-react';
 import { apiFetch, API_URL } from '../services/api';
 
-export default function YGKDashboard({ user }) {
+export default function YGKDashboard({ user: userProp }) {
+    // Safety: user prop can be null after re-renders, so read from localStorage as fallback
+    const user = userProp || JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        window.location.href = '/login';
+        return null;
+    }
+
     const [viewMode, setViewMode] = useState('list'); // 'list', 'ranking'
     const [applications, setApplications] = useState([]);
     const [rankingData, setRankingData] = useState(null);

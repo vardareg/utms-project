@@ -209,7 +209,10 @@ export default function App() {
                         path="/student"
                         element={
                             <ProtectedRoute allowedRoles={['ROLE_STUDENT']}>
-                                <StudentDashboard user={JSON.parse(localStorage.getItem('utms_user'))} />
+                                <StudentDashboard
+                                    key={JSON.parse(localStorage.getItem('utms_user') || '{}').username || 'student'}
+                                    user={JSON.parse(localStorage.getItem('utms_user'))}
+                                />
                             </ProtectedRoute>
                         }
                     />

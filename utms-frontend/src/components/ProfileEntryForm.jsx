@@ -74,13 +74,14 @@ const ProfileEntryForm = ({ onProfileCreated }) => {
             const data = { ...formData, overallGpa: gpa };
 
             await updateMyProfile(data);
-            if (onProfileCreated) onProfileCreated();
+            // Wait for parent to reload profile before unmounting
+            if (onProfileCreated) await onProfileCreated();
         } catch (err) {
             console.error(err);
             setError(err.message || "Failed to save profile. Please try again.");
-        } finally {
-            setLoading(false);
+            setLoading(false); // Only set false on error
         }
+        // Don't set loading to false here - let parent component handle the transition
     };
 
     return (

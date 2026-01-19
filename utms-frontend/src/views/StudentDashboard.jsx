@@ -5,7 +5,16 @@ import { apiFetch, API_URL, getAuthHeader, getMyProfile } from '../services/api'
 import NewsFeed from '../components/NewsFeed';
 import ProfileEntryForm from '../components/ProfileEntryForm';
 
-export default function StudentDashboard({ user }) {
+export default function StudentDashboard({ user: userProp }) {
+    // Safety: user prop can be null after re-renders, so read from localStorage as fallback
+    const user = userProp || JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        // If still no user, redirect to login
+        window.location.href = '/login';
+        return null;
+    }
+
     const [formData, setFormData] = useState({
         targetDepartmentId: 1, // Default to Computer Engineering (MVP)
         yksScore: '',

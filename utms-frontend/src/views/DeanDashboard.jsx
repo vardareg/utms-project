@@ -2,7 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle, Clock, FileText, Download } from 'lucide-react';
 import { apiFetch, API_URL } from '../services/api';
 
-export default function DeanDashboard({ user }) {
+export default function DeanDashboard({ user: userProp }) {
+    // Safety: user prop can be null after re-renders, so read from localStorage as fallback
+    const user = userProp || JSON.parse(localStorage.getItem('utms_user') || 'null');
+
+    if (!user) {
+        window.location.href = '/login';
+        return null;
+    }
+
     const [reviewApps, setReviewApps] = useState([]);
     const [monitoringApps, setMonitoringApps] = useState([]); // New state for monitoring
     const [loading, setLoading] = useState(false);
