@@ -1,7 +1,7 @@
 # UTMS - Distribution Guide
 
 **Undergraduate Transfer Management System**  
-Version 1.0 | January 2026
+Version 1.1.0 | January 2026
 
 ---
 
@@ -43,7 +43,7 @@ npm --version
 
 ```bash
 # Extract the archive
-tar -xzf utms-project-v1.0.tar.gz
+tar -xzf utms-project-v1.1.0.tar.gz
 cd utms-project
 ```
 
@@ -91,7 +91,8 @@ All users have the password: **`Password123!`**
 
 You can also test as a student:
 
-- Username: `student_1` to `student_50` (password: `Password123!`)
+- Username: `student01_cse_new` to `student50_arch_rejected` (password: `Student123!`)
+- **Format:** `student[01-50]_[dept]_[status]`
 - These have pre-populated applications in various stages
 
 ---
