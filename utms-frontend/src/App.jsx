@@ -40,48 +40,44 @@ function AppLayout({ children }) {
     const isPublicPage = publicPaths.includes(location.pathname);
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-            {!isPublicPage && (
-                <header className="bg-red-900 text-white shadow-md">
-                    <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-                                <span className="text-red-900 font-bold text-xs">IZ</span>
-                            </div>
-                            <div>
-                                <h1 className="text-lg font-bold leading-none">IZTECH</h1>
-                                <p className="text-xs text-red-200">Undergraduate Transfer Management System</p>
-                            </div>
+        <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
+            <header className="bg-red-900 text-white shadow-md">
+                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                            <span className="text-red-900 font-bold text-xs">IZ</span>
                         </div>
-                        {user && (
-                            <div className="flex items-center space-x-4">
-                                <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
-                                {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF' || user.role === 'ROLE_YGK') && (
-                                    <button
-                                        onClick={navigateToAuditLogs}
-                                        className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"
-                                    >
-                                        Audit Logs
-                                    </button>
-                                )}
-
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex items-center space-x-1 bg-red-800 hover:bg-red-700 px-3 py-1 rounded text-sm transition"
-                                >
-                                    <LogOut size={16} /><span>Logout</span>
-                                </button>
-                            </div>
-                        )}
+                        <div>
+                            <h1 className="text-lg font-bold leading-none">IZTECH</h1>
+                            <p className="text-xs text-red-200">Undergraduate Transfer Management System</p>
+                        </div>
                     </div>
-                </header>
-            )}
-            <main className={isPublicPage ? "" : "container mx-auto px-4 py-8"}>{children}</main>
-            {!isPublicPage && (
-                <footer className="bg-gray-200 text-center py-4 text-xs text-gray-500 mt-auto">
-                    &copy; 2026 IZTECH Computer Engineering - Team 3. All Rights Reserved.
-                </footer>
-            )}
+                    {user && (
+                        <div className="flex items-center space-x-4">
+                            <span className="text-sm hidden md:inline">Welcome, {user.username}</span>
+                            {(user.role === 'ROLE_OIDB' || user.role === 'ROLE_DEAN_OFFICE_STAFF' || user.role === 'ROLE_YGK') && (
+                                <button
+                                    onClick={navigateToAuditLogs}
+                                    className="bg-blue-800 hover:bg-blue-700 px-3 py-1 rounded text-sm transition"
+                                >
+                                    Audit Logs
+                                </button>
+                            )}
+
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center space-x-1 bg-red-800 hover:bg-red-700 px-3 py-1 rounded text-sm transition"
+                            >
+                                <LogOut size={16} /><span>Logout</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </header>
+            <main className={`flex-grow ${isPublicPage ? "" : "container mx-auto px-4 py-8"}`}>{children}</main>
+            <footer className="bg-gray-200 text-center py-4 text-xs text-gray-500 mt-auto">
+                &copy; 2026 IZTECH Computer Engineering - Team 3. All Rights Reserved.
+            </footer>
         </div>
     );
 }
